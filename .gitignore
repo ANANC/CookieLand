@@ -1,0 +1,9 @@
+*.sln
+.vs
+.vsconfig
+Binaries
+DerivedDataChe
+Intermediate
+Saved
+.idea
+Content/polygonprototype
