@@ -43,6 +43,14 @@ TSharedRef< FSlateStyleSet > FLandEditorToolStyle::Create()
 
 	Style->Set("LandEditorTool.OpenPluginWindow", new IMAGE_BRUSH_SVG(TEXT("PlaceholderButtonIcon"), Icon20x20));
 
+	// Icons
+	Style->Set("Icons.advanced", new IMAGE_BRUSH_SVG("Advanced", Icon16x16));
+	Style->Set("Icons.arrow-down", new IMAGE_BRUSH_SVG("arrow-down", Icon16x16));
+	Style->Set("Icons.arrow-up", new IMAGE_BRUSH_SVG("arrow-up", Icon16x16));
+	Style->Set("Icons.bullet-point", new IMAGE_BRUSH_SVG("bullet-point", Icon16x16));
+	Style->Set("Icons.redo", new IMAGE_BRUSH_SVG("Redo", Icon16x16));
+	Style->Set("Icons.animation", new IMAGE_BRUSH_SVG("Animation", Icon16x16));
+	
 	return Style;
 }
 

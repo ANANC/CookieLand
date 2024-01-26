@@ -22,8 +22,9 @@ protected:
 	TSharedPtr<SVerticalBox> RootWidget;
 	
 	TSharedPtr<SVerticalBox> SelectPieceWidget;
-	TSharedPtr<SVerticalBox> FloorWidget;
-	
+	TSharedPtr<SVerticalBox> BottomWidget;
+	TSharedPtr<SVerticalBox> Bottom_FloorWidget;
+	TSharedPtr<SVerticalBox> Bottom_SliderWidget;
 	
 	ILandEditorParentWidgetInterface* ParentWidget;
 	
@@ -32,6 +33,9 @@ protected:
 
 	UPROPERTY()
 	class ULandEditorCheckerboardWidget* CheckerboardWidget;
+
+	bool IsAutoCreate{true};
+
 public:
 	virtual void SetParentWidget(ILandEditorParentWidgetInterface* widget) override{ParentWidget = widget;}
 	virtual void SetGlobalWidgetInfo(class ULandEditorWidgetInfo* widgetInfo) override;
@@ -50,7 +54,17 @@ private:
 
 	void DrawSelectPiece();
 
-	void CreatePiece(FPieceLocation location);
+	void DrawEmptyPiece();
 
+	void DrawValidPiece(class UPieceBaseConfigData* piece);
+
+	void CreatePiece(FPieceLocation location);
+	
+	void DeletePiece(FPieceLocation location);
+	
+	void DrawBottom();
+	
 	void DrawFloor();
+
+	void DrawSlider();
 };

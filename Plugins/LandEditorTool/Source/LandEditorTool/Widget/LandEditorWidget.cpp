@@ -24,9 +24,12 @@ TSharedRef<SDockTab> ULandEditorWidget::GetWidget()
 	
 	RegisterChildWidgets();
 	
+	FVector2D size(1550.f, 770.f);
+	
 	TSharedRef<FTabManager::FLayout> layout = CreateLayout();
 	contentTab->SetContent(
 		SNew(SBorder)
+		.DesiredSizeScale(size)
 		[
 			TabManager->RestoreFrom(layout, nullptr).ToSharedRef()
 		]
@@ -58,7 +61,7 @@ void ULandEditorWidget::CreateChildWidgets()
 void ULandEditorWidget::RegisterChildWidgets()
 {
 	RegisterTrackedTabSpawner(Cast<ILandEditorChildWidgetInterface>(DataAssetWidget),200);
-	RegisterTrackedTabSpawner(Cast<ILandEditorChildWidgetInterface>(PieceWidget),600);
+	RegisterTrackedTabSpawner(Cast<ILandEditorChildWidgetInterface>(PieceWidget),1000);
 }
 
 
@@ -244,10 +247,28 @@ class UPieceBaseConfigData* ULandEditorWidgetInfo::GetPieceConfigDataByLocation(
 
 	for(int index = 0;index<DataAssetInstance->Pieces.Num();++index)
 	{
-		UPieceBaseConfigData* piece = DataAssetInstance->Pieces[index];
-		if(DataAssetInstance->Pieces[index]->BaseInfo->Location == location)
+		TObjectPtr<UPieceBaseConfigData> piece = DataAssetInstance->Pieces[index];
+		if(piece->BaseInfo->Location == location)
 		{
-			return piece;
+			return piece.Get();
+		}
+	}
+	return nullptr;
+}
+
+class UPieceBaseConfigData* ULandEditorWidgetInfo::GetPieceConfigDataById(int id)
+{
+	if(!DataAssetInstance)
+	{
+		return nullptr;
+	}
+
+	for(int index = 0;index<DataAssetInstance->Pieces.Num();++index)
+	{
+		TObjectPtr<UPieceBaseConfigData> piece = DataAssetInstance->Pieces[index];
+		if(piece->Id == id)
+		{
+			return piece.Get();
 		}
 	}
 	return nullptr;
@@ -283,4 +304,42 @@ bool ULandEditorWidgetInfo::GetEnableMove(class UPieceBaseConfigData* piece,EPie
 	}
 
 	return false;
+}
+
+void ULandEditorWidgetInfo::DeleteAllPieceByFloor(int floor)
+{
+	int total = DataAssetInstance->Pieces.Num();
+	for(int index = 0,id = 0;index<total;++index)
+	{
+		TObjectPtr<UPieceBaseConfigData> piece = DataAssetInstance->Pieces[id];
+		if(piece == nullptr || piece->BaseInfo->Location.Floor == floor)
+		{
+			DataAssetInstance->Pieces.RemoveAt(id);
+			continue;
+		}
+		id+=1;
+	}
+}
+
+void ULandEditorWidgetInfo::CheckAndUpdateMoveDirection(class UPieceBaseConfigData* piece)
+{
+	if(DataAssetInstance->InitialPieceId == piece->Id)
+	{
+		piece->BaseInfo->EnableDirections.Remove(EPieceDirection::Up);
+		piece->BaseInfo->EnableDirections.Remove(EPieceDirection::Down);
+	}
+	else if(DataAssetInstance->FinishPieceId == piece->Id)
+	{
+		piece->BaseInfo->EnableDirections.Empty();
+	}
+	else if(GetEnableMove(piece,EPieceDirection::Up))
+	{
+		piece->BaseInfo->EnableDirections.Empty();
+		piece->BaseInfo->EnableDirections.Add(EPieceDirection::Up);
+	}
+	else if(GetEnableMove(piece,EPieceDirection::Down))
+	{
+		piece->BaseInfo->EnableDirections.Empty();
+		piece->BaseInfo->EnableDirections.Add(EPieceDirection::Down);
+	}
 }

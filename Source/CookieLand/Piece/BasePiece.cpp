@@ -60,8 +60,8 @@ void UBasePiece::Init()
 	
 		FActorSpawnParameters spawnParameters;
 		spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		
-		AActor* actor = GetWorld()->SpawnActor(ConfigData->ActorClass, &transform, spawnParameters);
+
+		AActor* actor = GetWorld()->SpawnActor(OwnLand->GetPieceInstanceActorClass(this), &transform, spawnParameters);
 		if(actor)
 		{
 			PieceActor = Cast<ABasePieceActor>(actor);
@@ -89,6 +89,11 @@ void UBasePiece::UnInit()
 const UPieceInfo* UBasePiece::GetCurInfo()
 {
 	return CurInfo;
+}
+
+const UPieceBaseConfigData* UBasePiece::GetConfigData()
+{
+	return ConfigData;
 }
 
 bool UBasePiece::GetEnableMove(EPieceDirection direction)

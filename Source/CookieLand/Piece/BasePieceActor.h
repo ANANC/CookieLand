@@ -24,7 +24,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	class UBasePieceLand* OwnLand;
 	
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadWrite)
 	class UBasePiece* Piece;
 	
 public:

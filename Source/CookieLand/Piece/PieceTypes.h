@@ -57,7 +57,7 @@ public:
 	int LimitDistance{1};
 };
 
-UCLASS()
+UCLASS(EditInlineNew,Blueprintable)
 class COOKIELAND_API UPieceBaseInfo : public UObject
 {
 	GENERATED_BODY()
@@ -108,7 +108,7 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<class ABasePieceActor> ActorClass;
 	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,Instanced)
 	UPieceBaseInfo* BaseInfo;
 	
 	UPROPERTY(EditAnywhere,Instanced)
@@ -123,10 +123,13 @@ class COOKIELAND_API ULandDataAsset : public UDataAsset
 
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	FVector CenterLocation{0,0,0};
+	FVector CreateInitialLocation{0,0,0};
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FVector ActorInterval{50,50,100};
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<class ABasePieceActor> DefaultActorClass;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int InitialPieceId{-1};
@@ -135,7 +138,7 @@ public:
 	int FinishPieceId{-1};
 	
 	UPROPERTY(EditAnywhere,Instanced)
-	TArray<UPieceBaseConfigData*> Pieces;
+	TArray<TObjectPtr<UPieceBaseConfigData>> Pieces;
 };
 
 USTRUCT(BlueprintType)
@@ -155,16 +158,14 @@ class UPieceInfo : public UObject
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	int Id;
 	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	UPieceBaseInfo* Info;
 	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	bool IsOccupy{false};
-
-	
 };
 
 UCLASS()

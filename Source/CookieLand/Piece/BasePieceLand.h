@@ -53,6 +53,8 @@ public:
 	bool IsInFinishLocation(FPieceLocation location);
 	
 	bool RequestToNextLocation(FPieceLocation curLocation,EPieceDirection direction,FPieceLocation& newLocation);
+
+	TSubclassOf<class ABasePieceActor> GetPieceInstanceActorClass(UBasePiece* piece);
 protected:
 	UBasePiece* CreatePiece(UPieceBaseConfigData* pieceData);
 

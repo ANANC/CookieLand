@@ -3,6 +3,7 @@
 
 #include "LandEditorCheckerboardWidget.h"
 
+#include "LandEditorToolStyle.h"
 #include "CookieLand/Piece/PieceTypes.h"
 #include "Widgets/SBoxPanel.h"
 
@@ -54,11 +55,26 @@ void ULandEditorCheckerboardWidget::DrawView()
 			//头数
 			if(y == -1 && x !=-1)
 			{
+				if(x == 0)
+				{
+					horizontalBox->AddSlot()
+					.AutoWidth()
+					[
+						SNew(SBox)
+						.WidthOverride(size_x)
+						.HeightOverride(size_y)
+						.VAlign(VAlign_Bottom)
+						[
+							SNew(STextBlock)
+							.Text(FText::FromString("              "))
+						]
+					];
+				}
 				horizontalBox->AddSlot()
 				.AutoWidth()
 				[
 					SNew(SBox)
-					.WidthOverride(size_x)
+					.WidthOverride(size_x+8)
 					.HeightOverride(size_y)
 					.VAlign(VAlign_Bottom)
 					[
@@ -105,15 +121,26 @@ void ULandEditorCheckerboardWidget::DrawView()
 					border.ToSharedRef()
 				];
 
-				UpdateLocation(location,pieceConfigData);
+				UpdateLocation(location);
 			}
 
 		}
 	}
 
+	CheckerboardWidgetInfo->SelectLocation.Z = CheckerboardWidgetInfo->CurFloor;
+	SelectLocation(ChangeToGameLocation(CheckerboardWidgetInfo->SelectLocation));
 }
 
-void ULandEditorCheckerboardWidget::UpdateLocation(FPieceLocation location,class UPieceBaseConfigData* pieceConfigData)
+void ULandEditorCheckerboardWidget::UpdateLocation(int id)
+{
+	class UPieceBaseConfigData* pieceConfigData = GlobalWidgetInfo->GetPieceConfigDataById(id);
+	if(pieceConfigData)
+	{
+		UpdateLocation(pieceConfigData->BaseInfo->Location);
+	}
+}
+
+void ULandEditorCheckerboardWidget::UpdateLocation(FPieceLocation location)
 {
 	FVector logicLocation = ChangeToLogicLocation(location);
 	TSharedPtr<SBorder>* borderPtr = PieceBoarders.Find(logicLocation);
@@ -121,23 +148,39 @@ void ULandEditorCheckerboardWidget::UpdateLocation(FPieceLocation location,class
 	{
 		return;
 	}
-
+	
+	class UPieceBaseConfigData* pieceConfigData = GlobalWidgetInfo?GlobalWidgetInfo->GetPieceConfigDataByLocation(location):nullptr;
 	bool isSelect = CheckerboardWidgetInfo->SelectLocation.X == logicLocation.X && CheckerboardWidgetInfo->SelectLocation.Y == logicLocation.Y;
 
+	FSlateColor selectColor = FAppStyle::Get().GetSlateColor("Colors.AccentFolder");
+	FSlateColor pieceColor = pieceConfigData? FAppStyle::Get().GetSlateColor("Colors.SelectInactive"):FAppStyle::Get().GetSlateColor("Colors.Header");
+	
 	TSharedPtr<SBorder> border = *borderPtr;
 	
 	TSharedPtr<SBox> box = SNew(SBox)
 	.WidthOverride(size_x)
 	.HeightOverride(size_y)
 	[
-		SNew(SButton)
-		.ForegroundColor(isSelect ?FLinearColor::Yellow:( pieceConfigData ? FLinearColor::White : FLinearColor::Gray))
-		.OnClicked_Lambda([this,location]() {
-			ButtonClickCallback(location);
-			return FReply::Handled();
-		})
+		SNew(SOverlay)
+
+		+SOverlay::Slot()
 		[
-			GetButtonBoxContent(pieceConfigData).ToSharedRef()
+			SNew(SBorder)
+			.BorderImage( isSelect ?new FSlateRoundedBoxBrush(pieceColor, 6.0f,selectColor,3.f):
+				new FSlateRoundedBoxBrush(pieceColor, 6.0f))
+		]
+
+		+SOverlay::Slot()
+		[
+			SNew(SButton)
+			.ButtonStyle(&FAppStyle::Get().GetWidgetStyle<FButtonStyle>("SimpleButton"))
+			.OnClicked_Lambda([this,logicLocation]() {
+				ButtonClickCallback(ChangeToGameLocation(logicLocation));
+				return FReply::Handled();
+			})
+			[
+				GetButtonBoxContent(pieceConfigData).ToSharedRef()
+			]
 		]
 	];
 
@@ -158,13 +201,13 @@ TSharedPtr<SHorizontalBox> ULandEditorCheckerboardWidget::GetButtonBoxContent(cl
 	if(pieceConfigData)
 	{
 		FName iconName;
-		if(GlobalWidgetInfo->GetIsStartPiece(pieceConfigData->Id))
+		if(GlobalWidgetInfo->GetIsFinishPiece(pieceConfigData->Id))
 		{
-			iconName = "Icons.Advanced";
+			iconName = "Icons.advanced";
 		}
-		else if(GlobalWidgetInfo->GetIsFinishPiece(pieceConfigData->Id))
+		else if(GlobalWidgetInfo->GetIsStartPiece(pieceConfigData->Id))
 		{
-			iconName = "Icons.bullet-point";
+			iconName = "Icons.animation";
 		}
 		else if(GlobalWidgetInfo->GetEnableMove(pieceConfigData,EPieceDirection::Up))
 		{
@@ -183,21 +226,40 @@ TSharedPtr<SHorizontalBox> ULandEditorCheckerboardWidget::GetButtonBoxContent(cl
 			[
 				SNew(SImage)
 				.ColorAndOpacity(FSlateColor::UseForeground())
-				.Image(FAppStyle::Get().GetBrush(iconName))
+				.Image(FLandEditorToolStyle::Get().GetBrush(iconName))
+			];
+		}
+
+		if(!pieceConfigData->BaseInfo->Distance.IsUnLimit)
+		{
+			HBox->AddSlot()
+			.AutoWidth()
+			.VAlign(VAlign_Center)
+			[
+				SNew(STextBlock)
+				.Text(FText::FromString(FString::FromInt(pieceConfigData->BaseInfo->Distance.LimitDistance)))
 			];
 		}
 	}
-
+	
 	return HBox;
 }
 
 void ULandEditorCheckerboardWidget::ButtonClickCallback(FPieceLocation location)
 {
+	FPieceLocation oldSelect = ChangeToGameLocation(CheckerboardWidgetInfo->SelectLocation);
 	CheckerboardWidgetInfo->SelectLocation = ChangeToLogicLocation(location);
+
+	UpdateLocation(oldSelect);
+	UpdateLocation(location);
 
 	LandEditorCheckerboardWidgetSelectChangeEvent.Execute();
 }
 
+void ULandEditorCheckerboardWidget::SelectLocation(FPieceLocation location)
+{
+	ButtonClickCallback(location);
+}
 
 FVector ULandEditorCheckerboardWidget::ChangeToLogicLocation(FPieceLocation location)
 {

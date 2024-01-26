@@ -4,6 +4,7 @@
 #include "BasePieceLand.h"
 
 #include "BasePiece.h"
+#include "BasePieceActor.h"
 
 void UBasePieceLand::CreateLand(FName levelName,class ULandDataAsset* landDA)
 {
@@ -12,9 +13,9 @@ void UBasePieceLand::CreateLand(FName levelName,class ULandDataAsset* landDA)
 
 	for(int index = 0;index<LandDataAsset->Pieces.Num();++index)
 	{
-		UPieceBaseConfigData* pieceData = LandDataAsset->Pieces[index];
+		TObjectPtr<UPieceBaseConfigData> pieceData = LandDataAsset->Pieces[index];
 
-		CreatePiece(pieceData);
+		CreatePiece(pieceData.Get());
 	}
 }
 
@@ -121,7 +122,7 @@ FVector UBasePieceLand::GetActorLocationById(int Id)
 
 FVector UBasePieceLand::GetActorLocationByOccupyLocation(FPieceLocation location)
 {
-	FVector actorLocation = LandDataAsset->CenterLocation;
+	FVector actorLocation = LandDataAsset->CreateInitialLocation;
 	actorLocation.X += location.X * LandDataAsset->ActorInterval.X;
 	actorLocation.Y += location.Y * LandDataAsset->ActorInterval.Y;
 	actorLocation.Z += location.Floor * LandDataAsset->ActorInterval.Z;
@@ -301,4 +302,25 @@ UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(TArray<UBasePiece*> di
 	}
 
 	return minPiece;
+}
+
+TSubclassOf<class ABasePieceActor> UBasePieceLand::GetPieceInstanceActorClass(UBasePiece* piece)
+{
+	TSubclassOf<class ABasePieceActor> actorClassType = nullptr;
+	if(LandDataAsset)
+	{
+		actorClassType = LandDataAsset->DefaultActorClass;
+	}
+	
+	if(!actorClassType)
+	{
+		actorClassType = piece->GetConfigData()->ActorClass;
+	}
+
+	if(!actorClassType)
+	{
+		actorClassType = ABasePieceActor::StaticClass();
+	}
+
+	return actorClassType;
 }

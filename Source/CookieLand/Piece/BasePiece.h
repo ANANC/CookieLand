@@ -48,9 +48,13 @@ public:
 	void UnInit();
 
 public:
-
+	UFUNCTION(BlueprintPure)
 	const UPieceInfo* GetCurInfo();
+
+	UFUNCTION(BlueprintPure)
+	const UPieceBaseConfigData* GetConfigData();
 	
+	UFUNCTION(BlueprintPure)
 	bool GetEnableMove(EPieceDirection direction);
 	
 protected:

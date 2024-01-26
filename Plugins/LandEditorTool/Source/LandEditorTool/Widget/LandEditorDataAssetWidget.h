@@ -41,5 +41,6 @@ public:
 protected:
 	void ReLoadDataAsset(const TCHAR* objectPath);
 
+	void CheckLandData();
 	void InitAutoPieceId();
 };

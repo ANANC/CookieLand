@@ -23,8 +23,8 @@ public:
 	FVector LandSize{100,100,0};
 	FVector DrawStartLocation{0,0,0};
 	FVector CurCenterSlider{0.5,0.5,0};
-	FVector DrawSize{30,30,0};
-	FVector SelectLocation{0,0,0};
+	FVector DrawSize{30,20,0};
+	FVector SelectLocation{15,10,0};
 };
 
 UCLASS()
@@ -51,8 +51,8 @@ protected:
 	class ULandEditorWidgetInfo* GlobalWidgetInfo;
 
 private:
-	int size_x = 30;
-	int size_y = 30;
+	int size_x = 25;
+	int size_y = 25;
 	
 public:
 	virtual void SetParentWidget(ILandEditorParentWidgetInterface* widget) override{ParentWidget = widget;}
@@ -69,7 +69,9 @@ public:
 	FVector ChangeToLogicLocation(FPieceLocation location);
 	FPieceLocation ChangeToGameLocation(FVector location);
 
-	void UpdateLocation(FPieceLocation location,class UPieceBaseConfigData* pieceConfigData);
+	void SelectLocation(FPieceLocation location);
+	void UpdateLocation(int id);
+	void UpdateLocation(FPieceLocation location);
 	
 private:
 	TSharedPtr<SHorizontalBox> GetButtonBoxContent(class UPieceBaseConfigData* pieceConfigData);

@@ -5,6 +5,7 @@
 
 #include "ContentBrowserModule.h"
 #include "IContentBrowserSingleton.h"
+#include "LandEditorToolStyle.h"
 #include "CookieLand/Piece/PieceTypes.h"
 
 ULandEditorDataAssetWidget::ULandEditorDataAssetWidget(const FObjectInitializer& ObjectInitializer)
@@ -24,34 +25,75 @@ bool ULandEditorDataAssetWidget::EnableDraw()
 
 void ULandEditorDataAssetWidget::DrawView()
 {
-	FLinearColor backgroundColor = GlobalWidgetInfo->DataAssetInstance.Get() ? FLinearColor::Green : FLinearColor::Red;
-
-	FAssetPickerConfig AssetPickerConfig;
-	AssetPickerConfig.Filter.ClassPaths.Add(ULandDataAsset::StaticClass()->GetClassPathName());
-	AssetPickerConfig.Filter.bRecursiveClasses = true;
-	AssetPickerConfig.InitialAssetViewType = EAssetViewType::Tile;
-	AssetPickerConfig.bAllowDragging = false;
-	AssetPickerConfig.OnAssetSelected = FOnAssetSelected::CreateLambda([this]( const FAssetData& selectDA)
+	if(!GlobalWidgetInfo->DataAssetInstance.Get())
 	{
-		ReLoadDataAsset(*selectDA.ObjectPath.ToString());
-	});
+		FAssetPickerConfig AssetPickerConfig;
+		AssetPickerConfig.Filter.ClassPaths.Add(ULandDataAsset::StaticClass()->GetClassPathName());
+		AssetPickerConfig.Filter.bRecursiveClasses = true;
+		AssetPickerConfig.InitialAssetViewType = EAssetViewType::Tile;
+		AssetPickerConfig.bAllowDragging = false;
+		AssetPickerConfig.OnAssetSelected = FOnAssetSelected::CreateLambda([this]( const FAssetData& selectDA)
+		{
+			ReLoadDataAsset(*selectDA.ObjectPath.ToString());
+		});
 	
-	FContentBrowserModule& ContentBrowserModule = FModuleManager::Get().LoadModuleChecked<FContentBrowserModule>(TEXT("ContentBrowser"));
+		FContentBrowserModule& ContentBrowserModule = FModuleManager::Get().LoadModuleChecked<FContentBrowserModule>(TEXT("ContentBrowser"));
 
-	RootWidget->AddSlot()
+		RootWidget->AddSlot()
+			.AutoHeight()
+			[
+				SNew(SBorder)
+				.Padding(FMargin(4.0f))
+				[
+					SNew(SHorizontalBox)
+					+ SHorizontalBox::Slot()
+					[
+						ContentBrowserModule.Get().CreateAssetPicker(AssetPickerConfig)
+					]
+				]
+			];
+	}
+	else
+	{
+		RootWidget->AddSlot()
 		.AutoHeight()
 		[
-			SNew(SBorder)
-			.Padding(FMargin(4.0f))
-			.BorderBackgroundColor(backgroundColor)
+
+			SNew(SHorizontalBox)
+
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
 			[
-				SNew(SHorizontalBox)
-				+ SHorizontalBox::Slot()
+				SNew(STextBlock)
+				.Text(FText::FromString("DataAsset:"))
+			]
+
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(4,0)
+			[
+				SNew(STextBlock)
+				.Text(FText::FromName(GlobalWidgetInfo->DataAssetName))
+			]
+
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(4,0)
+			[
+				SNew(SButton)
+				.OnClicked_Lambda([this]() {
+					GlobalWidgetInfo->DataAssetInstance = nullptr;
+					ParentWidget->TriggerReFresh();
+					return FReply::Handled();
+				})
 				[
-					ContentBrowserModule.Get().CreateAssetPicker(AssetPickerConfig)
+					SNew(SImage)
+					.ColorAndOpacity(FSlateColor::UseForeground())
+					.Image(FLandEditorToolStyle::Get().GetBrush( "Icons.redo"))
 				]
 			]
 		];
+	}
 }
 
 void ULandEditorDataAssetWidget::ReLoadDataAsset(const TCHAR* objectPath)
@@ -83,8 +125,9 @@ void ULandEditorDataAssetWidget::ReLoadDataAsset(const TCHAR* objectPath)
 
 			//update GlobalWidgetInfo otherInfo
 			InitAutoPieceId();
+			CheckLandData();
 
-			ParentWidget->TriggetInstanceReFresh();
+			ParentWidget->TriggerReFresh();
 		}
 	}
 	else
@@ -97,9 +140,16 @@ void ULandEditorDataAssetWidget::ReLoadDataAsset(const TCHAR* objectPath)
 void ULandEditorDataAssetWidget::InitAutoPieceId()
 {
 	ULandEditorWidget::PieceIdAuto = 0;
-	for(int index = 0;index<GlobalWidgetInfo->DataAssetInstance->Pieces.Num();++index)
+	int total = GlobalWidgetInfo->DataAssetInstance->Pieces.Num();
+	for(int index = 0,id = 0;index<total;++index)
 	{
-		UPieceBaseConfigData* piece = GlobalWidgetInfo->DataAssetInstance->Pieces[index];
+		TObjectPtr<UPieceBaseConfigData> piece = GlobalWidgetInfo->DataAssetInstance->Pieces[id];
+		if(piece == nullptr)
+		{
+			GlobalWidgetInfo->DataAssetInstance->Pieces.RemoveAt(id);
+			continue;
+		}
+		id+=1;
 		if(piece->Id > ULandEditorWidget::PieceIdAuto)
 		{
 			ULandEditorWidget::PieceIdAuto = piece->Id;
@@ -107,4 +157,24 @@ void ULandEditorDataAssetWidget::InitAutoPieceId()
 	}
 	
 	ULandEditorWidget::PieceIdAuto += 1;
+
+	if(total!=GlobalWidgetInfo->DataAssetInstance->Pieces.Num())
+	{
+		ParentWidget->TriggerSave();
+	}
+}
+
+
+void ULandEditorDataAssetWidget::CheckLandData()
+{
+	if(!GlobalWidgetInfo->GetPieceConfigDataById(GlobalWidgetInfo->DataAssetInstance->InitialPieceId))
+	{
+		GlobalWidgetInfo->DataAssetInstance->InitialPieceId = -1;
+		ParentWidget->TriggerSave();
+	}
+	if(!GlobalWidgetInfo->GetPieceConfigDataById(GlobalWidgetInfo->DataAssetInstance->FinishPieceId))
+	{
+		GlobalWidgetInfo->DataAssetInstance->FinishPieceId = -1;
+		ParentWidget->TriggerSave();
+	}
 }

@@ -63,9 +63,12 @@ public:
 
 public:
 	class UPieceBaseConfigData* GetPieceConfigDataByLocation(FPieceLocation location);
+	class UPieceBaseConfigData* GetPieceConfigDataById(int id);
 	bool GetIsStartPiece(int id);
 	bool GetIsFinishPiece(int id);
 	bool GetEnableMove(class UPieceBaseConfigData* piece,EPieceDirection direction);
+	void DeleteAllPieceByFloor(int floor);
+	void CheckAndUpdateMoveDirection(class UPieceBaseConfigData* piece);
 };
 
 UCLASS()
