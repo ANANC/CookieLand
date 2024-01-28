@@ -32,7 +32,7 @@ void UBasePieceLand::DestroyLand()
 
 UBasePiece* UBasePieceLand::CreatePiece(UPieceBaseConfigData* pieceData)
 {
-	UBasePiece* piece = NewObject<UBasePiece>();
+	UBasePiece* piece = NewObject<UBasePiece>(this);
 	Pieces.Add(piece);
 	PieceMap.Add(pieceData->Id,piece);
 
@@ -91,6 +91,20 @@ bool UBasePieceLand::RequestUnOccupyLocation(int Id,FPieceLocation location)
 	}
 
 	return false;
+}
+
+FName UBasePieceLand::GetLevelName()
+{
+	return LevelName;
+}
+
+int UBasePieceLand::GetInitialPieceId()
+{
+	if(LandDataAsset)
+	{
+		return LandDataAsset->InitialPieceId;
+	}
+	return -1;
 }
 
 UBasePiece* UBasePieceLand::GetPieceById(int Id)
@@ -174,6 +188,11 @@ bool UBasePieceLand::IsInFinishLocation(FPieceLocation location)
 	}
 
 	return false;
+}
+
+bool UBasePieceLand::IsFinishPieceId(int pieceId)
+{
+	return LandDataAsset?LandDataAsset->FinishPieceId == pieceId:false;
 }
 
 bool UBasePieceLand::RequestToNextLocation(FPieceLocation curLocation,EPieceDirection direction,FPieceLocation& newLocation)

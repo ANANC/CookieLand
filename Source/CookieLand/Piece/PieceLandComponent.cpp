@@ -26,6 +26,12 @@ void UPieceLandComponent::BeginPlay()
 	if(PieceLandSystem)
 	{
 		PieceLandSystem->CreatePieceLandEvent.AddUObject(this,&UPieceLandComponent::CreatePieceLandEventCallback);
+		
+		UBasePieceLand* land = PieceLandSystem->GetCurLand();
+		if(land)
+		{
+			CreatePieceLandEventCallback(land->GetLevelName(),land->GetInitialPieceId());
+		}
 	}
 }
 
@@ -47,6 +53,10 @@ void UPieceLandComponent::MoveToNextPiece(EPieceDirection direction)
 	}
 }
 
+FPieceLocation UPieceLandComponent::GetCurLocation()
+{
+	return CurLocation;
+}
 
 void UPieceLandComponent::CreatePieceLandEventCallback(FName levelName,int initialPieceId)
 {

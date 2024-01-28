@@ -53,7 +53,7 @@ void UPieceLandSystem::CreateLevelLand(FName levelName)
 		CurLand = nullptr;
 	}
 
-	CurLand = NewObject<UBasePieceLand>(this);
+ 	CurLand = NewObject<UBasePieceLand>(this);
 	CurLand->CreateLand(levelName,row->LandDataAsset);
 
 	CreatePieceLandEvent.Broadcast(levelName,row->LandDataAsset->InitialPieceId);

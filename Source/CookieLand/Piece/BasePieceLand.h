@@ -42,6 +42,10 @@ public:
 
 	bool RequestUnOccupyLocation(int Id,FPieceLocation location);
 
+	FName GetLevelName();
+	
+	int GetInitialPieceId();
+	
 	UBasePiece* GetPieceById(int Id);
 
 	FVector GetActorLocationById(int Id);
@@ -51,10 +55,14 @@ public:
 	bool GetPieceIdByLocation(FPieceLocation location,int& pieceId);
 	
 	bool IsInFinishLocation(FPieceLocation location);
+
+	UFUNCTION(BlueprintPure)
+	bool IsFinishPieceId(int pieceId);
 	
 	bool RequestToNextLocation(FPieceLocation curLocation,EPieceDirection direction,FPieceLocation& newLocation);
 
 	TSubclassOf<class ABasePieceActor> GetPieceInstanceActorClass(UBasePiece* piece);
+
 protected:
 	UBasePiece* CreatePiece(UPieceBaseConfigData* pieceData);
 

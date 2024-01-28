@@ -186,3 +186,33 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	bool EnableOccupy{true};
 };
+
+UCLASS()
+class UPieceLandFloorBoundInfo : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int Floor;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FVector Bound;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FVector Center;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TArray<int> PieceIds;
+};
+
+
+UCLASS()
+class UPieceLandBoundInfo : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TMap<int,UPieceLandFloorBoundInfo*> Floor2BoundInfos;
+};

@@ -8,7 +8,7 @@
 #include "PieceLandComponent.generated.h"
 
 
-UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+UCLASS(Blueprintable,ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class COOKIELAND_API UPieceLandComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -30,6 +30,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void MoveToNextPiece(EPieceDirection direction);
 
+	UFUNCTION(BlueprintPure)
+	FPieceLocation GetCurLocation();
 protected:
 	UFUNCTION()
 	void CreatePieceLandEventCallback(FName levelName,int initialPieceId);

@@ -12,6 +12,7 @@ UBasePiece::UBasePiece(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
 	CurInfo = NewObject<UPieceInfo>();
+	CurInfo->Info = NewObject<UPieceBaseInfo>();
 }
 
 void UBasePiece::SetId(int Id)
@@ -61,14 +62,18 @@ void UBasePiece::Init()
 		FActorSpawnParameters spawnParameters;
 		spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-		AActor* actor = GetWorld()->SpawnActor(OwnLand->GetPieceInstanceActorClass(this), &transform, spawnParameters);
-		if(actor)
+		TSubclassOf<class ABasePieceActor> actorType = OwnLand->GetPieceInstanceActorClass(this);
+		if(actorType)
 		{
-			PieceActor = Cast<ABasePieceActor>(actor);
+			AActor* actor = GetWorld()->SpawnActor(actorType, &transform, spawnParameters);
+			if(actor)
+			{
+				PieceActor = Cast<ABasePieceActor>(actor);
 
-			PieceActor->SetOwnLand(OwnLand);
-			PieceActor->SetPiece(this);
-			PieceActor->Init();
+				PieceActor->SetOwnLand(OwnLand);
+				PieceActor->SetPiece(this);
+				PieceActor->Init();
+			}
 		}
 	}
 }

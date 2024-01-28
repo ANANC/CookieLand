@@ -35,6 +35,7 @@ protected:
 public:
 	void SetId(int Id);
 
+	UFUNCTION(BlueprintPure)
 	int GetId();
 
 	void SetOwnLand(class UBasePieceLand* land);
