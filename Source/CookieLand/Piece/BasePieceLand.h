@@ -27,6 +27,9 @@ protected:
 	
 	UPROPERTY()
 	TMap<int,class UBasePiece*> PieceMap;
+
+	UPROPERTY()
+	UPieceLandBoundInfo* BoundInfo;
 	
 	UPROPERTY(VisibleAnywhere)
 	TArray<UPieceLocationInfo*> OccupyStates;
@@ -58,7 +61,8 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool IsFinishPieceId(int pieceId);
-	
+
+	UFUNCTION(BlueprintPure)
 	bool RequestToNextLocation(FPieceLocation curLocation,EPieceDirection direction,FPieceLocation& newLocation);
 
 	TSubclassOf<class ABasePieceActor> GetPieceInstanceActorClass(UBasePiece* piece);
@@ -73,4 +77,6 @@ protected:
 	TArray<UBasePiece*> GetDirectionPiecesByFloorPieces(TArray<UBasePiece*> floorPieces,FPieceLocation curLocation,EPieceDirection direction);
 
 	UBasePiece* GetNearPieceByDirectionPieces(TArray<UBasePiece*> directionPieces,FPieceLocation curLocation,FPieceDistance Distance,EPieceDirection direction);
+
+	UBasePiece* GetNearPieceByUpOrDown(FPieceLocation curLocation,FPieceDistance Distance,EPieceDirection direction);
 };

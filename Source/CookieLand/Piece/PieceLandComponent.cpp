@@ -12,7 +12,9 @@
 // Sets default values for this component's properties
 UPieceLandComponent::UPieceLandComponent()
 {
+	CurLocation.IsValid = false;
 }
+
 
 
 // Called when the game starts
@@ -44,11 +46,6 @@ void UPieceLandComponent::MoveToNextPiece(EPieceDirection direction)
 		if(curLand->RequestToNextLocation(CurLocation,direction,newLocation))
 		{
 			SetCurLocation(newLocation);
-
-			if(curLand->IsInFinishLocation(CurLocation))
-			{
-				StandByFinishLocation();
-			}
 		}
 	}
 }
@@ -85,6 +82,13 @@ void UPieceLandComponent::SetInitialLocation(FPieceLocation location)
 
 void UPieceLandComponent::SetCurLocation(FPieceLocation location)
 {
+	if(CurLocation == location)
+	{
+		return;
+	}
+	
+	FPieceLocation curLocation = CurLocation;
+	
 	CurLocation = location;
 	
 	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
@@ -92,5 +96,14 @@ void UPieceLandComponent::SetCurLocation(FPieceLocation location)
 	{
 		FVector newLocation = curLand->GetActorLocationByOccupyLocation(CurLocation);
 		MoveToNextLocation(newLocation);
+		
+		MoveToNextPieceEvent.Broadcast(curLocation,location);
+	}
+	
+	if(curLand->IsInFinishLocation(CurLocation))
+	{
+		StandByFinishLocation();
+
+		StandByFinishPieceEvent.Broadcast(location);
 	}
 }

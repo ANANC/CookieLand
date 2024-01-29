@@ -46,3 +46,46 @@ UBasePieceLand* UCommonFunctionLibrary::GetCurPieceLand()
 
 	return nullptr;
 }
+
+FVector UCommonFunctionLibrary::ChangeToLogicLocation(FPieceLocation location)
+{
+	FVector logicLocation = FVector(location.X,location.Y,location.Floor);
+	return logicLocation;
+}
+	
+FPieceLocation UCommonFunctionLibrary::ChangeToGameLocation(FVector location)
+{
+	FPieceLocation gameLocation;
+	gameLocation.X = location.X;
+	gameLocation.Y = location.Y;
+	gameLocation.Floor = location.Z;
+	return gameLocation;
+}
+
+EPieceDirection UCommonFunctionLibrary::ChangeToGameDirection(FVector direction)
+{
+	if(direction.Z>0)
+	{
+		return EPieceDirection::Up;
+	}
+	else if(direction.Z<0)
+	{
+		return EPieceDirection::Down;
+	}
+	else if(direction.X>0)
+	{
+		return EPieceDirection::Right;
+	}
+	else if(direction.X<0)
+	{
+		return EPieceDirection::Left;
+	}
+	else if(direction.Y>0)
+	{
+		return EPieceDirection::Forward;
+	}else if(direction.Y<0)
+	{
+		return EPieceDirection::Backward;
+	}
+	return  EPieceDirection::Forward;
+}

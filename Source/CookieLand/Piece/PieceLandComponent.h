@@ -7,6 +7,8 @@
 #include "PieceTypes.h"
 #include "PieceLandComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMoveToNextPieceEvent, FPieceLocation, oldLocation,FPieceLocation,newLocation);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStandByFinishPieceEvent, FPieceLocation, location);
 
 UCLASS(Blueprintable,ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class COOKIELAND_API UPieceLandComponent : public UActorComponent
@@ -24,6 +26,12 @@ protected:
 protected:
 	UPROPERTY(BlueprintReadOnly)
 	FPieceLocation CurLocation;
+
+	UPROPERTY(BlueprintAssignable)
+	FMoveToNextPieceEvent MoveToNextPieceEvent;
+	
+	UPROPERTY(BlueprintAssignable)
+	FStandByFinishPieceEvent StandByFinishPieceEvent;
 	
 public:
 	
@@ -32,6 +40,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FPieceLocation GetCurLocation();
+	
 protected:
 	UFUNCTION()
 	void CreatePieceLandEventCallback(FName levelName,int initialPieceId);

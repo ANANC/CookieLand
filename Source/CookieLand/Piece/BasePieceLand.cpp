@@ -11,6 +11,8 @@ void UBasePieceLand::CreateLand(FName levelName,class ULandDataAsset* landDA)
 	LevelName = levelName;
 	LandDataAsset = landDA;
 
+	BoundInfo = NewObject<UPieceLandBoundInfo>();
+	
 	for(int index = 0;index<LandDataAsset->Pieces.Num();++index)
 	{
 		TObjectPtr<UPieceBaseConfigData> pieceData = LandDataAsset->Pieces[index];
@@ -35,13 +37,15 @@ UBasePiece* UBasePieceLand::CreatePiece(UPieceBaseConfigData* pieceData)
 	UBasePiece* piece = NewObject<UBasePiece>(this);
 	Pieces.Add(piece);
 	PieceMap.Add(pieceData->Id,piece);
-
+	
 	piece->SetOwnLand(this);
 	piece->SetId(pieceData->Id);
 	piece->SetConfigData(pieceData);
 
 	piece->Init();
 
+	BoundInfo->AddPiece(piece);
+	
 	return piece;
 }
 
@@ -214,10 +218,18 @@ bool UBasePieceLand::RequestToNextLocation(FPieceLocation curLocation,EPieceDire
 		return false;
 	}
 
-	TArray<UBasePiece*> floorPieces = GetFloorPieces(curLocation.Floor);
-	TArray<UBasePiece*> directionPieces = GetDirectionPiecesByFloorPieces(floorPieces,curLocation,direction);
-	UBasePiece* nextPiece = GetNearPieceByDirectionPieces(directionPieces,curLocation,piece->GetCurInfo()->Info->Distance,direction);
-
+	UBasePiece* nextPiece = nullptr;
+	if(direction != EPieceDirection::Up ||direction != EPieceDirection::Down)
+	{
+		TArray<UBasePiece*> floorPieces = GetFloorPieces(curLocation.Floor);
+		TArray<UBasePiece*> directionPieces = GetDirectionPiecesByFloorPieces(floorPieces,curLocation,direction);
+		nextPiece = GetNearPieceByDirectionPieces(directionPieces,curLocation,piece->GetCurInfo()->Info->Distance,direction);
+	}
+	else
+	{
+		
+	}
+	
 	if(!nextPiece)
 	{
 		return false;
@@ -229,16 +241,14 @@ bool UBasePieceLand::RequestToNextLocation(FPieceLocation curLocation,EPieceDire
 
 TArray<UBasePiece*> UBasePieceLand::GetFloorPieces(int floor)
 {
-	TArray<UBasePiece*> floorPieces;
-	
-	for(int index = 0;index<Pieces.Num();++index)
+	UPieceLandFloorBoundInfo** floorBoundInfoPtr = BoundInfo->Floor2BoundInfos.Find(floor);
+	if(floorBoundInfoPtr)
 	{
-		if(Pieces[index]->GetCurInfo()->Info->Location.Floor == floor)
-		{
-			floorPieces.Add(Pieces[index]);
-		}
+		UPieceLandFloorBoundInfo* floorBoundInfo = *floorBoundInfoPtr;
+		return floorBoundInfo->Pieces;
 	}
 
+	TArray<UBasePiece*> floorPieces;
 	return  floorPieces;
 }
 
@@ -321,6 +331,11 @@ UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(TArray<UBasePiece*> di
 	}
 
 	return minPiece;
+}
+
+UBasePiece* UBasePieceLand::GetNearPieceByUpOrDown(FPieceLocation curLocation,FPieceDistance Distance,EPieceDirection direction)
+{
+	
 }
 
 TSubclassOf<class ABasePieceActor> UBasePieceLand::GetPieceInstanceActorClass(UBasePiece* piece)

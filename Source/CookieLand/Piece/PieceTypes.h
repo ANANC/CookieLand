@@ -197,16 +197,10 @@ public:
 	int Floor;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	FVector Bound;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	FVector Center;
-	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	TArray<int> PieceIds;
+	TArray<class UBasePiece*> Pieces;
 };
 
-
+        
 UCLASS()
 class UPieceLandBoundInfo : public UObject
 {
@@ -215,4 +209,18 @@ class UPieceLandBoundInfo : public UObject
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TMap<int,UPieceLandFloorBoundInfo*> Floor2BoundInfos;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TArray<int> ValidFloors;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int MaxFloor;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int MinFloor;
+	
+public:
+	void AddPiece(class UBasePiece* piece);
+
+	void RemovePiece(class UBasePiece* piece);
 };

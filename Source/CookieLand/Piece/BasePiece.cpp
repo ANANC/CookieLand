@@ -69,7 +69,6 @@ void UBasePiece::Init()
 			if(actor)
 			{
 				PieceActor = Cast<ABasePieceActor>(actor);
-
 				PieceActor->SetOwnLand(OwnLand);
 				PieceActor->SetPiece(this);
 				PieceActor->Init();

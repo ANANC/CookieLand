@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
+#include "CookieLand/Piece/PieceTypes.h"
 #include "CommonFunctionLibrary.generated.h"
 
 class UCookieLandGameInstance;
@@ -25,4 +26,13 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	static UBasePieceLand* GetCurPieceLand();
+
+	UFUNCTION(BlueprintPure)
+	static FVector ChangeToLogicLocation(FPieceLocation location);
+	
+	UFUNCTION(BlueprintPure)
+	static FPieceLocation ChangeToGameLocation(FVector location);
+
+	UFUNCTION(BlueprintPure)
+	static EPieceDirection ChangeToGameDirection(FVector direction);
 };
