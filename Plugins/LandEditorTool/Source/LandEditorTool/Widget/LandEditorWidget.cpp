@@ -238,7 +238,7 @@ void ULandEditorWidget::TriggerSaveAndReFresh()
 	TriggetInstanceReFresh();
 }
 
-class UPieceBaseConfigData* ULandEditorWidgetInfo::GetPieceConfigDataByLocation(FPieceLocation location)
+class UPieceBaseConfigData* ULandEditorWidgetInfo::GetPieceConfigDataByLocation(const FPieceLocation location)
 {
 	if(!DataAssetInstance)
 	{

@@ -20,16 +20,16 @@ public:
 
 protected:
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	class UBasePieceLand* OwnLand;
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	class UPieceBaseConfigData* ConfigData;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	class UPieceInfo* CurInfo;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	class ABasePieceActor* PieceActor;
 
 public:

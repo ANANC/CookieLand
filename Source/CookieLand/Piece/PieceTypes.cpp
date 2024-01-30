@@ -11,7 +11,10 @@ void UPieceLandBoundInfo::AddPiece(class UBasePiece* piece)
 	{
 		return;
 	}
+
 	FPieceLocation location = piece->GetCurInfo()->Info->Location;
+	int floor = location.Floor;
+	
 	UPieceLandFloorBoundInfo** floorBoundInfoPtr = Floor2BoundInfos.Find(location.Floor);
 	if(floorBoundInfoPtr)
 	{
@@ -21,12 +24,14 @@ void UPieceLandBoundInfo::AddPiece(class UBasePiece* piece)
 	else
 	{
 		UPieceLandFloorBoundInfo* floorBoundInfo= NewObject<UPieceLandFloorBoundInfo>();
-		Floor2BoundInfos.Add(location.Floor,floorBoundInfo);
-		ValidFloors.Add(location.Floor);
+		Floor2BoundInfos.Add(floor,floorBoundInfo);
+		ValidFloors.Add(floor);
 		
-		floorBoundInfo->Floor = location.Floor;
+		floorBoundInfo->Floor = floor;
 		floorBoundInfo->Pieces.Add(piece);
 	}
+
+	UpdateFloorMaxAndMin();
 }
 
 void UPieceLandBoundInfo::RemovePiece(class UBasePiece* piece)
@@ -35,7 +40,10 @@ void UPieceLandBoundInfo::RemovePiece(class UBasePiece* piece)
 	{
 		return;
 	}
+	
 	FPieceLocation location = piece->GetCurInfo()->Info->Location;
+	int floor = location.Floor;
+	
 	UPieceLandFloorBoundInfo** floorBoundInfoPtr = Floor2BoundInfos.Find(location.Floor);
 	if(floorBoundInfoPtr)
 	{
@@ -44,7 +52,31 @@ void UPieceLandBoundInfo::RemovePiece(class UBasePiece* piece)
 
 		if(floorBoundInfo->Pieces.Num() == 0)
 		{
-			ValidFloors.Remove(location.Floor);
+			ValidFloors.Remove(floor);
 		}
 	}
+
+	UpdateFloorMaxAndMin();
+}
+
+void UPieceLandBoundInfo::UpdateFloorMaxAndMin()
+{
+	MinFloor = 0;
+	MaxFloor = 0;
+	for(int index = 0;index<ValidFloors.Num();++index)
+	{
+		if(ValidFloors[index] > MaxFloor)
+		{
+			MaxFloor = ValidFloors[index];
+		}
+		if(ValidFloors[index] < MinFloor)
+		{
+			MinFloor = ValidFloors[index];
+		}
+	}
+}
+
+bool UPieceLandBoundInfo::HasValidFloors()
+{
+	return ValidFloors.Num()>0;
 }

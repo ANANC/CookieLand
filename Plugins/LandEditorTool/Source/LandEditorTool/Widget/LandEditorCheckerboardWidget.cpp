@@ -105,10 +105,7 @@ void ULandEditorCheckerboardWidget::DrawView()
 			//内容
 			if(y!=-1 && x!=-1)
 			{
-				FPieceLocation location;
-				location.X = curX;
-				location.Y = curY;
-				location.Floor = CheckerboardWidgetInfo->CurFloor;
+				FPieceLocation location(curX,curY,CheckerboardWidgetInfo->CurFloor);
 				
 				UPieceBaseConfigData* pieceConfigData = GlobalWidgetInfo->GetPieceConfigDataByLocation(location);
 
@@ -269,9 +266,6 @@ FVector ULandEditorCheckerboardWidget::ChangeToLogicLocation(FPieceLocation loca
 
 FPieceLocation ULandEditorCheckerboardWidget::ChangeToGameLocation(FVector location)
 {
-	FPieceLocation gameLocation;
-	gameLocation.X = location.X;
-	gameLocation.Y = location.Y;
-	gameLocation.Floor = location.Z;
+	FPieceLocation gameLocation(location);
 	return gameLocation;
 }

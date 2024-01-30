@@ -55,10 +55,7 @@ FVector UCommonFunctionLibrary::ChangeToLogicLocation(FPieceLocation location)
 	
 FPieceLocation UCommonFunctionLibrary::ChangeToGameLocation(FVector location)
 {
-	FPieceLocation gameLocation;
-	gameLocation.X = location.X;
-	gameLocation.Y = location.Y;
-	gameLocation.Floor = location.Z;
+	FPieceLocation gameLocation(location);
 	return gameLocation;
 }
 

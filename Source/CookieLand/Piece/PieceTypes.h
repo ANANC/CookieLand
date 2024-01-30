@@ -31,16 +31,31 @@ public:
 	bool IsValid{true};
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	int X;
+	int X{0};
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	int Y;
+	int Y{0};
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	int Floor;
+	int Floor{0};
+
+	FPieceLocation(){}
+	FPieceLocation(bool isValue):IsValid(isValue){}
+	FPieceLocation(int x,int y,int floor):X(x),Y(y),Floor(floor){}
+	FPieceLocation(FVector vector):X(vector.X),Y(vector.Y),Floor(vector.Z){}
+	FPieceLocation(FPieceLocation& other):X(other.X),Y(other.Y),Floor(other.Floor){}
+	FPieceLocation(FPieceLocation& other,int floor):X(other.X),Y(other.Y),Floor(floor){}
 	
 	bool operator==(const FPieceLocation& Other) const
 	{
 		return IsValid && Other.IsValid && X == Other.X && Y == Other.Y && Floor == Other.Floor;
+	}
+
+	void Copy(FPieceLocation& Other)
+	{
+		IsValid = Other.IsValid;
+		X = Other.X;
+		Y = Other.Y;
+		Floor = Other.Floor;
 	}
 };
 
@@ -214,13 +229,17 @@ public:
 	TArray<int> ValidFloors;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	int MaxFloor;
+	int MaxFloor{0};
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	int MinFloor;
+	int MinFloor{0};
 	
 public:
 	void AddPiece(class UBasePiece* piece);
 
 	void RemovePiece(class UBasePiece* piece);
+
+	void UpdateFloorMaxAndMin();
+
+	bool HasValidFloors();
 };

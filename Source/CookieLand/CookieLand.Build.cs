@@ -12,6 +12,8 @@ public class CookieLand : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
+		OptimizeCode = CodeOptimization.Never;
+		
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 		

@@ -62,7 +62,7 @@ public:
 	FName DataAssetName;
 
 public:
-	class UPieceBaseConfigData* GetPieceConfigDataByLocation(FPieceLocation location);
+	class UPieceBaseConfigData* GetPieceConfigDataByLocation(const FPieceLocation location);
 	class UPieceBaseConfigData* GetPieceConfigDataById(int id);
 	bool GetIsStartPiece(int id);
 	bool GetIsFinishPiece(int id);

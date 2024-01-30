@@ -117,6 +117,14 @@ void ULandEditorPieceWidget::DrawSelectPiece()
 		.Text(FText::FromString("Select Piece"))
 	];
 	
+	FString locationStr = "x:"+FString::FromInt(location.X)+" y:"+FString::FromInt(location.Y);
+	SelectPieceWidget->AddSlot()
+	.AutoHeight()
+	[
+		SNew(STextBlock)
+		.Text(FText::FromString(locationStr))
+	];
+	
 	if(piece == nullptr)
 	{
 		DrawEmptyPiece();
@@ -129,15 +137,16 @@ void ULandEditorPieceWidget::DrawSelectPiece()
 
 void ULandEditorPieceWidget::DrawEmptyPiece()
 {
-	FPieceLocation location = CheckerboardWidget->ChangeToGameLocation(CheckerboardWidget->CheckerboardWidgetInfo->SelectLocation);
+	FVector seleceLocation = CheckerboardWidget->CheckerboardWidgetInfo->SelectLocation;
 	
 	SelectPieceWidget->AddSlot()
 	.AutoHeight()
 	[
 		SNew(SButton)
 		.Text(FText::FromString("Create"))
-		.OnClicked_Lambda([this,location]()
+		.OnClicked_Lambda([this,seleceLocation]()
 		{
+			FPieceLocation location = CheckerboardWidget->ChangeToGameLocation(seleceLocation);
 			CreatePiece(location);
 			
 			DrawSelectPiece();
@@ -151,10 +160,10 @@ void ULandEditorPieceWidget::DrawEmptyPiece()
 
 void ULandEditorPieceWidget::DrawValidPiece(class UPieceBaseConfigData* piece)
 {
-	FPieceLocation location = CheckerboardWidget->ChangeToGameLocation(CheckerboardWidget->CheckerboardWidgetInfo->SelectLocation);
+	FVector seleceLocation = CheckerboardWidget->CheckerboardWidgetInfo->SelectLocation;
 	int pieceId = piece->Id;
 	int curFloor = CheckerboardWidget->CheckerboardWidgetInfo->CurFloor;
-
+	
 	SelectPieceWidget->AddSlot()
 	.AutoHeight()
 	[
@@ -184,9 +193,9 @@ void ULandEditorPieceWidget::DrawValidPiece(class UPieceBaseConfigData* piece)
 		TSharedPtr<SHorizontalBox> horizontalBox = SNew(SHorizontalBox);
 		for(int x = -1;x<2;++x)
 		{
-			FVector curLogicLocation = FVector(location.X+x,location.Y+y,curFloor);
+			FVector curLogicLocation = FVector(seleceLocation.X+x,seleceLocation.Y+y,curFloor);
 
-			bool isMyself = curLogicLocation == CheckerboardWidget->ChangeToLogicLocation(location);
+			bool isMyself = curLogicLocation == seleceLocation;
 			bool hasPiece = GlobalWidgetInfo->GetPieceConfigDataByLocation(CheckerboardWidget->ChangeToGameLocation(curLogicLocation)) != nullptr;
 			
 			horizontalBox->AddSlot()
@@ -234,8 +243,10 @@ void ULandEditorPieceWidget::DrawValidPiece(class UPieceBaseConfigData* piece)
 		[
 			SNew(SCheckBox)
 			.IsChecked(GlobalWidgetInfo->GetIsStartPiece(pieceId))
-			.OnCheckStateChanged_Lambda([this,pieceId,location](ECheckBoxState state)
+			.OnCheckStateChanged_Lambda([this,pieceId,seleceLocation](ECheckBoxState state)
 			{
+				FPieceLocation location = CheckerboardWidget->ChangeToGameLocation(seleceLocation);
+				
 				int oldId=GlobalWidgetInfo->DataAssetInstance->InitialPieceId;
 				if(state == ECheckBoxState::Checked)
 				{
@@ -276,8 +287,10 @@ void ULandEditorPieceWidget::DrawValidPiece(class UPieceBaseConfigData* piece)
 		[
 			SNew(SCheckBox)
 			.IsChecked(GlobalWidgetInfo->GetIsFinishPiece(pieceId))
-			.OnCheckStateChanged_Lambda([this,pieceId,location](ECheckBoxState state)
+			.OnCheckStateChanged_Lambda([this,pieceId,seleceLocation](ECheckBoxState state)
 			{
+				FPieceLocation location = CheckerboardWidget->ChangeToGameLocation(seleceLocation);
+				
 				int oldId=GlobalWidgetInfo->DataAssetInstance->FinishPieceId;
 				if(state == ECheckBoxState::Checked)
 				{
@@ -307,8 +320,10 @@ void ULandEditorPieceWidget::DrawValidPiece(class UPieceBaseConfigData* piece)
 	[
 		SNew(SButton)
 		.Text(FText::FromString("Delete"))
-		.OnClicked_Lambda([this,location]()
+		.OnClicked_Lambda([this,seleceLocation]()
 		{
+			FPieceLocation location = CheckerboardWidget->ChangeToGameLocation(seleceLocation);
+			
 			DeletePiece(location);
 			DrawSelectPiece();
 			CheckerboardWidget->UpdateLocation(location);
@@ -328,10 +343,12 @@ void ULandEditorPieceWidget::DrawValidPiece(class UPieceBaseConfigData* piece)
 	{
 		// Make sure details window is pointing to our object
 		DetailsView->SetObject(piece);
-		DetailsView->OnFinishedChangingProperties().AddLambda([this,location](const FPropertyChangedEvent& changeEvent)
+		DetailsView->OnFinishedChangingProperties().AddLambda([this,seleceLocation](const FPropertyChangedEvent& changeEvent)
 		{
 			if(changeEvent.HasArchetypeInstanceChanged(GlobalWidgetInfo->DataAssetInstance))
 			{
+				FPieceLocation location = CheckerboardWidget->ChangeToGameLocation(seleceLocation);
+				
 				UPieceBaseConfigData* piece = GlobalWidgetInfo->GetPieceConfigDataByLocation(location);
 				if(piece)
 				{

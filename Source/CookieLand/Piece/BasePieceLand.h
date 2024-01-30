@@ -49,6 +49,7 @@ public:
 	
 	int GetInitialPieceId();
 	
+	UFUNCTION(BlueprintPure)
 	UBasePiece* GetPieceById(int Id);
 
 	FVector GetActorLocationById(int Id);
@@ -57,26 +58,27 @@ public:
 
 	bool GetPieceIdByLocation(FPieceLocation location,int& pieceId);
 	
-	bool IsInFinishLocation(FPieceLocation location);
+	bool IsInFinishLocation(int pieceId);
 
 	UFUNCTION(BlueprintPure)
 	bool IsFinishPieceId(int pieceId);
 
 	UFUNCTION(BlueprintPure)
-	bool RequestToNextLocation(FPieceLocation curLocation,EPieceDirection direction,FPieceLocation& newLocation);
+	bool RequestToNextLocation(int pieceId,EPieceDirection direction,int& nextPieceId);
 
 	TSubclassOf<class ABasePieceActor> GetPieceInstanceActorClass(UBasePiece* piece);
-
+	
+	UFUNCTION(BlueprintPure)
+	TArray<UBasePiece*> GetFloorPieces(int floor);
 protected:
 	UBasePiece* CreatePiece(UPieceBaseConfigData* pieceData);
 
 	UPieceLocationInfo* GetLocationInfo(FPieceLocation location);
 
-	TArray<UBasePiece*> GetFloorPieces(int floor);
 
 	TArray<UBasePiece*> GetDirectionPiecesByFloorPieces(TArray<UBasePiece*> floorPieces,FPieceLocation curLocation,EPieceDirection direction);
 
-	UBasePiece* GetNearPieceByDirectionPieces(TArray<UBasePiece*> directionPieces,FPieceLocation curLocation,FPieceDistance Distance,EPieceDirection direction);
+	UBasePiece* GetNearPieceByDirectionPieces(int pieceId,FPieceDistance distance,EPieceDirection direction);
 
-	UBasePiece* GetNearPieceByUpOrDown(FPieceLocation curLocation,FPieceDistance Distance,EPieceDirection direction);
+	UBasePiece* GetNearPieceByUpOrDown(int pieceId,FPieceDistance distance,EPieceDirection direction);
 };

@@ -12,10 +12,7 @@
 // Sets default values for this component's properties
 UPieceLandComponent::UPieceLandComponent()
 {
-	CurLocation.IsValid = false;
 }
-
-
 
 // Called when the game starts
 void UPieceLandComponent::BeginPlay()
@@ -42,17 +39,27 @@ void UPieceLandComponent::MoveToNextPiece(EPieceDirection direction)
 	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
 	if(curLand)
 	{
-		FPieceLocation newLocation;
-		if(curLand->RequestToNextLocation(CurLocation,direction,newLocation))
+		int nextPieceId;
+		if(curLand->RequestToNextLocation(CurPieceId,direction,nextPieceId))
 		{
-			SetCurLocation(newLocation);
+			SetCurLocation(nextPieceId);
 		}
 	}
 }
 
 FPieceLocation UPieceLandComponent::GetCurLocation()
 {
-	return CurLocation;
+	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
+	if(curLand)
+	{
+		UBasePiece* piece = curLand->GetPieceById(CurPieceId);
+		if(piece)
+		{
+			return piece->GetCurInfo()->Info->Location;
+		}
+	}
+	FPieceLocation location(false);
+	return location;
 }
 
 void UPieceLandComponent::CreatePieceLandEventCallback(FName levelName,int initialPieceId)
@@ -63,47 +70,49 @@ void UPieceLandComponent::CreatePieceLandEventCallback(FName levelName,int initi
 		UBasePiece* piece = curLand->GetPieceById(initialPieceId);
 		if(piece)
 		{
-			SetCurLocation(piece->GetCurInfo()->Info->Location);
+			SetInitialLocation(piece->GetId());
 		}
 	}
 }
 
-void UPieceLandComponent::SetInitialLocation(FPieceLocation location)
+void UPieceLandComponent::SetInitialLocation(int pieceId)
 {
-	CurLocation = location;
+	CurPieceId = pieceId;
 
 	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
 	if(curLand)
 	{
-		FVector newLocation = curLand->GetActorLocationByOccupyLocation(CurLocation);
+		FVector newLocation = curLand->GetActorLocationById(CurPieceId);
 		MoveToInitialLocation(newLocation);
 	}
 }
 
-void UPieceLandComponent::SetCurLocation(FPieceLocation location)
+void UPieceLandComponent::SetCurLocation(int pieceId)
 {
-	if(CurLocation == location)
+	if(CurPieceId == pieceId)
 	{
 		return;
 	}
 	
-	FPieceLocation curLocation = CurLocation;
+	FPieceLocation oldLocation = GetCurLocation();
 	
-	CurLocation = location;
+	CurPieceId = pieceId;
+
+	FPieceLocation newLocation = GetCurLocation();
 	
 	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
 	if(curLand)
 	{
-		FVector newLocation = curLand->GetActorLocationByOccupyLocation(CurLocation);
-		MoveToNextLocation(newLocation);
+		FVector newLogicLocation = curLand->GetActorLocationById(CurPieceId);
+		MoveToNextLocation(newLogicLocation);
 		
-		MoveToNextPieceEvent.Broadcast(curLocation,location);
+		MoveToNextPieceEvent.Broadcast(oldLocation,newLocation);
 	}
 	
-	if(curLand->IsInFinishLocation(CurLocation))
+	if(curLand->IsInFinishLocation(CurPieceId))
 	{
 		StandByFinishLocation();
 
-		StandByFinishPieceEvent.Broadcast(location);
+		StandByFinishPieceEvent.Broadcast(newLocation);
 	}
 }

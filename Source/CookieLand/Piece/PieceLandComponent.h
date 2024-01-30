@@ -25,7 +25,7 @@ protected:
 
 protected:
 	UPROPERTY(BlueprintReadOnly)
-	FPieceLocation CurLocation;
+	int CurPieceId{-1};
 
 	UPROPERTY(BlueprintAssignable)
 	FMoveToNextPieceEvent MoveToNextPieceEvent;
@@ -45,12 +45,12 @@ protected:
 	UFUNCTION()
 	void CreatePieceLandEventCallback(FName levelName,int initialPieceId);
 	
-	void SetInitialLocation(FPieceLocation location);
+	void SetInitialLocation(int pieceId);
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void MoveToInitialLocation(FVector location);
 	
-	void SetCurLocation(FPieceLocation location);
+	void SetCurLocation(int pieceId);
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void MoveToNextLocation(FVector location);

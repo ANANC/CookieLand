@@ -182,16 +182,10 @@ bool UBasePieceLand::GetPieceIdByLocation(FPieceLocation location,int& pieceId)
 	return false;
 }
 	
-bool UBasePieceLand::IsInFinishLocation(FPieceLocation location)
+bool UBasePieceLand::IsInFinishLocation(int pieceId)
 {
-	int pieceId;
-	if(GetPieceIdByLocation(location,pieceId))
-	{
-		bool isFinishLocation = LandDataAsset?LandDataAsset->FinishPieceId == pieceId:false;
-		return isFinishLocation;
-	}
-
-	return false;
+	bool isFinishLocation = LandDataAsset?LandDataAsset->FinishPieceId == pieceId:false;
+	return isFinishLocation;
 }
 
 bool UBasePieceLand::IsFinishPieceId(int pieceId)
@@ -199,14 +193,8 @@ bool UBasePieceLand::IsFinishPieceId(int pieceId)
 	return LandDataAsset?LandDataAsset->FinishPieceId == pieceId:false;
 }
 
-bool UBasePieceLand::RequestToNextLocation(FPieceLocation curLocation,EPieceDirection direction,FPieceLocation& newLocation)
+bool UBasePieceLand::RequestToNextLocation(int pieceId,EPieceDirection direction,int& nextPieceId)
 {
-	int pieceId;
-	if(!GetPieceIdByLocation(curLocation,pieceId))
-	{
-		return false;
-	}
-	
 	UBasePiece* piece = GetPieceById(pieceId);
 	if(!piece)
 	{
@@ -218,16 +206,16 @@ bool UBasePieceLand::RequestToNextLocation(FPieceLocation curLocation,EPieceDire
 		return false;
 	}
 
+	FPieceDistance distance = piece->GetCurInfo()->Info->Distance;
+	
 	UBasePiece* nextPiece = nullptr;
-	if(direction != EPieceDirection::Up ||direction != EPieceDirection::Down)
+	if(direction != EPieceDirection::Up && direction != EPieceDirection::Down)
 	{
-		TArray<UBasePiece*> floorPieces = GetFloorPieces(curLocation.Floor);
-		TArray<UBasePiece*> directionPieces = GetDirectionPiecesByFloorPieces(floorPieces,curLocation,direction);
-		nextPiece = GetNearPieceByDirectionPieces(directionPieces,curLocation,piece->GetCurInfo()->Info->Distance,direction);
+		nextPiece = GetNearPieceByDirectionPieces(pieceId,distance,direction);
 	}
 	else
 	{
-		
+		nextPiece = GetNearPieceByUpOrDown(pieceId,distance,direction);
 	}
 	
 	if(!nextPiece)
@@ -235,7 +223,7 @@ bool UBasePieceLand::RequestToNextLocation(FPieceLocation curLocation,EPieceDire
 		return false;
 	}
 
-	newLocation = nextPiece->GetCurInfo()->Info->Location;
+	nextPieceId = nextPiece->GetId();
 	return true;
 }
 
@@ -258,41 +246,49 @@ TArray<UBasePiece*> UBasePieceLand::GetDirectionPiecesByFloorPieces(TArray<UBase
 
 	for(int index = 0;index<floorPieces.Num();++index)
 	{
-		FPieceLocation pieceLocation = Pieces[index]->GetCurInfo()->Info->Location;
+		UBasePiece* piece = floorPieces[index];
+		FPieceLocation pieceLocation = piece->GetCurInfo()->Info->Location;
 
 		if(direction == EPieceDirection::Left && (pieceLocation.Y == curLocation.Y && pieceLocation.X < curLocation.X))
 		{
-			directionPieces.Add(Pieces[index]);
+			directionPieces.Add(piece);
 		}
 		if(direction == EPieceDirection::Right && (pieceLocation.Y == curLocation.Y && pieceLocation.X > curLocation.X))
 		{
-			directionPieces.Add(Pieces[index]);
+			directionPieces.Add(piece);
 		}
 		if(direction == EPieceDirection::Forward && (pieceLocation.X == curLocation.X && pieceLocation.Y > curLocation.Y))
 		{
-			directionPieces.Add(Pieces[index]);
+			directionPieces.Add(piece);
 		}
 		if(direction == EPieceDirection::Backward && (pieceLocation.X == curLocation.X && pieceLocation.Y < curLocation.Y))
 		{
-			directionPieces.Add(Pieces[index]);
+			directionPieces.Add(piece);
 		}
 	}
 
 	return directionPieces;
 }
 
-UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(TArray<UBasePiece*> directionPieces,FPieceLocation curLocation,FPieceDistance Distance,EPieceDirection direction)
+UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(int pieceId,FPieceDistance distance,EPieceDirection direction)
 {
+	UBasePiece* piece = GetPieceById(pieceId);
+	FPieceLocation curLocation = piece->GetCurInfo()->Info->Location;
+	
+	TArray<UBasePiece*> floorPieces = GetFloorPieces(curLocation.Floor);
+	TArray<UBasePiece*> directionPieces = GetDirectionPiecesByFloorPieces(floorPieces,curLocation,direction);
+	
 	UBasePiece* minPiece = nullptr;
-	FPieceLocation minLocation;
+	FPieceLocation minLocation(0,0,0);
 	
 	for(int index = 0;index<directionPieces.Num();++index)
 	{
 		bool update = false;
-		FPieceLocation pieceLocation = Pieces[index]->GetCurInfo()->Info->Location;
+		UBasePiece* directionPiece = directionPieces[index];
+		FPieceLocation pieceLocation = directionPiece->GetCurInfo()->Info->Location;
 		if(direction == EPieceDirection::Left)
 		{
-			if(!Distance.LimitDistance && (abs(pieceLocation.X-curLocation.X)>Distance.LimitDistance))
+			if(!distance.LimitDistance && (abs(pieceLocation.X-curLocation.X)>distance.LimitDistance))
 			{
 				continue;
 			}
@@ -300,7 +296,7 @@ UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(TArray<UBasePiece*> di
 		}
 		if(direction == EPieceDirection::Right)
 		{
-			if(!Distance.LimitDistance && (abs(pieceLocation.X-curLocation.X)>Distance.LimitDistance))
+			if(!distance.LimitDistance && (abs(pieceLocation.X-curLocation.X)>distance.LimitDistance))
 			{
 				continue;
 			}
@@ -308,7 +304,7 @@ UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(TArray<UBasePiece*> di
 		}
 		if(direction == EPieceDirection::Forward)
 		{
-			if(!Distance.LimitDistance && (abs(pieceLocation.Y-curLocation.Y)>Distance.LimitDistance))
+			if(!distance.LimitDistance && (abs(pieceLocation.Y-curLocation.Y)>distance.LimitDistance))
 			{
 				continue;
 			}
@@ -316,7 +312,7 @@ UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(TArray<UBasePiece*> di
 		}
 		if(direction == EPieceDirection::Backward)
 		{
-			if(!Distance.LimitDistance && (abs(pieceLocation.Y-curLocation.Y)>Distance.LimitDistance))
+			if(!distance.LimitDistance && (abs(pieceLocation.Y-curLocation.Y)>distance.LimitDistance))
 			{
 				continue;
 			}
@@ -325,17 +321,51 @@ UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(TArray<UBasePiece*> di
 
 		if(update)
 		{
-			minPiece = Pieces[index];
-			minLocation = pieceLocation;
+			minPiece = directionPiece;
+			minLocation.Copy(pieceLocation);
 		}
 	}
 
 	return minPiece;
 }
 
-UBasePiece* UBasePieceLand::GetNearPieceByUpOrDown(FPieceLocation curLocation,FPieceDistance Distance,EPieceDirection direction)
+UBasePiece* UBasePieceLand::GetNearPieceByUpOrDown(int pieceId,FPieceDistance distance,EPieceDirection direction)
 {
+	UBasePiece* piece = GetPieceById(pieceId);
+	FPieceLocation curLocation = piece->GetCurInfo()->Info->Location;
+	int intDirection = direction == EPieceDirection::Up?1:direction==EPieceDirection::Down?-1:0;
+
+	int range;
+	if(distance.IsUnLimit)
+	{
+		if(BoundInfo->HasValidFloors())
+		{
+			range = direction == EPieceDirection::Up?BoundInfo->MaxFloor:BoundInfo->MinFloor;
+		}
+		else
+		{
+			range = curLocation.Floor;
+		}
+	}
+	else
+	{
+		range = curLocation.Floor + distance.LimitDistance * intDirection;
+	}
 	
+	for(int index = 1, floor = curLocation.Floor;index<=abs(range-curLocation.Floor);++index)
+	{
+		floor += intDirection;
+		FPieceLocation nextLocation(curLocation,floor);
+
+		int nextPieceId;
+		if(GetPieceIdByLocation(nextLocation,nextPieceId))
+		{
+			UBasePiece* nextPiece = GetPieceById(nextPieceId);
+			return nextPiece;
+		}
+	}
+
+	return nullptr;
 }
 
 TSubclassOf<class ABasePieceActor> UBasePieceLand::GetPieceInstanceActorClass(UBasePiece* piece)
