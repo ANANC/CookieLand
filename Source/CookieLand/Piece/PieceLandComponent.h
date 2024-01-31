@@ -50,10 +50,10 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void MoveToInitialLocation(FVector location);
 	
-	void SetCurLocation(int pieceId);
+	void SetCurLocation(int pieceId,EPieceDirection direction);
 	
 	UFUNCTION(BlueprintImplementableEvent)
-	void MoveToNextLocation(FVector location);
+	void MoveToNextLocation(FVector location,EPieceDirection moveDirection);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void StandByFinishLocation();

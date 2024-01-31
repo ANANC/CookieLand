@@ -131,14 +131,14 @@ FVector UBasePieceLand::GetActorLocationById(int Id)
 		const UPieceInfo* curInfo = piece->GetCurInfo();
 		if(curInfo->IsOccupy)
 		{
-			actorLocation = GetActorLocationByOccupyLocation(curInfo->Info->Location);
+			actorLocation = GetActorLocationByLocation(curInfo->Info->Location);
 		}
 	}
 
 	return actorLocation;
 }
 
-FVector UBasePieceLand::GetActorLocationByOccupyLocation(FPieceLocation location)
+FVector UBasePieceLand::GetActorLocationByLocation(FPieceLocation location)
 {
 	FVector actorLocation = LandDataAsset->CreateInitialLocation;
 	actorLocation.X += location.X * LandDataAsset->ActorInterval.X;

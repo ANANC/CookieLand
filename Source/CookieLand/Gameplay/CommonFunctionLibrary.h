@@ -35,4 +35,10 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	static EPieceDirection ChangeToGameDirection(FVector direction);
+
+	UFUNCTION(BlueprintPure)
+	static FVector ChangeToLogicDirection(EPieceDirection direction);
+
+	UFUNCTION(BlueprintPure)
+	static FVector ChangeToActorDirection(EPieceDirection direction,AActor* actor);
 };

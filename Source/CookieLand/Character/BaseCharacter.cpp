@@ -3,6 +3,7 @@
 
 #include "BaseCharacter.h"
 
+#include "CharacterLocomotionComponent.h"
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 #include "CookieLand/Piece/BasePieceLand.h"
 #include "CookieLand/Piece/PieceLandComponent.h"
@@ -12,7 +13,9 @@
 // Sets default values
 ABaseCharacter::ABaseCharacter()
 {
+	bClientUpdating = true;
 	PieceLandComponent = CreateDefaultSubobject<UPieceLandComponent>(TEXT("PieceLandComponent"));
+	LocomotionComponent = CreateDefaultSubobject<UCharacterLocomotionComponent>(TEXT("LocomotionComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -32,4 +35,9 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 UPieceLandComponent* ABaseCharacter::GetPieceLandComponent()
 {
 	return PieceLandComponent;
+}
+
+UCharacterLocomotionComponent* ABaseCharacter::GetLocomotionComponent()
+{
+	return LocomotionComponent;
 }

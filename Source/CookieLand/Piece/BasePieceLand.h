@@ -51,10 +51,12 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	UBasePiece* GetPieceById(int Id);
-
+	
+	UFUNCTION(BlueprintPure)
 	FVector GetActorLocationById(int Id);
 	
-	FVector GetActorLocationByOccupyLocation(FPieceLocation location);
+	UFUNCTION(BlueprintPure)
+	FVector GetActorLocationByLocation(FPieceLocation location);
 
 	bool GetPieceIdByLocation(FPieceLocation location,int& pieceId);
 	

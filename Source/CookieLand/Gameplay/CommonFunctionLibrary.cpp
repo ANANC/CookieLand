@@ -86,3 +86,47 @@ EPieceDirection UCommonFunctionLibrary::ChangeToGameDirection(FVector direction)
 	}
 	return  EPieceDirection::Forward;
 }
+
+FVector UCommonFunctionLibrary::ChangeToLogicDirection(EPieceDirection direction)
+{
+	switch (direction)
+	{
+	case EPieceDirection::Left:
+		return FVector::LeftVector;
+	case EPieceDirection::Right:
+		return FVector::RightVector;
+	case EPieceDirection::Forward:
+		return FVector::ForwardVector;
+	case EPieceDirection::Backward:
+		return FVector::BackwardVector;
+	case EPieceDirection::Up:
+		return FVector::UpVector;
+	case EPieceDirection::Down:
+		return FVector::DownVector;
+	default:
+		return FVector::LeftVector;
+	}
+}
+
+FVector UCommonFunctionLibrary::ChangeToActorDirection(EPieceDirection direction,AActor* actor)
+{
+	FQuat quat = actor->GetActorRotation().Quaternion();
+	
+	switch (direction)
+	{
+	case EPieceDirection::Left:
+		return -quat.GetRightVector();
+	case EPieceDirection::Right:
+		return quat.GetRightVector();
+	case EPieceDirection::Forward:
+		return quat.GetForwardVector();
+	case EPieceDirection::Backward:
+		return -quat.GetForwardVector();
+	case EPieceDirection::Up:
+		return quat.GetUpVector();
+	case EPieceDirection::Down:
+		return -quat.GetUpVector();
+	default:
+		return quat.GetForwardVector();
+	}
+}

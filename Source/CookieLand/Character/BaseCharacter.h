@@ -8,6 +8,7 @@
 #include "BaseCharacter.generated.h"
 
 class UPieceLandComponent;
+class UCharacterLocomotionComponent;
 
 UCLASS()
 class COOKIELAND_API ABaseCharacter : public ACharacter
@@ -32,7 +33,12 @@ protected:
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	UPieceLandComponent* PieceLandComponent;
 
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	UCharacterLocomotionComponent* LocomotionComponent;
+	
 public:
 	
 	UPieceLandComponent* GetPieceLandComponent();
+
+	UCharacterLocomotionComponent* GetLocomotionComponent();
 };

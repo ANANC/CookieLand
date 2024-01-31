@@ -57,7 +57,7 @@ void UBasePiece::Init()
 	if(CurInfo->IsOccupy)
 	{
 		FTransform transform;
-		transform.SetLocation(OwnLand->GetActorLocationByOccupyLocation(CurInfo->Info->Location));
+		transform.SetLocation(OwnLand->GetActorLocationByLocation(CurInfo->Info->Location));
 	
 		FActorSpawnParameters spawnParameters;
 		spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;

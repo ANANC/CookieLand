@@ -9,7 +9,7 @@
 #include "PieceTypes.generated.h"
 
 
-UENUM()
+UENUM(BlueprintType)
 enum class EPieceDirection : uint8
 {
 	Left,

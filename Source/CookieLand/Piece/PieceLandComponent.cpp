@@ -42,7 +42,7 @@ void UPieceLandComponent::MoveToNextPiece(EPieceDirection direction)
 		int nextPieceId;
 		if(curLand->RequestToNextLocation(CurPieceId,direction,nextPieceId))
 		{
-			SetCurLocation(nextPieceId);
+			SetCurLocation(nextPieceId,direction);
 		}
 	}
 }
@@ -87,7 +87,7 @@ void UPieceLandComponent::SetInitialLocation(int pieceId)
 	}
 }
 
-void UPieceLandComponent::SetCurLocation(int pieceId)
+void UPieceLandComponent::SetCurLocation(int pieceId,EPieceDirection direction)
 {
 	if(CurPieceId == pieceId)
 	{
@@ -104,7 +104,7 @@ void UPieceLandComponent::SetCurLocation(int pieceId)
 	if(curLand)
 	{
 		FVector newLogicLocation = curLand->GetActorLocationById(CurPieceId);
-		MoveToNextLocation(newLogicLocation);
+		MoveToNextLocation(newLogicLocation,direction);
 		
 		MoveToNextPieceEvent.Broadcast(oldLocation,newLocation);
 	}
