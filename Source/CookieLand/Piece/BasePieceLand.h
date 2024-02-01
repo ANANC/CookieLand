@@ -19,7 +19,7 @@ protected:
 	
 	FName LevelName;
 	
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	class ULandDataAsset* LandDataAsset;
 
 	UPROPERTY(VisibleAnywhere)

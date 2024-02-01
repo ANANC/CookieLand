@@ -34,6 +34,20 @@ void UPieceLandComponent::BeginPlay()
 	}
 }
 
+void UPieceLandComponent::ResetLocationToInitialPiece()
+{
+	UBasePieceLand* land = UCommonFunctionLibrary::GetCurPieceLand();
+	if(land)
+	{
+		FPieceLocation oldLocation = GetCurLocation();
+	
+		CreatePieceLandEventCallback(land->GetLevelName(),land->GetInitialPieceId());
+		
+		FPieceLocation newLocation = GetCurLocation();
+		MoveToNextPieceEvent.Broadcast(oldLocation,newLocation);
+	}
+}
+
 void UPieceLandComponent::MoveToNextPiece(EPieceDirection direction)
 {
 	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();

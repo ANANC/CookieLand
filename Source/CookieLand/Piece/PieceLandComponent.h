@@ -34,6 +34,8 @@ protected:
 	FStandByFinishPieceEvent StandByFinishPieceEvent;
 	
 public:
+	UFUNCTION(BlueprintCallable)
+	void ResetLocationToInitialPiece();
 	
 	UFUNCTION(BlueprintCallable)
 	void MoveToNextPiece(EPieceDirection direction);

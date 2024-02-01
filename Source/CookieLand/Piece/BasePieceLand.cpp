@@ -257,11 +257,11 @@ TArray<UBasePiece*> UBasePieceLand::GetDirectionPiecesByFloorPieces(TArray<UBase
 		{
 			directionPieces.Add(piece);
 		}
-		if(direction == EPieceDirection::Forward && (pieceLocation.X == curLocation.X && pieceLocation.Y > curLocation.Y))
+		if(direction == EPieceDirection::Forward && (pieceLocation.X == curLocation.X && pieceLocation.Y < curLocation.Y))
 		{
 			directionPieces.Add(piece);
 		}
-		if(direction == EPieceDirection::Backward && (pieceLocation.X == curLocation.X && pieceLocation.Y < curLocation.Y))
+		if(direction == EPieceDirection::Backward && (pieceLocation.X == curLocation.X && pieceLocation.Y > curLocation.Y))
 		{
 			directionPieces.Add(piece);
 		}
