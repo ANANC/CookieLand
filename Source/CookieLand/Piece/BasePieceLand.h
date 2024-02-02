@@ -45,6 +45,7 @@ public:
 
 	bool RequestUnOccupyLocation(int Id,FPieceLocation location);
 
+	UFUNCTION(BlueprintPure)
 	FName GetLevelName();
 	
 	int GetInitialPieceId();
@@ -72,15 +73,22 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	TArray<UBasePiece*> GetFloorPieces(int floor);
+
+	UFUNCTION(BlueprintPure)
+	TArray<UBasePiece*> GetDirectionPiecesByFloorPieces(TArray<UBasePiece*> floorPieces,FPieceLocation curLocation,EPieceDirection direction);
+
+	UFUNCTION(BlueprintPure)
+    UBasePiece* GetNearPieceByDirectionPieces(int pieceId,FPieceDistance distance,EPieceDirection direction);
+
+	UFUNCTION(BlueprintPure)
+    UBasePiece* GetNearPieceByUpOrDown(int pieceId,FPieceDistance distance,EPieceDirection direction);
+	
+	UFUNCTION(BlueprintPure)
+	TArray<UBasePiece*> GetOutDistancePieces(int pieceId,FPieceDistance distance,EPieceDirection direction);
 protected:
 	UBasePiece* CreatePiece(UPieceBaseConfigData* pieceData);
 
 	UPieceLocationInfo* GetLocationInfo(FPieceLocation location);
+	
 
-
-	TArray<UBasePiece*> GetDirectionPiecesByFloorPieces(TArray<UBasePiece*> floorPieces,FPieceLocation curLocation,EPieceDirection direction);
-
-	UBasePiece* GetNearPieceByDirectionPieces(int pieceId,FPieceDistance distance,EPieceDirection direction);
-
-	UBasePiece* GetNearPieceByUpOrDown(int pieceId,FPieceDistance distance,EPieceDirection direction);
 };

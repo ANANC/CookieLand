@@ -104,19 +104,19 @@ FVector UCommonFunctionLibrary::ChangeToLogicDirection(EPieceDirection direction
 	switch (direction)
 	{
 	case EPieceDirection::Left:
-		return FVector::LeftVector;
+		return FVector(-1,0,0);
 	case EPieceDirection::Right:
-		return FVector::RightVector;
+		return  FVector(1,0,0);
 	case EPieceDirection::Forward:
-		return FVector::ForwardVector;
+		return  FVector(0,1,0);
 	case EPieceDirection::Backward:
-		return FVector::BackwardVector;
+		return FVector(0,-1,0);
 	case EPieceDirection::Up:
-		return FVector::UpVector;
+		return FVector(0,0,1);
 	case EPieceDirection::Down:
-		return FVector::DownVector;
+		return FVector(0,0,-1);
 	default:
-		return FVector::LeftVector;
+		return FVector(-1,0,0);
 	}
 }
 
@@ -168,9 +168,23 @@ FVector UCommonFunctionLibrary::ChangeToControllerDirection(EPieceDirection dire
 
 EPieceDirection UCommonFunctionLibrary::ChangeToLandDirectionByCharacter(EPieceDirection direction,ACharacter* character)
 {
-	FVector controllerDirection = ChangeToControllerDirection(direction,character);
-	EPieceDirection newDirection = ChangeToGameDirection(controllerDirection);
+	float yaw = character->GetController()->GetControlRotation().Yaw;
+
+	FVector characterForward = ChangeVectorByAngle(90,ChangeToLogicDirection(EPieceDirection::Forward));
+	FVector controllerForward = ChangeVectorByAngle(yaw,characterForward);
 	
+	float angle = GetAngleBetweenVector(ChangeToLogicDirection(direction),ChangeToLogicDirection(EPieceDirection::Forward));
+	FVector inputVector = ChangeVectorByAngle(angle,controllerForward);
+	EPieceDirection newDirection = ChangeToGameDirection(inputVector);
+	
+	return newDirection;
+}
+
+EPieceDirection UCommonFunctionLibrary::ChangeGameDirectionByAngle(float angle,EPieceDirection direction)
+{
+	FVector dirVector = ChangeToLogicDirection(direction);
+	FVector changeVector = ChangeVectorByAngle(angle,dirVector);
+	EPieceDirection newDirection = ChangeToGameDirection(changeVector);
 	return newDirection;
 }
 
@@ -205,11 +219,8 @@ float UCommonFunctionLibrary::GetForwardAngleBetweenVector(FVector sourceForward
 	return angle;
 }
 
-FVector UCommonFunctionLibrary::ChangeVectorByRotation(float rotation,FVector position)
+FVector UCommonFunctionLibrary::ChangeVectorByAngle(float angle,FVector vector)
 {
-	float radian = 3.14 / 180 * rotation;
-	FVector newPos = position;
-	newPos.X = position.X * cos(radian) - position.Y * sin(radian);
-	newPos.Y = position.X * sin(radian) + position.Y * cos(radian);
-	return newPos;
+	FVector newVector = vector.RotateAngleAxis(angle,FVector::DownVector);
+	return newVector;
 }

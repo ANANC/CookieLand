@@ -47,6 +47,9 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	static EPieceDirection ChangeToLandDirectionByCharacter(EPieceDirection direction,ACharacter* character);
+
+	UFUNCTION(BlueprintPure)
+	static EPieceDirection ChangeGameDirectionByAngle(float angle,EPieceDirection direction);
 	
 	//计算两个向量的夹角
 	UFUNCTION(BlueprintPure)
@@ -61,7 +64,7 @@ public:
 
 	//旋转坐标角度
 	UFUNCTION(BlueprintPure)
-	static FVector ChangeVectorByRotation(float rotation,FVector position);
+	static FVector ChangeVectorByAngle(float angle,FVector vector);
 	
 
 };

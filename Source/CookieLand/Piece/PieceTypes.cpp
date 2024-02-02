@@ -31,7 +31,7 @@ void UPieceLandBoundInfo::AddPiece(class UBasePiece* piece)
 		floorBoundInfo->Pieces.Add(piece);
 	}
 
-	UpdateFloorMaxAndMin();
+	UpdateBound();
 }
 
 void UPieceLandBoundInfo::RemovePiece(class UBasePiece* piece)
@@ -43,11 +43,10 @@ void UPieceLandBoundInfo::RemovePiece(class UBasePiece* piece)
 	
 	FPieceLocation location = piece->GetCurInfo()->Info->Location;
 	int floor = location.Floor;
-	
-	UPieceLandFloorBoundInfo** floorBoundInfoPtr = Floor2BoundInfos.Find(location.Floor);
-	if(floorBoundInfoPtr)
+
+	UPieceLandFloorBoundInfo* floorBoundInfo = GetFloorBoundInfo(floor);
+	if(floorBoundInfo)
 	{
-		UPieceLandFloorBoundInfo* floorBoundInfo = *floorBoundInfoPtr;
 		floorBoundInfo->Pieces.Remove(piece);
 
 		if(floorBoundInfo->Pieces.Num() == 0)
@@ -56,22 +55,51 @@ void UPieceLandBoundInfo::RemovePiece(class UBasePiece* piece)
 		}
 	}
 
-	UpdateFloorMaxAndMin();
+	UpdateBound();
 }
 
-void UPieceLandBoundInfo::UpdateFloorMaxAndMin()
+void UPieceLandBoundInfo::UpdateBound()
 {
-	MinFloor = 0;
-	MaxFloor = 0;
+	MaxFloor = MinFloor = 0;
+	
 	for(int index = 0;index<ValidFloors.Num();++index)
 	{
-		if(ValidFloors[index] > MaxFloor)
+		int floor = ValidFloors[index];
+		if(floor > MaxFloor)
 		{
-			MaxFloor = ValidFloors[index];
+			MaxFloor = floor;
 		}
-		if(ValidFloors[index] < MinFloor)
+		if(floor < MinFloor)
 		{
-			MinFloor = ValidFloors[index];
+			MinFloor = floor;
+		}
+
+		UPieceLandFloorBoundInfo** floorBoundInfoPtr = Floor2BoundInfos.Find(floor);
+		if(floorBoundInfoPtr)
+		{
+			UPieceLandFloorBoundInfo* floorBoundInfo = *floorBoundInfoPtr;
+			
+			floorBoundInfo->MaxX = floorBoundInfo->MinX = floorBoundInfo->MaxY = floorBoundInfo->MinY = 0;
+			for(int j = 0;j<floorBoundInfo->Pieces.Num();++j)
+			{
+				FPieceLocation location = floorBoundInfo->Pieces[j]->GetCurInfo()->Info->Location;
+				if(j==0 || location.X<floorBoundInfo->MinX)
+				{
+					floorBoundInfo->MinX = location.X;
+				}
+				if(j==0 || location.X>floorBoundInfo->MaxX)
+				{
+					floorBoundInfo->MaxX = location.X;
+				}
+				if(j==0 || location.Y<floorBoundInfo->MinY)
+				{
+					floorBoundInfo->MinY = location.Y;
+				}
+				if(j==0 || location.Y>floorBoundInfo->MaxY)
+				{
+					floorBoundInfo->MaxY = location.Y;
+				}
+			}
 		}
 	}
 }
@@ -79,4 +107,25 @@ void UPieceLandBoundInfo::UpdateFloorMaxAndMin()
 bool UPieceLandBoundInfo::HasValidFloors()
 {
 	return ValidFloors.Num()>0;
+}
+
+bool UPieceLandBoundInfo::HasValidPieceInFloor(int floor)
+{
+	UPieceLandFloorBoundInfo* floorBoundInfo = GetFloorBoundInfo(floor);
+	if(floorBoundInfo)
+	{
+		return floorBoundInfo->Pieces.Num()>0;
+	}
+	return false;
+}
+
+UPieceLandFloorBoundInfo* UPieceLandBoundInfo::GetFloorBoundInfo(int floor)
+{
+	UPieceLandFloorBoundInfo** floorBoundInfoPtr = Floor2BoundInfos.Find(floor);
+	if(floorBoundInfoPtr)
+	{
+		UPieceLandFloorBoundInfo* floorBoundInfo = *floorBoundInfoPtr;
+		return floorBoundInfo;
+	}
+	return nullptr;
 }

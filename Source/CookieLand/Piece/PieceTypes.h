@@ -213,9 +213,21 @@ public:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TArray<class UBasePiece*> Pieces;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int MaxX{0};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int MinX{0};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int MaxY{0};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int MinY{0};
 };
 
-        
+  
 UCLASS()
 class UPieceLandBoundInfo : public UObject
 {
@@ -239,7 +251,11 @@ public:
 
 	void RemovePiece(class UBasePiece* piece);
 
-	void UpdateFloorMaxAndMin();
+	void UpdateBound();
 
 	bool HasValidFloors();
+
+	bool HasValidPieceInFloor(int floor);
+
+	UPieceLandFloorBoundInfo* GetFloorBoundInfo(int floor);
 };

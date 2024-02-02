@@ -5,6 +5,7 @@
 
 #include "BasePiece.h"
 #include "BasePieceActor.h"
+#include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 
 void UBasePieceLand::CreateLand(FName levelName,class ULandDataAsset* landDA)
 {
@@ -288,7 +289,7 @@ UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(int pieceId,FPieceDist
 		FPieceLocation pieceLocation = directionPiece->GetCurInfo()->Info->Location;
 		if(direction == EPieceDirection::Left)
 		{
-			if(!distance.LimitDistance && (abs(pieceLocation.X-curLocation.X)>distance.LimitDistance))
+			if(!distance.IsUnLimit && (abs(pieceLocation.X-curLocation.X)>distance.LimitDistance))
 			{
 				continue;
 			}
@@ -296,7 +297,7 @@ UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(int pieceId,FPieceDist
 		}
 		if(direction == EPieceDirection::Right)
 		{
-			if(!distance.LimitDistance && (abs(pieceLocation.X-curLocation.X)>distance.LimitDistance))
+			if(!distance.IsUnLimit && (abs(pieceLocation.X-curLocation.X)>distance.LimitDistance))
 			{
 				continue;
 			}
@@ -304,19 +305,19 @@ UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(int pieceId,FPieceDist
 		}
 		if(direction == EPieceDirection::Forward)
 		{
-			if(!distance.LimitDistance && (abs(pieceLocation.Y-curLocation.Y)>distance.LimitDistance))
-			{
-				continue;
-			}
-			update = (minPiece == nullptr) || (minLocation.Y > pieceLocation.Y);
-		}
-		if(direction == EPieceDirection::Backward)
-		{
-			if(!distance.LimitDistance && (abs(pieceLocation.Y-curLocation.Y)>distance.LimitDistance))
+			if(!distance.IsUnLimit && (abs(pieceLocation.Y-curLocation.Y)>distance.LimitDistance))
 			{
 				continue;
 			}
 			update = (minPiece == nullptr) || (minLocation.Y < pieceLocation.Y);
+		}
+		if(direction == EPieceDirection::Backward)
+		{
+			if(!distance.IsUnLimit && (abs(pieceLocation.Y-curLocation.Y)>distance.LimitDistance))
+			{
+				continue;
+			}
+			update = (minPiece == nullptr) || (minLocation.Y > pieceLocation.Y);
 		}
 
 		if(update)
@@ -326,6 +327,16 @@ UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(int pieceId,FPieceDist
 		}
 	}
 
+	if(minPiece)
+	{
+		EPieceDirection oppositeDir = UCommonFunctionLibrary::ChangeGameDirectionByAngle(180,direction);
+		if(!minPiece->GetEnableMove(EPieceDirection::Up) && !minPiece->GetEnableMove(EPieceDirection::Down)
+			&& !IsFinishPieceId(minPiece->GetId())
+			&& !minPiece->GetEnableMove(oppositeDir))
+		{
+			minPiece = nullptr;
+		}
+	}
 	return minPiece;
 }
 
@@ -366,6 +377,78 @@ UBasePiece* UBasePieceLand::GetNearPieceByUpOrDown(int pieceId,FPieceDistance di
 	}
 
 	return nullptr;
+}
+
+
+TArray<UBasePiece*> UBasePieceLand::GetOutDistancePieces(int pieceId,FPieceDistance distance,EPieceDirection direction)
+{
+	TArray<UBasePiece*> outDistancePieces;
+	if(distance.IsUnLimit)
+	{
+		return outDistancePieces;
+	}
+	
+	UBasePiece* piece = GetPieceById(pieceId);
+	FPieceLocation pieceLocation = piece->GetCurInfo()->Info->Location;
+
+	int initialIndex;
+	int intDirection = (direction == EPieceDirection::Left || direction == EPieceDirection::Backward || direction == EPieceDirection::Down)?-1:1;
+	int range;
+	
+	UPieceLandFloorBoundInfo* floorBoundInfo = BoundInfo->GetFloorBoundInfo(pieceLocation.Floor);
+	if(!floorBoundInfo)
+	{
+		return outDistancePieces;
+	}
+	
+	switch (direction)
+	{
+	case EPieceDirection::Left:
+	case EPieceDirection::Right:
+		initialIndex = pieceLocation.X + distance.LimitDistance * intDirection;
+		range = intDirection == 1? floorBoundInfo->MaxX:floorBoundInfo->MinX;
+		break;
+	case EPieceDirection::Forward:
+	case EPieceDirection::Backward:
+		initialIndex = pieceLocation.Y + distance.LimitDistance * intDirection;
+		range = intDirection == 1? floorBoundInfo->MaxY:floorBoundInfo->MinY;
+		break;
+	case EPieceDirection::Up:
+	case EPieceDirection::Down:
+		initialIndex = piece->GetCurInfo()->Info->Location.Floor + distance.LimitDistance * intDirection;
+		range = intDirection == 1? BoundInfo->MaxFloor:BoundInfo->MinFloor;
+		break;
+	}
+	
+	for(int index = 0,value = initialIndex;index<abs(range-initialIndex);++index)
+	{
+		FPieceLocation nextLocation(pieceLocation);
+		value+=intDirection;
+		
+		switch (direction)
+		{
+		case EPieceDirection::Left:
+		case EPieceDirection::Right:
+			nextLocation.X = value;
+			break;
+		case EPieceDirection::Forward:
+		case EPieceDirection::Backward:
+			nextLocation.Y = value;
+			break;
+		case EPieceDirection::Up:
+		case EPieceDirection::Down:
+			nextLocation.Floor = value;
+			break;
+		}
+		int nextPieceId;
+		if(GetPieceIdByLocation(nextLocation,nextPieceId))
+		{
+			UBasePiece* nextPiece = GetPieceById(nextPieceId);
+			outDistancePieces.Add(nextPiece);
+		}
+	}
+
+	return outDistancePieces;
 }
 
 TSubclassOf<class ABasePieceActor> UBasePieceLand::GetPieceInstanceActorClass(UBasePiece* piece)
