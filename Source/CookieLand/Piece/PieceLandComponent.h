@@ -33,6 +33,9 @@ protected:
 	UPROPERTY(BlueprintAssignable)
 	FStandByFinishPieceEvent StandByFinishPieceEvent;
 	
+	UPROPERTY(BlueprintReadOnly)
+	class ABaseCharacter* Character;
+	
 public:
 	UFUNCTION(BlueprintCallable)
 	void ResetLocationToInitialPiece();
@@ -50,12 +53,12 @@ protected:
 	void SetInitialLocation(int pieceId);
 	
 	UFUNCTION(BlueprintImplementableEvent)
-	void MoveToInitialLocation(FVector location);
+	void MoveToInitialLocation(int pieceId,FVector location);
 	
 	void SetCurLocation(int pieceId,EPieceDirection direction);
 	
 	UFUNCTION(BlueprintImplementableEvent)
-	void MoveToNextLocation(FVector location,EPieceDirection moveDirection);
+	void MoveToNextLocation(int pieceId,FVector location,EPieceDirection moveDirection);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void StandByFinishLocation();

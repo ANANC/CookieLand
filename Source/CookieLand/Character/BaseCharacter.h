@@ -9,6 +9,8 @@
 
 class UPieceLandComponent;
 class UCharacterLocomotionComponent;
+class UCharacterMovementComponent;
+class UMoveToComponent;
 
 UCLASS()
 class COOKIELAND_API ABaseCharacter : public ACharacter
@@ -35,10 +37,18 @@ protected:
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	UCharacterLocomotionComponent* LocomotionComponent;
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	UMoveToComponent* MoveToComponent;
 	
 public:
 	
 	UPieceLandComponent* GetPieceLandComponent();
 
 	UCharacterLocomotionComponent* GetLocomotionComponent();
+
+	UFUNCTION(BlueprintPure)
+	UCharacterMovementComponent* GetCharacterMovementComponent();
+
+	UMoveToComponent* GetMoveToComponent();
 };

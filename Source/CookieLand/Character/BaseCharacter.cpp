@@ -5,9 +5,11 @@
 
 #include "CharacterLocomotionComponent.h"
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
+#include "CookieLand/MoveTo/MoveToComponent.h"
 #include "CookieLand/Piece/BasePieceLand.h"
 #include "CookieLand/Piece/PieceLandComponent.h"
 #include "CookieLand/Piece/PieceLandSystem.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 
 // Sets default values
@@ -16,6 +18,7 @@ ABaseCharacter::ABaseCharacter()
 	bClientUpdating = true;
 	PieceLandComponent = CreateDefaultSubobject<UPieceLandComponent>(TEXT("PieceLandComponent"));
 	LocomotionComponent = CreateDefaultSubobject<UCharacterLocomotionComponent>(TEXT("LocomotionComponent"));
+	MoveToComponent = CreateDefaultSubobject<UMoveToComponent>(TEXT("MoveToComponent"));
 }
 
 // Called when the game starts or when spawned
@@ -40,4 +43,14 @@ UPieceLandComponent* ABaseCharacter::GetPieceLandComponent()
 UCharacterLocomotionComponent* ABaseCharacter::GetLocomotionComponent()
 {
 	return LocomotionComponent;
+}
+
+UCharacterMovementComponent* ABaseCharacter::GetCharacterMovementComponent()
+{
+	return Cast<UCharacterMovementComponent>(GetMovementComponent());
+}
+
+UMoveToComponent* ABaseCharacter::GetMoveToComponent()
+{
+	return MoveToComponent;
 }

@@ -224,3 +224,66 @@ FVector UCommonFunctionLibrary::ChangeVectorByAngle(float angle,FVector vector)
 	FVector newVector = vector.RotateAngleAxis(angle,FVector::DownVector);
 	return newVector;
 }
+
+
+float UCommonFunctionLibrary::GetSmoothRotationYaw(float curYaw,float targetYaw)
+{
+    float newTargetYaw = targetYaw;
+    if(((curYaw > 90 && curYaw < 180 )|| (curYaw < -90 && curYaw > -180 )) && ((targetYaw > 90 && targetYaw < 180 )|| (targetYaw < -90 && targetYaw > -180 )) && (curYaw * targetYaw) < 0)
+    {
+	    float angle = (180 - abs(targetYaw)) + (180 - abs(curYaw));
+    	
+    	if(targetYaw < curYaw)//right
+    	{
+    		newTargetYaw = curYaw + angle;
+    	}
+    	else
+    	{
+    		newTargetYaw = curYaw - angle;
+    	}
+    }
+    
+
+    return newTargetYaw;
+}
+
+float UCommonFunctionLibrary::ChangeToControllerYaw(float curYaw)
+{
+    float newYaw = curYaw;
+    if(curYaw > -360 && curYaw < -180)
+    {
+       newYaw = 360+curYaw;
+    }
+    else if(curYaw < 360 && curYaw > 180)
+    {
+       newYaw = curYaw-360;
+    }
+
+    return newYaw;
+}
+
+float UCommonFunctionLibrary::GetDifferenceValueByControllerYaw(float curYaw,float targetYaw)
+{
+    int moveDirection = curYaw > targetYaw? -1:1;
+    float value;
+    if(curYaw*targetYaw>0)
+    {
+       value = abs(curYaw - targetYaw);
+    }
+    else    {
+       float positiveValue = curYaw>=0?curYaw:targetYaw;
+       float minusValue = curYaw<0?curYaw:targetYaw;
+
+       if(positiveValue + abs(minusValue) < 180)
+       {
+          value = positiveValue + abs(minusValue);
+       }
+       else       {
+          value = (180-positiveValue) + abs(-180-minusValue);
+          moveDirection *= -1;
+       }
+    }
+
+    value *= moveDirection;
+    return value;
+}

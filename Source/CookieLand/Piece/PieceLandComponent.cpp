@@ -6,6 +6,7 @@
 #include "BasePiece.h"
 #include "BasePieceLand.h"
 #include "PieceLandSystem.h"
+#include "CookieLand/Character/BaseCharacter.h"
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 
 
@@ -21,6 +22,8 @@ void UPieceLandComponent::BeginPlay()
 
 	// ...
 
+	Character = Cast<ABaseCharacter>(GetOwner());
+	
 	UPieceLandSystem* PieceLandSystem = UCommonFunctionLibrary::GetPieceLandSystem();
 	if(PieceLandSystem)
 	{
@@ -97,7 +100,7 @@ void UPieceLandComponent::SetInitialLocation(int pieceId)
 	if(curLand)
 	{
 		FVector newLocation = curLand->GetActorLocationById(CurPieceId);
-		MoveToInitialLocation(newLocation);
+		MoveToInitialLocation(CurPieceId,newLocation);
 	}
 }
 
@@ -118,7 +121,7 @@ void UPieceLandComponent::SetCurLocation(int pieceId,EPieceDirection direction)
 	if(curLand)
 	{
 		FVector newLogicLocation = curLand->GetActorLocationById(CurPieceId);
-		MoveToNextLocation(newLogicLocation,direction);
+		MoveToNextLocation(CurPieceId,newLogicLocation,direction);
 		
 		MoveToNextPieceEvent.Broadcast(oldLocation,newLocation);
 	}

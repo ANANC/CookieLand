@@ -65,6 +65,13 @@ public:
 	//旋转坐标角度
 	UFUNCTION(BlueprintPure)
 	static FVector ChangeVectorByAngle(float angle,FVector vector);
-	
 
+	//计算最终旋转角度（左右）
+	static float GetSmoothRotationYaw(float curYaw,float targetYaw);
+	
+	//将旋转角度控制[0-180]内，因为character的范围是[0-180]
+	static float ChangeToControllerYaw(float curYaw);
+	
+	//计算差值和旋转角度
+	static float GetDifferenceValueByControllerYaw(float curYaw,float targetYaw);
 };
