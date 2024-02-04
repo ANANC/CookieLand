@@ -110,6 +110,45 @@ public:
 	FName Name;
 };
 
+USTRUCT(BlueprintType)
+struct FPieceActionHandle
+{
+	GENERATED_USTRUCT_BODY()
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool IsValid{false};
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int Id{-1};
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	int PieceId{-1};
+
+public:
+	bool operator==(const FPieceActionHandle& Other) const
+	{
+		return IsValid && Other.IsValid && Id == Other.Id;
+	}
+
+	FPieceActionHandle(){}
+	FPieceActionHandle(int id,int pieceId):Id(id),PieceId(pieceId){IsValid=true;}
+
+	int GetPieceId(){return PieceId;}
+	bool GetIsValid(){return IsValid;}
+	void Clear(){IsValid = false;Id = -1;}
+};
+
+
+UCLASS(abstract,EditInlineNew,Blueprintable)
+class COOKIELAND_API UPieceBaseActionConfigData : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<class UPieceBaseAction> ActionClass;
+};
 
 UCLASS(EditInlineNew,Blueprintable)
 class COOKIELAND_API UPieceBaseConfigData : public UObject
@@ -127,8 +166,10 @@ public:
 	UPieceBaseInfo* BaseInfo;
 	
 	UPROPERTY(EditAnywhere,Instanced)
-	TArray<TObjectPtr<UPieceBaseStateConfigData>> StateConfigData;
+	TArray<TObjectPtr<UPieceBaseStateConfigData>> States;
 
+	UPROPERTY(EditAnywhere,Instanced)
+	TArray<TObjectPtr<UPieceBaseActionConfigData>> Actions;
 };
 
 UCLASS(BlueprintType)
@@ -258,4 +299,23 @@ public:
 	bool HasValidPieceInFloor(int floor);
 
 	UPieceLandFloorBoundInfo* GetFloorBoundInfo(int floor);
+};
+
+USTRUCT(BlueprintType)
+struct FPieceTipData
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int Id{-1};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool IsFixType{false};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	float RemainTime{3.f};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FText Tip;
 };

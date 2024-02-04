@@ -124,7 +124,72 @@ void ULandEditorPieceWidget::DrawSelectPiece()
 		SNew(STextBlock)
 		.Text(FText::FromString(locationStr))
 	];
+
+
+	SelectPieceWidget->AddSlot()
+	.AutoHeight()
+	[
+		SNew(SHorizontalBox)
+
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		[
+			SNew(STextBlock)
+			.Text(FText::FromString("Is Auto Create Empty Piece:"))
+		]
+
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		[
+			SNew(SCheckBox)
+			.IsChecked(IsAutoCreate)
+			.OnCheckStateChanged_Lambda([this](ECheckBoxState state)
+			{
+				IsAutoCreate = state == ECheckBoxState::Checked? true:false;
+			})
+		]
+	];
 	
+	FVector seleceLocation = CheckerboardWidget->CheckerboardWidgetInfo->SelectLocation;
+	int curFloor = CheckerboardWidget->CheckerboardWidgetInfo->CurFloor;
+	
+	for(int y = -1;y<2;++y)
+	{
+		TSharedPtr<SHorizontalBox> horizontalBox = SNew(SHorizontalBox);
+		for(int x = -1;x<2;++x)
+		{
+			FVector curLogicLocation = FVector(seleceLocation.X+x,seleceLocation.Y+y,curFloor);
+
+			bool isMyself = curLogicLocation == seleceLocation;
+			bool hasPiece = GlobalWidgetInfo->GetPieceConfigDataByLocation(CheckerboardWidget->ChangeToGameLocation(curLogicLocation)) != nullptr;
+			
+			horizontalBox->AddSlot()
+			.AutoWidth()
+			.Padding(4,4)
+			[
+				SNew(SButton)
+				.Text(FText::FromString(isMyself? "   ":hasPiece?" * ":" + "))
+				.OnClicked_Lambda([this,isMyself,curLogicLocation,hasPiece]() {
+					FPieceLocation gameLocation = CheckerboardWidget->ChangeToGameLocation(curLogicLocation);
+					if(!isMyself)
+					{
+						if(!hasPiece && IsAutoCreate)
+						{
+							CreatePiece(gameLocation);
+						}
+						CheckerboardWidget->SelectLocation(gameLocation);
+					}
+					return FReply::Handled();
+				})
+			];
+		}
+		SelectPieceWidget->AddSlot()
+		.AutoHeight()
+		[
+			horizontalBox.ToSharedRef()
+		];
+	}
+
 	if(piece == nullptr)
 	{
 		DrawEmptyPiece();
@@ -164,67 +229,6 @@ void ULandEditorPieceWidget::DrawValidPiece(class UPieceBaseConfigData* piece)
 	int pieceId = piece->Id;
 	int curFloor = CheckerboardWidget->CheckerboardWidgetInfo->CurFloor;
 	
-	SelectPieceWidget->AddSlot()
-	.AutoHeight()
-	[
-		SNew(SHorizontalBox)
-
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		[
-			SNew(STextBlock)
-			.Text(FText::FromString("Is Auto Create Empty Piece:"))
-		]
-
-		+ SHorizontalBox::Slot()
-		.AutoWidth()
-		[
-			SNew(SCheckBox)
-			.IsChecked(IsAutoCreate)
-			.OnCheckStateChanged_Lambda([this](ECheckBoxState state)
-			{
-				IsAutoCreate = state == ECheckBoxState::Checked? true:false;
-			})
-		]
-	];
-	
-	for(int y = -1;y<2;++y)
-	{
-		TSharedPtr<SHorizontalBox> horizontalBox = SNew(SHorizontalBox);
-		for(int x = -1;x<2;++x)
-		{
-			FVector curLogicLocation = FVector(seleceLocation.X+x,seleceLocation.Y+y,curFloor);
-
-			bool isMyself = curLogicLocation == seleceLocation;
-			bool hasPiece = GlobalWidgetInfo->GetPieceConfigDataByLocation(CheckerboardWidget->ChangeToGameLocation(curLogicLocation)) != nullptr;
-			
-			horizontalBox->AddSlot()
-			.AutoWidth()
-			.Padding(4,4)
-			[
-				SNew(SButton)
-				.Text(FText::FromString(isMyself? "   ":hasPiece?" * ":" + "))
-				.OnClicked_Lambda([this,isMyself,curLogicLocation,hasPiece]() {
-					FPieceLocation gameLocation = CheckerboardWidget->ChangeToGameLocation(curLogicLocation);
-					if(!isMyself)
-					{
-						if(!hasPiece && IsAutoCreate)
-						{
-							CreatePiece(gameLocation);
-						}
-						CheckerboardWidget->SelectLocation(gameLocation);
-					}
-					return FReply::Handled();
-				})
-			];
-		}
-		SelectPieceWidget->AddSlot()
-		.AutoHeight()
-		[
-			horizontalBox.ToSharedRef()
-		];
-	}
-
 	
 	SelectPieceWidget->AddSlot()
 	.AutoHeight()

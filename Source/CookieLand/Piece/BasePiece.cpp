@@ -5,6 +5,7 @@
 
 #include "BasePieceActor.h"
 #include "BasePieceLand.h"
+#include "PieceBaseAction.h"
 #include "PieceTypes.h"
 
 // Sets default values
@@ -111,4 +112,21 @@ bool UBasePiece::GetEnableMove(EPieceDirection direction)
 	}
 
 	return false;
+}
+
+void UBasePiece::AddAction(class UPieceBaseAction* action)
+{
+	Actions.Add(action);
+}
+
+void UBasePiece::RemoveAction(FPieceActionHandle handle)
+{
+	for(int index = 0;index<Actions.Num();++index)
+	{
+		if(Actions[index]->GetHandle() == handle)
+		{
+			Actions.RemoveAt(index);
+			break;
+		}
+	}
 }

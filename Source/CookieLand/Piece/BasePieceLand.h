@@ -59,6 +59,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	FVector GetActorLocationByLocation(FPieceLocation location);
 
+	UFUNCTION(BlueprintPure)
 	bool GetPieceIdByLocation(FPieceLocation location,int& pieceId);
 	
 	bool IsInFinishLocation(int pieceId);

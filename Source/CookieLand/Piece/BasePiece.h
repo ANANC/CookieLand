@@ -32,6 +32,9 @@ protected:
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	class ABasePieceActor* PieceActor;
 
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
+	TArray<class UPieceBaseAction*> Actions;
+	
 public:
 	void SetId(int Id);
 
@@ -57,8 +60,11 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	bool GetEnableMove(EPieceDirection direction);
-	
+
+	void AddAction(class UPieceBaseAction* action);
+
+	void RemoveAction(FPieceActionHandle handle);
 protected:
 
-
+	
 };

@@ -391,9 +391,9 @@ TArray<UBasePiece*> UBasePieceLand::GetOutDistancePieces(int pieceId,FPieceDista
 	UBasePiece* piece = GetPieceById(pieceId);
 	FPieceLocation pieceLocation = piece->GetCurInfo()->Info->Location;
 
-	int initialIndex;
+	int initialIndex = 0;
 	int intDirection = (direction == EPieceDirection::Left || direction == EPieceDirection::Backward || direction == EPieceDirection::Down)?-1:1;
-	int range;
+	int range = 0;
 	
 	UPieceLandFloorBoundInfo* floorBoundInfo = BoundInfo->GetFloorBoundInfo(pieceLocation.Floor);
 	if(!floorBoundInfo)
