@@ -22,6 +22,7 @@ void UPieceBaseAction::SetData(class UPieceBaseActionConfigData* data){}
 
 void UPieceBaseAction::Init()
 {
+	isFinish = false;
 	_Init();
 }
 

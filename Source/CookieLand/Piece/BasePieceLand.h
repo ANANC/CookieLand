@@ -34,17 +34,27 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TArray<UPieceLocationInfo*> OccupyStates;
 	
+	int actionAutoId{1};
 public:
 	void CreateLand(FName levelName,class ULandDataAsset* landDA);
 
 	void DestroyLand();
+	
+	UFUNCTION(BlueprintCallable)
+	void DeletePieceById(int pieceId);
 	
 	bool GetEnableOccupyLocation(FPieceLocation location,int& OccupyId);
 	
 	bool RequestOccupyLocation(int Id,FPieceLocation location);
 
 	bool RequestUnOccupyLocation(int Id,FPieceLocation location);
-
+	
+	UFUNCTION(BlueprintPure)
+	bool CreateActionToPiece(FPieceActionHandle& handle,int pieceId,class UPieceBaseActionConfigData* actionData);
+	
+	UFUNCTION(BlueprintCallable)
+	void DeleteActionByPiece(FPieceActionHandle handle);
+	
 	UFUNCTION(BlueprintPure)
 	FName GetLevelName();
 	
@@ -86,10 +96,10 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	TArray<UBasePiece*> GetOutDistancePieces(int pieceId,FPieceDistance distance,EPieceDirection direction);
+	
 protected:
 	UBasePiece* CreatePiece(UPieceBaseConfigData* pieceData);
 
 	UPieceLocationInfo* GetLocationInfo(FPieceLocation location);
 	
-
 };

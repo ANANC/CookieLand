@@ -79,62 +79,39 @@ UBasePieceLand* UPieceLandSystem::GetCurLand()
 	return CurLand;
 }
 
-bool UPieceLandSystem::CreateActionToPiece(FPieceActionHandle& handle,int pieceId,class UPieceBaseActionConfigData* actionData)
+void UPieceLandSystem::ToNextLand()
 {
-	if(!actionData || !actionData->ActionClass || !CurLand)
-	{
-		return false;
-	}
-	
-	UBasePiece* piece = CurLand->GetPieceById(pieceId);
-	if(!piece)
-	{
-		return false;
-	}
-
-	UPieceBaseAction* action = NewObject<UPieceBaseAction>(Cast<UObject>(piece),actionData->ActionClass);
-	if(!action)
-	{
-		return false;
-	}
-
-	handle = FPieceActionHandle(actionAutoId,pieceId);
-	
-	actionAutoId+=1;
-	
-	action->SetHandle(handle);
-	action->SetData(actionData);
-	action->SetPiece(piece);
-	action->Init();
-
-	piece->AddAction(action);
-
-	return true;
-}
-
-void UPieceLandSystem::DeleteActionByPiece(FPieceActionHandle handle)
-{
-	if(!handle.GetIsValid())
+	if(!LevelLandDataTable || !CurLand)
 	{
 		return;
 	}
 
-	do
+	FName curLevelName = CurLand->GetLevelName();
+	FLevelLandDataTable* curLandConfig = LevelLandDataTable->FindRow<FLevelLandDataTable>(curLevelName,TEXT("FLevelLandDataTable"));
+	if(!curLandConfig)
 	{
-		if(!CurLand)
-		{
-			break;
-		}
-		
-		UBasePiece* piece = CurLand->GetPieceById(handle.GetPieceId());
-		if(!piece)
-		{
-			break;
-		}
-
-		piece->RemoveAction(handle);
+		return;
 	}
-	while (false);
-	
-	handle.Clear();
+
+	if(curLandConfig->IsNextInOrder)
+	{
+		TArray<FName> levelNames;
+		LevelLandDataTable->GetRowMap().GetKeys(levelNames);
+
+		for(int index = 0;index<levelNames.Num();++index)
+		{
+			if(levelNames[index] == curLevelName)
+			{
+				if(index != levelNames.Num()-1)
+				{
+					CreateLevelLand(levelNames[index+1]);
+					break;
+				}
+			}
+		}
+	}
+	else
+	{
+		CreateLevelLand(curLandConfig->NextTargetLevel);
+	}
 }

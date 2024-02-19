@@ -80,6 +80,16 @@ void UBasePiece::Init()
 
 void UBasePiece::UnInit()
 {
+	if(OwnLand)
+	{
+		int actionNumber = Actions.Num();
+		for(int index = 0;index<actionNumber;++index)
+		{
+			OwnLand->DeleteActionByPiece(Actions[0]->GetHandle());
+		}
+	}
+	Actions.Empty();
+	
 	if(PieceActor)
 	{
 		PieceActor->Destroy();
@@ -128,5 +138,17 @@ void UBasePiece::RemoveAction(FPieceActionHandle handle)
 			Actions.RemoveAt(index);
 			break;
 		}
+	}
+}
+
+void UBasePiece::TriggerAction_DropOut()
+{
+	if(PieceActor)
+	{
+		PieceActor->DropOutArt();
+	}
+	else
+	{
+		OwnLand->DeletePieceById(GetId());
 	}
 }

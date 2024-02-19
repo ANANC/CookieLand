@@ -5,6 +5,8 @@
 
 #include "BasePiece.h"
 #include "BasePieceActor.h"
+#include "PieceBaseAction.h"
+#include "PieceLandSystem.h"
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 
 void UBasePieceLand::CreateLand(FName levelName,class ULandDataAsset* landDA)
@@ -31,6 +33,8 @@ void UBasePieceLand::DestroyLand()
 
 	Pieces.Reset();
 	PieceMap.Reset();
+
+	UCommonFunctionLibrary::GetPieceLandSystem()->PieceLandHideAllTipEvent.Broadcast(false,false);
 }
 
 UBasePiece* UBasePieceLand::CreatePiece(UPieceBaseConfigData* pieceData)
@@ -47,7 +51,34 @@ UBasePiece* UBasePieceLand::CreatePiece(UPieceBaseConfigData* pieceData)
 
 	BoundInfo->AddPiece(piece);
 	
+	for(int index = 0;index<pieceData->Actions.Num();++index)
+	{
+		TObjectPtr<UPieceBaseActionConfigData> actionConfigData = pieceData->Actions[index];
+		if(!actionConfigData.Get() || !actionConfigData->ActionClass)
+		{
+			continue;
+		}
+
+		FPieceActionHandle handle;
+		CreateActionToPiece(handle,piece->GetId(),actionConfigData);
+	}
+	
 	return piece;
+}
+
+void UBasePieceLand::DeletePieceById(int pieceId)
+{
+	UBasePiece* piece = GetPieceById(pieceId);
+	if(!piece)
+	{
+		return;
+	}
+
+	Pieces.Remove(piece);
+	PieceMap.Remove(piece->GetId());
+	BoundInfo->RemovePiece(piece);
+	
+	piece->UnInit();
 }
 
 bool UBasePieceLand::GetEnableOccupyLocation(FPieceLocation location,int& OccupyId)
@@ -96,6 +127,67 @@ bool UBasePieceLand::RequestUnOccupyLocation(int Id,FPieceLocation location)
 	}
 
 	return false;
+}
+
+
+bool UBasePieceLand::CreateActionToPiece(FPieceActionHandle& handle,int pieceId,class UPieceBaseActionConfigData* actionData)
+{
+	if(!actionData || !actionData->ActionClass)
+	{
+		return false;
+	}
+	
+	UBasePiece* piece = GetPieceById(pieceId);
+	if(!piece)
+	{
+		return false;
+	}
+
+	UPieceBaseAction* action = NewObject<UPieceBaseAction>(Cast<UObject>(piece),actionData->ActionClass);
+	if(!action)
+	{
+		return false;
+	}
+
+	handle = FPieceActionHandle(actionAutoId,pieceId);
+	
+	actionAutoId+=1;
+	
+	action->SetHandle(handle);
+	action->SetData(actionData);
+	action->SetPiece(piece);
+	action->Init();
+
+	piece->AddAction(action);
+
+	if(actionData->IsAutoExecute)
+	{
+		action->Execute();
+	}
+	
+	return true;
+}
+
+void UBasePieceLand::DeleteActionByPiece(FPieceActionHandle handle)
+{
+	if(!handle.GetIsValid())
+	{
+		return;
+	}
+
+	do
+	{
+		UBasePiece* piece = GetPieceById(handle.GetPieceId());
+		if(!piece)
+		{
+			break;
+		}
+
+		piece->RemoveAction(handle);
+	}
+	while (false);
+	
+	handle.Clear();
 }
 
 FName UBasePieceLand::GetLevelName()
@@ -168,6 +260,8 @@ UPieceLocationInfo* UBasePieceLand::GetLocationInfo(FPieceLocation location)
 
 bool UBasePieceLand::GetPieceIdByLocation(FPieceLocation location,int& pieceId)
 {
+	pieceId = -1;
+	
 	for(int index = 0;index<OccupyStates.Num();++index)
 	{
 		if(OccupyStates[index]->Location == location)

@@ -50,7 +50,7 @@ public:
 		return IsValid && Other.IsValid && X == Other.X && Y == Other.Y && Floor == Other.Floor;
 	}
 
-	void Copy(FPieceLocation& Other)
+	void Copy(FPieceLocation Other)
 	{
 		IsValid = Other.IsValid;
 		X = Other.X;
@@ -147,6 +147,9 @@ class COOKIELAND_API UPieceBaseActionConfigData : public UObject
 
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool IsAutoExecute{true};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<class UPieceBaseAction> ActionClass;
 };
 
@@ -205,6 +208,12 @@ struct COOKIELAND_API FLevelLandDataTable : public FTableRowBase
 public:    
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class ULandDataAsset* LandDataAsset;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool IsNextInOrder{true};
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FName NextTargetLevel;
 };
 
 
@@ -302,7 +311,7 @@ public:
 };
 
 USTRUCT(BlueprintType)
-struct FPieceTipData
+struct FPiecePopTipData
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -312,10 +321,19 @@ public:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	bool IsFixType{false};
-	
+
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float RemainTime{3.f};
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FText Tip;
+
+	FPiecePopTipData(){};
+	FPiecePopTipData(FPiecePopTipData& source){
+		Id = source.Id;
+		IsFixType = source.IsFixType;
+		RemainTime = source.RemainTime;
+		Tip = source.Tip;
+	}
+	
 };

@@ -35,6 +35,7 @@ public:
 private:
 	bool isFinish{false};
 
+	UPROPERTY()
 	FPieceActionHandle Handle;
 	
 protected:

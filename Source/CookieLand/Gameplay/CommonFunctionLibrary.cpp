@@ -4,6 +4,7 @@
 #include "CommonFunctionLibrary.h"
 
 #include "CookieLandGameInstance.h"
+#include "CookieLand/Character/BaseCharacter.h"
 #include "CookieLand/Piece/PieceLandSystem.h"
 #include "GameFramework/Character.h"
 
@@ -46,6 +47,27 @@ UBasePieceLand* UCommonFunctionLibrary::GetCurPieceLand()
 	}
 
 	return nullptr;
+}
+
+class ABaseCharacter* UCommonFunctionLibrary::GetMainCharacter(class UWorld* world)
+{
+	if (world)
+	{
+		APlayerController* playerController = world->GetFirstPlayerController();
+		if (playerController)
+		{
+			APawn* pawn = playerController->GetPawn();
+			if (pawn)
+			{
+				ABaseCharacter* player = Cast< ABaseCharacter>(pawn);
+				if (player)
+				{
+					return player;
+				}
+			}
+		}
+	}
+	return nullptr;	
 }
 
 FVector UCommonFunctionLibrary::ChangeToLogicLocation(FPieceLocation location)

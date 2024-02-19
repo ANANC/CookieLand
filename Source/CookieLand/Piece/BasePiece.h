@@ -64,7 +64,9 @@ public:
 	void AddAction(class UPieceBaseAction* action);
 
 	void RemoveAction(FPieceActionHandle handle);
-protected:
+	
+public:
 
+	void TriggerAction_DropOut();
 	
 };

@@ -7,7 +7,7 @@
 #include "PieceTypes.h"
 #include "PieceLandComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMoveToNextPieceEvent, FPieceLocation, oldLocation,FPieceLocation,newLocation);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMoveToNextPieceEvent, FPieceLocation, oldLocation, FPieceLocation, newLocation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStandByFinishPieceEvent, FPieceLocation, location);
 
 UCLASS(Blueprintable,ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
@@ -22,16 +22,20 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
-protected:
-	UPROPERTY(BlueprintReadOnly)
-	int CurPieceId{-1};
+public:
 
 	UPROPERTY(BlueprintAssignable)
 	FMoveToNextPieceEvent MoveToNextPieceEvent;
 	
 	UPROPERTY(BlueprintAssignable)
 	FStandByFinishPieceEvent StandByFinishPieceEvent;
+	
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	int LastPieceId{-1};
+
+	UPROPERTY(BlueprintReadOnly)
+	int CurPieceId{-1};
 	
 	UPROPERTY(BlueprintReadOnly)
 	class ABaseCharacter* Character;
@@ -45,6 +49,11 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FPieceLocation GetCurLocation();
+	
+	UFUNCTION(BlueprintPure)
+	FPieceLocation GetLastLocation();
+
+	
 	
 protected:
 	UFUNCTION()

@@ -42,12 +42,9 @@ void UPieceLandComponent::ResetLocationToInitialPiece()
 	UBasePieceLand* land = UCommonFunctionLibrary::GetCurPieceLand();
 	if(land)
 	{
-		FPieceLocation oldLocation = GetCurLocation();
-	
 		CreatePieceLandEventCallback(land->GetLevelName(),land->GetInitialPieceId());
 		
-		FPieceLocation newLocation = GetCurLocation();
-		MoveToNextPieceEvent.Broadcast(oldLocation,newLocation);
+		UCommonFunctionLibrary::GetPieceLandSystem()->PieceLandHideAllTipEvent.Broadcast(false,false);
 	}
 }
 
@@ -79,6 +76,21 @@ FPieceLocation UPieceLandComponent::GetCurLocation()
 	return location;
 }
 
+FPieceLocation UPieceLandComponent::GetLastLocation()
+{
+	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
+	if(curLand)
+	{
+		UBasePiece* piece = curLand->GetPieceById(LastPieceId);
+		if(piece)
+		{
+			return piece->GetCurInfo()->Info->Location;
+		}
+	}
+	FPieceLocation location(false);
+	return location;
+}
+
 void UPieceLandComponent::CreatePieceLandEventCallback(FName levelName,int initialPieceId)
 {
 	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
@@ -94,6 +106,9 @@ void UPieceLandComponent::CreatePieceLandEventCallback(FName levelName,int initi
 
 void UPieceLandComponent::SetInitialLocation(int pieceId)
 {
+	//FPieceLocation oldLocation = GetCurLocation();
+
+	LastPieceId = -1;
 	CurPieceId = pieceId;
 
 	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
@@ -101,6 +116,8 @@ void UPieceLandComponent::SetInitialLocation(int pieceId)
 	{
 		FVector newLocation = curLand->GetActorLocationById(CurPieceId);
 		MoveToInitialLocation(CurPieceId,newLocation);
+
+		//MoveToNextPieceEvent.Broadcast(oldLocation,newLocation);
 	}
 }
 
@@ -112,7 +129,8 @@ void UPieceLandComponent::SetCurLocation(int pieceId,EPieceDirection direction)
 	}
 	
 	FPieceLocation oldLocation = GetCurLocation();
-	
+
+	LastPieceId = CurPieceId;
 	CurPieceId = pieceId;
 
 	FPieceLocation newLocation = GetCurLocation();

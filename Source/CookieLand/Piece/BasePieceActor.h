@@ -35,6 +35,10 @@ public:
 
 	void Init();
 
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void DropOutArt();
+	
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitArt();

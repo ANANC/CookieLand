@@ -26,6 +26,9 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	static UBasePieceLand* GetCurPieceLand();
+	
+	UFUNCTION(BlueprintPure)
+	static class ABaseCharacter* GetMainCharacter(class UWorld* world);
 
 	UFUNCTION(BlueprintPure)
 	static FVector ChangeToLogicLocation(FPieceLocation location);
