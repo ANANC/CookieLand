@@ -37,7 +37,9 @@ private:
 
 	UPROPERTY()
 	FPieceActionHandle Handle;
-	
+
+	UPROPERTY()
+	class UPieceBaseActionConfigData* BaseConfigData;
 protected:
 	int PieceId;
 	

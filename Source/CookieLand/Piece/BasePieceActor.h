@@ -24,7 +24,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	class UBasePieceLand* OwnLand;
 	
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite,VisibleAnywhere)
 	class UBasePiece* Piece;
 	
 public:
@@ -35,11 +35,18 @@ public:
 
 	void Init();
 
-public:
-	UFUNCTION(BlueprintImplementableEvent)
-	void DropOutArt();
-	
+
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitArt();
+
+public:
+    UFUNCTION(BlueprintImplementableEvent)
+    void TriggerActionArt_RemindDropOut();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void TriggerActionArt_DropOut();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void TriggerActionArt_Rotation(bool isVertical,float angle);     
 };

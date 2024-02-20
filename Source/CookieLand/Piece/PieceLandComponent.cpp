@@ -29,32 +29,20 @@ void UPieceLandComponent::BeginPlay()
 	{
 		PieceLandSystem->CreatePieceLandEvent.AddUObject(this,&UPieceLandComponent::CreatePieceLandEventCallback);
 		
-		UBasePieceLand* land = PieceLandSystem->GetCurLand();
-		if(land)
+		CurLand = PieceLandSystem->GetCurLand();
+		if(CurLand)
 		{
-			CreatePieceLandEventCallback(land->GetLevelName(),land->GetInitialPieceId());
+			CreatePieceLandEventCallback(CurLand->GetLevelName(),CurLand->GetInitialPieceId());
 		}
-	}
-}
-
-void UPieceLandComponent::ResetLocationToInitialPiece()
-{
-	UBasePieceLand* land = UCommonFunctionLibrary::GetCurPieceLand();
-	if(land)
-	{
-		CreatePieceLandEventCallback(land->GetLevelName(),land->GetInitialPieceId());
-		
-		UCommonFunctionLibrary::GetPieceLandSystem()->PieceLandHideAllTipEvent.Broadcast(false,false);
 	}
 }
 
 void UPieceLandComponent::MoveToNextPiece(EPieceDirection direction)
 {
-	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
-	if(curLand)
+	if(CurLand)
 	{
 		int nextPieceId;
-		if(curLand->RequestToNextLocation(CurPieceId,direction,nextPieceId))
+		if(CurLand->RequestToNextLocation(CurPieceId,direction,nextPieceId))
 		{
 			SetCurLocation(nextPieceId,direction);
 		}
@@ -63,10 +51,9 @@ void UPieceLandComponent::MoveToNextPiece(EPieceDirection direction)
 
 FPieceLocation UPieceLandComponent::GetCurLocation()
 {
-	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
-	if(curLand)
+	if(CurLand)
 	{
-		UBasePiece* piece = curLand->GetPieceById(CurPieceId);
+		UBasePiece* piece = CurLand->GetPieceById(CurPieceId);
 		if(piece)
 		{
 			return piece->GetCurInfo()->Info->Location;
@@ -78,10 +65,9 @@ FPieceLocation UPieceLandComponent::GetCurLocation()
 
 FPieceLocation UPieceLandComponent::GetLastLocation()
 {
-	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
-	if(curLand)
+	if(CurLand)
 	{
-		UBasePiece* piece = curLand->GetPieceById(LastPieceId);
+		UBasePiece* piece = CurLand->GetPieceById(LastPieceId);
 		if(piece)
 		{
 			return piece->GetCurInfo()->Info->Location;
@@ -93,31 +79,33 @@ FPieceLocation UPieceLandComponent::GetLastLocation()
 
 void UPieceLandComponent::CreatePieceLandEventCallback(FName levelName,int initialPieceId)
 {
-	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
-	if(curLand)
+	if(CurLand)
 	{
-		UBasePiece* piece = curLand->GetPieceById(initialPieceId);
+		CurLand->LandLocationUnOccupyStateChangeEvent.RemoveAll(this);
+	}
+	
+	CurLand = UCommonFunctionLibrary::GetCurPieceLand();
+	if(CurLand)
+	{
+		UBasePiece* piece = CurLand->GetPieceById(initialPieceId);
 		if(piece)
 		{
 			SetInitialLocation(piece->GetId());
 		}
+
+		CurLand->LandLocationUnOccupyStateChangeEvent.AddDynamic(this,&UPieceLandComponent::LandLocationUnOccupyStateChangeEventCallback);
 	}
 }
 
 void UPieceLandComponent::SetInitialLocation(int pieceId)
 {
-	//FPieceLocation oldLocation = GetCurLocation();
-
 	LastPieceId = -1;
 	CurPieceId = pieceId;
 
-	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
-	if(curLand)
+	if(CurLand)
 	{
-		FVector newLocation = curLand->GetActorLocationById(CurPieceId);
+		FVector newLocation = CurLand->GetActorLocationById(CurPieceId);
 		MoveToInitialLocation(CurPieceId,newLocation);
-
-		//MoveToNextPieceEvent.Broadcast(oldLocation,newLocation);
 	}
 }
 
@@ -135,19 +123,38 @@ void UPieceLandComponent::SetCurLocation(int pieceId,EPieceDirection direction)
 
 	FPieceLocation newLocation = GetCurLocation();
 	
-	UBasePieceLand* curLand = UCommonFunctionLibrary::GetCurPieceLand();
-	if(curLand)
+	if(CurLand)
 	{
-		FVector newLogicLocation = curLand->GetActorLocationById(CurPieceId);
+		FVector newLogicLocation = CurLand->GetActorLocationById(CurPieceId);
 		MoveToNextLocation(CurPieceId,newLogicLocation,direction);
 		
 		MoveToNextPieceEvent.Broadcast(oldLocation,newLocation);
+		
+		if(CurLand->IsInFinishLocation(CurPieceId))
+		{
+			StandByFinishLocation();
+
+			StandByFinishPieceEvent.Broadcast(newLocation);
+		}
+	}
+}
+
+void UPieceLandComponent::LandLocationUnOccupyStateChangeEventCallback(int Id, FPieceLocation location)
+{
+	if(!CurLand)
+	{
+		return;
 	}
 	
-	if(curLand->IsInFinishLocation(CurPieceId))
+	if(Id != CurPieceId)
 	{
-		StandByFinishLocation();
-
-		StandByFinishPieceEvent.Broadcast(newLocation);
+		return;
 	}
+	
+	FailedControl();
+}
+
+void UPieceLandComponent::FailedControl()
+{
+	BP_FailedControl();
 }

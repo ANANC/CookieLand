@@ -50,45 +50,49 @@ void ULandEditorPieceWidget::DrawView()
 
 	RootWidget->AddSlot()
 	[
-		SNew(SHorizontalBox)
-		
-		+SHorizontalBox::Slot()
-		.AutoWidth()
-		[
-			CheckerboardWidget->GetWidget()
-		]
-		
-		+SHorizontalBox::Slot()
-        .AutoWidth()
-		.Padding(10,0)
-        [
-        	SNew(SBorder)
-        	[
-        		BottomWidget.ToSharedRef()
-        	]
-        ]
-        
-		+SHorizontalBox::Slot()
-		.AutoWidth()
-		.Padding(4,0)
-		[
-			SNew(SBorder)
-			[
-				SNew(SVerticalBox)
+		SNew(SScrollBox)
 
-				+SVerticalBox::Slot()
-				.MaxHeight(700)
+		+SScrollBox::Slot()
+		[
+			SNew(SHorizontalBox)
+			
+			+SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				CheckerboardWidget->GetWidget()
+			]
+			
+			+SHorizontalBox::Slot()
+	        .AutoWidth()
+			.Padding(10,0)
+	        [
+        		SNew(SBorder)
+        		[
+        			BottomWidget.ToSharedRef()
+        		]
+	        ]
+	        
+			+SHorizontalBox::Slot()
+			.AutoWidth()
+			.Padding(4,0)
+			[
+				SNew(SBorder)
 				[
-					SNew(SScrollBox)
-					.ScrollBarVisibility(EVisibility::Visible)
-					+ SScrollBox::Slot()
+					SNew(SVerticalBox)
+
+					+SVerticalBox::Slot()
+					.MaxHeight(700)
 					[
-						SelectPieceWidget.ToSharedRef()
+						SNew(SScrollBox)
+						.ScrollBarVisibility(EVisibility::Visible)
+						+ SScrollBox::Slot()
+						[
+							SelectPieceWidget.ToSharedRef()
+						]
 					]
 				]
 			]
 		]
-		
 	];
 
 	DrawSelectPiece();

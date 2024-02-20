@@ -7,6 +7,10 @@
 #include "PieceTypes.h"
 #include "BasePieceLand.generated.h"
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FLandLocationOccupyStateChangeEvent, int, Id, FPieceLocation, location);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FLandLocationUnOccupyStateChangeEvent, int, Id, FPieceLocation, location);
+
 /**
  * 
  */
@@ -15,6 +19,12 @@ class COOKIELAND_API UBasePieceLand : public UObject
 {
 	GENERATED_BODY()
 
+public:
+	UPROPERTY(BlueprintAssignable)
+	FLandLocationOccupyStateChangeEvent LandLocationOccupyStateChangeEvent;
+	
+	UPROPERTY(BlueprintAssignable)
+	FLandLocationUnOccupyStateChangeEvent LandLocationUnOccupyStateChangeEvent;
 protected:
 	
 	FName LevelName;
@@ -35,6 +45,7 @@ protected:
 	TArray<UPieceLocationInfo*> OccupyStates;
 	
 	int actionAutoId{1};
+	
 public:
 	void CreateLand(FName levelName,class ULandDataAsset* landDA);
 
@@ -45,9 +56,9 @@ public:
 	
 	bool GetEnableOccupyLocation(FPieceLocation location,int& OccupyId);
 	
-	bool RequestOccupyLocation(int Id,FPieceLocation location);
+	bool RequestOccupyLocation(int pieceId,FPieceLocation location);
 
-	bool RequestUnOccupyLocation(int Id,FPieceLocation location);
+	bool RequestUnOccupyLocation(int pieceId,FPieceLocation location);
 	
 	UFUNCTION(BlueprintPure)
 	bool CreateActionToPiece(FPieceActionHandle& handle,int pieceId,class UPieceBaseActionConfigData* actionData);
@@ -61,10 +72,13 @@ public:
 	int GetInitialPieceId();
 	
 	UFUNCTION(BlueprintPure)
-	UBasePiece* GetPieceById(int Id);
+	UBasePiece* GetPieceById(int pieceId);
 	
 	UFUNCTION(BlueprintPure)
-	FVector GetActorLocationById(int Id);
+	FPieceLocation GetLocationById(int pieceId);
+	
+	UFUNCTION(BlueprintPure)
+	FVector GetActorLocationById(int pieceId);
 	
 	UFUNCTION(BlueprintPure)
 	FVector GetActorLocationByLocation(FPieceLocation location);

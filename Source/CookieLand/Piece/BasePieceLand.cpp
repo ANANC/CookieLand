@@ -95,7 +95,7 @@ bool UBasePieceLand::GetEnableOccupyLocation(FPieceLocation location,int& Occupy
 	return true;
 }
 
-bool UBasePieceLand::RequestOccupyLocation(int Id,FPieceLocation location)
+bool UBasePieceLand::RequestOccupyLocation(int pieceId,FPieceLocation location)
 {
 	int OccupyId;
 	if(!GetEnableOccupyLocation(location,OccupyId))
@@ -107,22 +107,24 @@ bool UBasePieceLand::RequestOccupyLocation(int Id,FPieceLocation location)
 	if(locationInfo->EnableOccupy)
 	{
 		locationInfo->IsOccupy = true;
-		locationInfo->PieceId = Id;
+		locationInfo->PieceId = pieceId;
 
+		LandLocationOccupyStateChangeEvent.Broadcast(pieceId,location);
 		return true;
 	}
 
 	return false;
 }
 
-bool UBasePieceLand::RequestUnOccupyLocation(int Id,FPieceLocation location)
+bool UBasePieceLand::RequestUnOccupyLocation(int pieceId,FPieceLocation location)
 {
 	UPieceLocationInfo* locationInfo = GetLocationInfo(location);
-	if(locationInfo->IsOccupy && locationInfo->PieceId == Id)
+	if(locationInfo->IsOccupy && locationInfo->PieceId == pieceId)
 	{
 		locationInfo->IsOccupy = false;
 		locationInfo->PieceId = -1;
 
+		LandLocationUnOccupyStateChangeEvent.Broadcast(pieceId,location);
 		return true;
 	}
 
@@ -158,6 +160,12 @@ bool UBasePieceLand::CreateActionToPiece(FPieceActionHandle& handle,int pieceId,
 	action->SetPiece(piece);
 	action->Init();
 
+	if(action->IsFinish())
+	{
+		action->UnInit();
+		return false;
+	}
+	
 	piece->AddAction(action);
 
 	if(actionData->IsAutoExecute)
@@ -204,9 +212,9 @@ int UBasePieceLand::GetInitialPieceId()
 	return -1;
 }
 
-UBasePiece* UBasePieceLand::GetPieceById(int Id)
+UBasePiece* UBasePieceLand::GetPieceById(int pieceId)
 {
-	UBasePiece** piecePtr = PieceMap.Find(Id);
+	UBasePiece** piecePtr = PieceMap.Find(pieceId);
 	if(piecePtr)
 	{
 		return *piecePtr;
@@ -214,11 +222,22 @@ UBasePiece* UBasePieceLand::GetPieceById(int Id)
 	return nullptr;
 }
 
-FVector UBasePieceLand::GetActorLocationById(int Id)
+FPieceLocation UBasePieceLand::GetLocationById(int pieceId)
+{
+	UBasePiece** piecePtr = PieceMap.Find(pieceId);
+	if(piecePtr)
+	{
+		UBasePiece* piece = *piecePtr;
+		return piece->GetCurInfo()->Info->Location;
+	}
+	return FPieceLocation(false);
+}
+
+FVector UBasePieceLand::GetActorLocationById(int pieceId)
 {
 	FVector actorLocation = FVector::ZeroVector;
 	
-	UBasePiece* piece = GetPieceById(Id);
+	UBasePiece* piece = GetPieceById(pieceId);
 	if(piece)
 	{
 		const UPieceInfo* curInfo = piece->GetCurInfo();

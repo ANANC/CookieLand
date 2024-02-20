@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "IPieceBaseOComponent.h"
 #include "GameFramework/Actor.h"
 #include "PieceTypes.h"
 #include "BasePiece.generated.h"
@@ -34,6 +35,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere,BlueprintReadOnly)
 	TArray<class UPieceBaseAction*> Actions;
+
+	UPROPERTY()
+	TArray<IPieceBaseOComponent*> OComponents;
+	
+	UPROPERTY(BlueprintReadOnly)
+	class UPieceActionStateOComponent* ActionStateOComponent;
 	
 public:
 	void SetId(int Id);
@@ -52,6 +59,7 @@ public:
 	void UnInit();
 
 public:
+	
 	UFUNCTION(BlueprintPure)
 	const UPieceInfo* GetCurInfo();
 
@@ -61,12 +69,41 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool GetEnableMove(EPieceDirection direction);
 
+	void OverlaySetEnableMove(TArray<EPieceDirection> directions);
+
+	void AddEnableMove(EPieceDirection direction);
+	
+	void RemoveEnableMove(EPieceDirection direction);
+	
 	void AddAction(class UPieceBaseAction* action);
 
 	void RemoveAction(FPieceActionHandle handle);
 	
-public:
+	class ABasePieceActor* GetPieceActor();
 
-	void TriggerAction_DropOut();
+public:
 	
+	template <class T>
+	T* AddOComponent(TSubclassOf<UObject> ocomponentClass)
+	{
+		UObject* OComponentObject = NewObject<UObject>(this,ocomponentClass);
+		if(OComponentObject)
+		{
+			IPieceBaseOComponent* iOComponent = Cast<IPieceBaseOComponent>(OComponentObject);
+			if(iOComponent)
+			{
+				OComponents.Add(iOComponent);
+
+				iOComponent->SetPiece(this);
+				iOComponent->Init();
+				return dynamic_cast<T*>(OComponentObject);
+			}
+		}
+		return nullptr;
+	}
+
+	class UPieceActionStateOComponent* GetActionStateOComponent();
+
+protected:
+	void ProtectUpdateMoveDirection();
 };

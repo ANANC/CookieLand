@@ -39,10 +39,11 @@ protected:
 	
 	UPROPERTY(BlueprintReadOnly)
 	class ABaseCharacter* Character;
+
+	UPROPERTY(BlueprintReadOnly)
+	class UBasePieceLand* CurLand;
 	
 public:
-	UFUNCTION(BlueprintCallable)
-	void ResetLocationToInitialPiece();
 	
 	UFUNCTION(BlueprintCallable)
 	void MoveToNextPiece(EPieceDirection direction);
@@ -53,8 +54,6 @@ public:
 	UFUNCTION(BlueprintPure)
 	FPieceLocation GetLastLocation();
 
-	
-	
 protected:
 	UFUNCTION()
 	void CreatePieceLandEventCallback(FName levelName,int initialPieceId);
@@ -71,5 +70,12 @@ protected:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void StandByFinishLocation();
+
+	UFUNCTION()
+	void LandLocationUnOccupyStateChangeEventCallback(int Id, FPieceLocation location);
+
+	void FailedControl();
 	
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_FailedControl();
 };

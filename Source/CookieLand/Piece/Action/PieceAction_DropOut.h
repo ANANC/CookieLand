@@ -20,12 +20,12 @@ protected:
 	
 	virtual void _UnInit() override;
 
-	
 private:
 	UPROPERTY()
 	class UPieceActionConfigData_DropOut* ConfigData;
 
 	FTimerHandle DelayTimerHandle;
+	
 public:
 	virtual void SetData(class UPieceBaseActionConfigData* data) override;
 
@@ -57,7 +57,7 @@ public:
 	EPieceActionDropOutTriggerType TriggerType;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float DelayTime;
+	float DelayTime{2.f};
 
 	UPieceActionConfigData_DropOut(const FObjectInitializer& ObjectInitializer):Super(ObjectInitializer)
 	{

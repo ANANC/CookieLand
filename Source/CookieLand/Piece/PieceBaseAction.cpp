@@ -18,7 +18,10 @@ void UPieceBaseAction::SetPiece(class UBasePiece* piece)
 	PieceId = piece->GetId();
 }
 
-void UPieceBaseAction::SetData(class UPieceBaseActionConfigData* data){}
+void UPieceBaseAction::SetData(class UPieceBaseActionConfigData* data)
+{
+	BaseConfigData = data;
+}
 
 void UPieceBaseAction::Init()
 {
@@ -45,6 +48,11 @@ void UPieceBaseAction::_UnInit(){}
 void UPieceBaseAction::SetIsFinish(bool value)
 {
 	isFinish = value;
+
+	if(isFinish && BaseConfigData&& BaseConfigData->IsAutoFinish && Piece)
+	{
+		Piece->GetOwnLand()->DeleteActionByPiece(Handle);
+	}
 }
 
 FPieceActionHandle UPieceBaseAction::GetHandle()

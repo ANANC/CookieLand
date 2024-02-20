@@ -7,6 +7,7 @@
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 #include "CookieLand/Piece/BasePiece.h"
 #include "CookieLand/Piece/BasePieceLand.h"
+#include "CookieLand/Piece/PieceActionStateOComponent.h"
 #include "CookieLand/Piece/PieceLandComponent.h"
 
 void UPieceAction_DropOut::_Init()
@@ -16,6 +17,10 @@ void UPieceAction_DropOut::_Init()
 		SetIsFinish(true);
 		return;
 	}
+
+	UPieceActionStateOComponent* actionStateOComponent = Piece->GetActionStateOComponent();
+	FAddPieceActionStateRequest addRequest(EPieceActionState::DropOut,true,true);
+	actionStateOComponent->AddState(addRequest);
 }
 
 void UPieceAction_DropOut::_UnInit()
@@ -26,6 +31,9 @@ void UPieceAction_DropOut::_UnInit()
 		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();
 		pieceLandComponent->MoveToNextPieceEvent.RemoveAll(this);
 	}
+
+	UPieceActionStateOComponent* actionStateOComponent = Piece->GetActionStateOComponent();
+	actionStateOComponent->RemoveState(EPieceActionState::DropOut);
 }
 
 void UPieceAction_DropOut::SetData(class UPieceBaseActionConfigData* data)
@@ -93,10 +101,18 @@ void UPieceAction_DropOut::TryTriggerTip(int standPieceId)
 		return;
 	}
 
-	GetWorld()->GetTimerManager().SetTimer(DelayTimerHandle,this,&UPieceAction_DropOut::TriggerDropOut,ConfigData->DelayTime,false);
+	if(ConfigData->DelayTime>0)
+	{
+		Piece->GetActionStateOComponent()->TriggerAction_RemindDropOut();
+		GetWorld()->GetTimerManager().SetTimer(DelayTimerHandle,this,&UPieceAction_DropOut::TriggerDropOut,ConfigData->DelayTime,false);
+	}
+	else
+	{
+		TriggerDropOut();
+	}
 }
 
 void UPieceAction_DropOut::TriggerDropOut()
 {
-	
+	Piece->GetActionStateOComponent()->TriggerAction_DropOut();
 }

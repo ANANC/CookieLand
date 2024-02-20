@@ -49,6 +49,10 @@ public:
 	{
 		return IsValid && Other.IsValid && X == Other.X && Y == Other.Y && Floor == Other.Floor;
 	}
+	bool operator!=(const FPieceLocation& Other) const
+	{
+		return !IsValid || !Other.IsValid || X != Other.X || Y != Other.Y || Floor != Other.Floor;
+	}
 
 	void Copy(FPieceLocation Other)
 	{
@@ -148,6 +152,9 @@ class COOKIELAND_API UPieceBaseActionConfigData : public UObject
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	bool IsAutoExecute{true};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool IsAutoFinish{true};
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<class UPieceBaseAction> ActionClass;
@@ -336,4 +343,53 @@ public:
 		Tip = source.Tip;
 	}
 	
+};
+
+
+UENUM(BlueprintType)
+enum class EPieceActionState : uint8
+{
+	Empty,
+	DropOut,
+	Rotation,
+};
+
+USTRUCT(BlueprintType)
+struct FAddPieceActionStateRequest
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	EPieceActionState State;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool IsReqMainState{true};
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool EnableReplaceMainState{true};
+
+	FAddPieceActionStateRequest(){}
+	FAddPieceActionStateRequest(EPieceActionState state):State(state){}
+	FAddPieceActionStateRequest(EPieceActionState state,bool isReqMainState,bool enableReplaceMainState):
+	State(state),IsReqMainState(isReqMainState),EnableReplaceMainState(enableReplaceMainState){}
+};
+
+UCLASS()
+class COOKIELAND_API UPieceBaseActionRunTimeInfo : public UObject
+{
+	GENERATED_BODY()
+};
+
+UENUM(BlueprintType)
+enum class EPieceActionRotationAngleType : uint8
+{
+	//90°
+	Clockwise,
+	//-90°
+	Anticlockwise,
+	//水平-180°
+	Horizontal,
+	//垂直-上下交换
+	Vertical,
 };
