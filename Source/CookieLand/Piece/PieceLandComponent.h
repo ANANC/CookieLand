@@ -78,4 +78,7 @@ protected:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void BP_FailedControl();
+	
+	UFUNCTION()
+	void LandDestroyBeforeEventCallback();
 };

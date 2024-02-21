@@ -48,5 +48,5 @@ public:
 	void TriggerActionArt_DropOut();
 	
 	UFUNCTION(BlueprintImplementableEvent)
-	void TriggerActionArt_Rotation(bool isVertical,float angle);     
+	void TriggerActionArt_Rotation();     
 };

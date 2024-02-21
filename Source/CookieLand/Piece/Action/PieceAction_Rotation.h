@@ -86,10 +86,10 @@ public:
 	int RotationNumber{1};
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (EditCondition = "RotationCount == EPieceActionRotationCountType::ContinueTime", EditConditionHides))
-	float ContinueTime{1};
+	float ContinueTime{4};
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta = (EditCondition = "RotationCount != EPieceActionRotationCountType::Single", EditConditionHides))
-	float IntervalTime{0.5f};
+	float IntervalTime{2.f};
 	
 	UPieceActionConfigData_Rotation(const FObjectInitializer& ObjectInitializer):Super(ObjectInitializer)
 	{
@@ -97,12 +97,15 @@ public:
 	}
 };
 
-UCLASS()
+UCLASS(BlueprintType)
 class COOKIELAND_API UPieceActionRunTimeInfo_Rotation : public UPieceBaseActionRunTimeInfo
 {
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	EPieceActionRotationAngleType AngleType;
+	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	float RotationAngle;
 };

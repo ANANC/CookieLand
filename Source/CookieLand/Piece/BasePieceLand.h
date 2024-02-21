@@ -10,6 +10,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FLandLocationOccupyStateChangeEvent, int, Id, FPieceLocation, location);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FLandLocationUnOccupyStateChangeEvent, int, Id, FPieceLocation, location);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLandDestroyEvent);
 
 /**
  * 
@@ -20,6 +21,12 @@ class COOKIELAND_API UBasePieceLand : public UObject
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FLandDestroyEvent LandDestroyBeforeEvent;
+	
+	UPROPERTY(BlueprintAssignable)
+	FLandDestroyEvent LandDestroyEvent;
+	
 	UPROPERTY(BlueprintAssignable)
 	FLandLocationOccupyStateChangeEvent LandLocationOccupyStateChangeEvent;
 	

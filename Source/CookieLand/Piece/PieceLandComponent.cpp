@@ -79,11 +79,6 @@ FPieceLocation UPieceLandComponent::GetLastLocation()
 
 void UPieceLandComponent::CreatePieceLandEventCallback(FName levelName,int initialPieceId)
 {
-	if(CurLand)
-	{
-		CurLand->LandLocationUnOccupyStateChangeEvent.RemoveAll(this);
-	}
-	
 	CurLand = UCommonFunctionLibrary::GetCurPieceLand();
 	if(CurLand)
 	{
@@ -94,7 +89,19 @@ void UPieceLandComponent::CreatePieceLandEventCallback(FName levelName,int initi
 		}
 
 		CurLand->LandLocationUnOccupyStateChangeEvent.AddDynamic(this,&UPieceLandComponent::LandLocationUnOccupyStateChangeEventCallback);
+		CurLand->LandDestroyBeforeEvent.AddDynamic(this,&UPieceLandComponent::LandDestroyBeforeEventCallback);
 	}
+}
+
+void UPieceLandComponent::LandDestroyBeforeEventCallback()
+{
+	if(CurLand)
+	{
+		CurLand->LandLocationUnOccupyStateChangeEvent.RemoveAll(this);
+		CurLand->LandDestroyBeforeEvent.RemoveAll(this);
+	}
+
+	CurLand = nullptr;
 }
 
 void UPieceLandComponent::SetInitialLocation(int pieceId)

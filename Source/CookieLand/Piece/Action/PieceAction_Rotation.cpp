@@ -24,7 +24,8 @@ void UPieceAction_Rotation::_Init()
 
 	RuntimeInfo = NewObject<UPieceActionRunTimeInfo_Rotation>();
 	RuntimeInfo->RotationAngle = GetRotationAngle();
-
+	RuntimeInfo->AngleType = ConfigData->RotationAngle;
+	
 	UPieceActionStateOComponent* actionStateOComponent = Piece->GetActionStateOComponent();
 	FAddPieceActionStateRequest addRequest(EPieceActionState::Rotation,true,true);
 	actionStateOComponent->AddState(addRequest,RuntimeInfo);

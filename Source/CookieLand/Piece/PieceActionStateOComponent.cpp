@@ -47,6 +47,8 @@ void UPieceActionStateOComponent::AddState(FAddPieceActionStateRequest addReques
 	{
 		ActionStateRunTimeInfos.Add(addRequest.State,actionInfo);
 	}
+
+	ActionStateUpdateEvent.Broadcast(addRequest.State,true);
 }
 
 void UPieceActionStateOComponent::RemoveState(EPieceActionState actionState)
@@ -74,6 +76,8 @@ void UPieceActionStateOComponent::RemoveState(EPieceActionState actionState)
 			MainState = EPieceActionState::Empty;
 		}
 	}
+
+	ActionStateUpdateEvent.Broadcast(actionState,false);
 }
 
 bool UPieceActionStateOComponent::GetIsAttachState(EPieceActionState actionState)
@@ -86,6 +90,16 @@ bool UPieceActionStateOComponent::GetIsAttachState(EPieceActionState actionState
 		}
 	}
 	return false;
+}
+
+UPieceBaseActionRunTimeInfo* UPieceActionStateOComponent::GetActionRuntimeInfoByType(EPieceActionState actionState)
+{
+	UPieceBaseActionRunTimeInfo** infoPtr = ActionStateRunTimeInfos.Find(actionState);
+	if(infoPtr)
+	{
+		return *infoPtr;
+	}
+	return nullptr;
 }
 
 void UPieceActionStateOComponent::TriggerAction_RemindDropOut()
@@ -160,6 +174,6 @@ void UPieceActionStateOComponent::TriggerAction_Rotation(bool isVertical,float a
 	ABasePieceActor* pieceActor = Piece->GetPieceActor();
 	if(pieceActor)
 	{
-		pieceActor->TriggerActionArt_Rotation(isVertical,angle);
+		pieceActor->TriggerActionArt_Rotation();
 	}
 }

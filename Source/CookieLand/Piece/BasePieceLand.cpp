@@ -26,6 +26,8 @@ void UBasePieceLand::CreateLand(FName levelName,class ULandDataAsset* landDA)
 
 void UBasePieceLand::DestroyLand()
 {
+	LandDestroyBeforeEvent.Broadcast();
+	
 	for(int index = 0;index<Pieces.Num();++index)
 	{
 		Pieces[index]->UnInit();
@@ -35,6 +37,8 @@ void UBasePieceLand::DestroyLand()
 	PieceMap.Reset();
 
 	UCommonFunctionLibrary::GetPieceLandSystem()->PieceLandHideAllTipEvent.Broadcast(false,false);
+	
+	LandDestroyEvent.Broadcast();
 }
 
 UBasePiece* UBasePieceLand::CreatePiece(UPieceBaseConfigData* pieceData)
