@@ -7,6 +7,7 @@
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 #include "CookieLand/MoveTo/MoveToComponent.h"
 #include "CookieLand/Piece/BasePieceLand.h"
+#include "CookieLand/Piece/PieceCardComponent.h"
 #include "CookieLand/Piece/PieceLandComponent.h"
 #include "CookieLand/Piece/PieceLandSystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -17,6 +18,7 @@ ABaseCharacter::ABaseCharacter()
 {
 	bClientUpdating = true;
 	PieceLandComponent = CreateDefaultSubobject<UPieceLandComponent>(TEXT("PieceLandComponent"));
+	PieceCardComponent = CreateDefaultSubobject<UPieceCardComponent>(TEXT("PieceCardComponent"));
 	LocomotionComponent = CreateDefaultSubobject<UCharacterLocomotionComponent>(TEXT("LocomotionComponent"));
 	MoveToComponent = CreateDefaultSubobject<UMoveToComponent>(TEXT("MoveToComponent"));
 }
@@ -38,6 +40,11 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 UPieceLandComponent* ABaseCharacter::GetPieceLandComponent()
 {
 	return PieceLandComponent;
+}
+
+UPieceCardComponent* ABaseCharacter::GetPieceCardComponent()
+{
+	return PieceCardComponent;
 }
 
 UCharacterLocomotionComponent* ABaseCharacter::GetLocomotionComponent()

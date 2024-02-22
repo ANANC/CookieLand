@@ -21,6 +21,9 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class UDataTable* LevelLandDataTable; //FLevelLandDataTable
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	class UPieceCardCollectionDataAsset* PieceCardCollectionDataAsset;
+	
 public:
 
 	virtual void Init() override;

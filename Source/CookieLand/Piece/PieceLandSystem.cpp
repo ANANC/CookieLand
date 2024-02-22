@@ -23,6 +23,7 @@ void UPieceLandSystem::Initialize(FSubsystemCollectionBase& Collection)
 	if(gameInstance)
 	{
 		LevelLandDataTable = gameInstance->LevelLandDataTable;
+		PieceCardCollectionDataAsset = gameInstance->PieceCardCollectionDataAsset;
 	}
 }
 
@@ -114,4 +115,36 @@ void UPieceLandSystem::ToNextLand()
 	{
 		CreateLevelLand(curLandConfig->NextTargetLevel);
 	}
+}
+
+TArray<FName> UPieceLandSystem::GetAllPieceCardNames()
+{
+	TArray<FName> names;
+
+	if(PieceCardCollectionDataAsset)
+	{
+		for(int index = 0;index<PieceCardCollectionDataAsset->Cards.Num();++index)
+		{
+			FPieceCardConfigData cardConfigData = PieceCardCollectionDataAsset->Cards[index];
+			names.Add(cardConfigData.CardName);
+		}
+	}
+
+	return names;
+}
+
+bool UPieceLandSystem::GetPieceCardConfigData(FName cardName,FPieceCardConfigData& pieceCardConfigData)
+{
+	for(int index = 0;index<PieceCardCollectionDataAsset->Cards.Num();++index)
+	{
+		FPieceCardConfigData cardConfigData = PieceCardCollectionDataAsset->Cards[index];
+		if(cardConfigData.CardName != cardName)
+		{
+			continue;
+		}
+
+		pieceCardConfigData = cardConfigData;
+		return true;
+	}
+	return false;
 }

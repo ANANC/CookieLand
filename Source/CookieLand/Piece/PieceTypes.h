@@ -151,6 +151,9 @@ class COOKIELAND_API UPieceBaseActionConfigData : public UObject
 
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool IsMustAttachToValidPiece{true};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	bool IsAutoExecute{true};
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
@@ -392,4 +395,47 @@ enum class EPieceActionRotationAngleType : uint8
 	Horizontal,
 	//垂直-上下交换
 	Vertical,
+};
+
+
+USTRUCT(BlueprintType)
+struct FPieceCardConfigData
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FName CardName;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FString DescribeName;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int ValidDistance{3};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool IsOnlyCross{true};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool IsHorizontal{true};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool IsVertical{true};
+	
+	UPROPERTY(EditAnywhere,Instanced,BlueprintReadWrite)
+	TObjectPtr<UPieceBaseActionConfigData> ActionConfigData;
+	
+};
+
+
+UCLASS(BlueprintType)
+class COOKIELAND_API UPieceCardCollectionDataAsset : public UDataAsset
+{
+	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TArray<FPieceCardConfigData> Cards;
 };

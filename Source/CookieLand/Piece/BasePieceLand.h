@@ -117,10 +117,17 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	TArray<UBasePiece*> GetOutDistancePieces(int pieceId,FPieceDistance distance,EPieceDirection direction);
+
+	UFUNCTION(BlueprintPure)
+	FPieceLocation GetNearLogicLocationByActorLocation(FVector location);
+
+	UFUNCTION(BlueprintCallable)
+	void UsePieceCardToLocation(FPieceLocation location,FName pieceCardName);
 	
 protected:
 	UBasePiece* CreatePiece(UPieceBaseConfigData* pieceData);
 
 	UPieceLocationInfo* GetLocationInfo(FPieceLocation location);
-	
+
+	class UPieceBaseAction* CreateAction(FPieceActionHandle& handle,class UPieceBaseActionConfigData* actionData,int pieceId = -1);
 };

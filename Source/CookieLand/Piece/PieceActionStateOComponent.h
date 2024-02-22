@@ -66,6 +66,7 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	class UPieceBaseActionRunTimeInfo* GetActionRuntimeInfoByType(EPieceActionState actionState);
+	
 public:
 	//掉落
 	void TriggerAction_RemindDropOut();

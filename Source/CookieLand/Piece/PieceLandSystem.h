@@ -45,6 +45,9 @@ protected:
 	class UDataTable* LevelLandDataTable; //FLevelLandDataTable
 
 	UPROPERTY()
+	class UPieceCardCollectionDataAsset* PieceCardCollectionDataAsset; //UPieceCardCollectionDataAsset
+	
+	UPROPERTY()
 	class UBasePieceLand* CurLand;
 
 public:
@@ -60,4 +63,12 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void ToNextLand();
+
+	UFUNCTION(BlueprintPure)
+	TArray<FName> GetAllPieceCardNames();
+
+	UFUNCTION(BlueprintPure)
+	bool GetPieceCardConfigData(FName cardName,FPieceCardConfigData& pieceCardConfigData);
+
+	
 };

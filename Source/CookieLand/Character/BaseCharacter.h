@@ -8,6 +8,7 @@
 #include "BaseCharacter.generated.h"
 
 class UPieceLandComponent;
+class UPieceCardComponent;
 class UCharacterLocomotionComponent;
 class UCharacterMovementComponent;
 class UMoveToComponent;
@@ -36,6 +37,9 @@ protected:
 	UPieceLandComponent* PieceLandComponent;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	UPieceCardComponent* PieceCardComponent;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	UCharacterLocomotionComponent* LocomotionComponent;
 
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
@@ -45,6 +49,8 @@ public:
 	
 	UPieceLandComponent* GetPieceLandComponent();
 
+	UPieceCardComponent* GetPieceCardComponent();
+	
 	UCharacterLocomotionComponent* GetLocomotionComponent();
 
 	UFUNCTION(BlueprintPure)

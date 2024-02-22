@@ -5,6 +5,7 @@
 
 #include "BasePiece.h"
 #include "BasePieceLand.h"
+#include "PieceLandSystem.h"
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 
 void UPieceBaseAction::SetHandle(FPieceActionHandle handle)
@@ -49,9 +50,13 @@ void UPieceBaseAction::SetIsFinish(bool value)
 {
 	isFinish = value;
 
-	if(isFinish && BaseConfigData&& BaseConfigData->IsAutoFinish && Piece)
+	if(isFinish && BaseConfigData && BaseConfigData->IsAutoFinish )
 	{
-		Piece->GetOwnLand()->DeleteActionByPiece(Handle);
+		UPieceLandSystem* pieceLandSystem = UCommonFunctionLibrary::GetPieceLandSystem();
+		if(UBasePieceLand* land = pieceLandSystem->GetCurLand())
+		{
+			land->DeleteActionByPiece(Handle);
+		}
 	}
 }
 

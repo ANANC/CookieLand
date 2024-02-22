@@ -149,7 +149,28 @@ bool UBasePieceLand::CreateActionToPiece(FPieceActionHandle& handle,int pieceId,
 		return false;
 	}
 
-	UPieceBaseAction* action = NewObject<UPieceBaseAction>(Cast<UObject>(piece),actionData->ActionClass);
+	if(CreateAction(handle,actionData,pieceId))
+	{
+		return true;
+	}
+	
+	return false;
+}
+
+class UPieceBaseAction* UBasePieceLand::CreateAction(FPieceActionHandle& handle,class UPieceBaseActionConfigData* actionData,int pieceId)
+{
+	UBasePiece* piece = nullptr;
+	
+	if(pieceId!=-1)
+	{
+		piece = GetPieceById(pieceId);
+		if(!piece)
+		{
+			return nullptr;
+		}
+	}
+	
+	UPieceBaseAction* action = NewObject<UPieceBaseAction>(this,actionData->ActionClass);
 	if(!action)
 	{
 		return false;
@@ -167,17 +188,20 @@ bool UBasePieceLand::CreateActionToPiece(FPieceActionHandle& handle,int pieceId,
 	if(action->IsFinish())
 	{
 		action->UnInit();
-		return false;
+		return nullptr;
 	}
 	
-	piece->AddAction(action);
-
+	if(piece)
+	{
+		piece->AddAction(action);
+	}
+	
 	if(actionData->IsAutoExecute)
 	{
 		action->Execute();
 	}
-	
-	return true;
+
+	return action;
 }
 
 void UBasePieceLand::DeleteActionByPiece(FPieceActionHandle handle)
@@ -587,4 +611,53 @@ TSubclassOf<class ABasePieceActor> UBasePieceLand::GetPieceInstanceActorClass(UB
 	}
 
 	return actorClassType;
+}
+
+FPieceLocation UBasePieceLand::GetNearLogicLocationByActorLocation(FVector location)
+{
+	FVector actorInterval = LandDataAsset->ActorInterval;
+	int floor = (int)(location.Z / actorInterval.Z);
+
+	int x = FMath::RoundToInt(location.X / actorInterval.X);
+	int y = FMath::RoundToInt(location.Y / actorInterval.Y);
+
+	FPieceLocation pieceLocation(x,y,floor);
+	return pieceLocation;
+}
+
+void UBasePieceLand::UsePieceCardToLocation(FPieceLocation location,FName pieceCardName)
+{
+	UPieceLandSystem* pieceLandSystem = UCommonFunctionLibrary::GetPieceLandSystem();
+
+	FPieceCardConfigData pieceCardConfigData;
+	if(!pieceLandSystem->GetPieceCardConfigData(pieceCardName,pieceCardConfigData))
+	{
+		return;
+	}
+
+	if(!pieceCardConfigData.ActionConfigData || !pieceCardConfigData.ActionConfigData->ActionClass)
+	{
+		return;
+	}
+
+	bool attachActionToPiece = false;
+	
+	int pieceId;
+	if( GetPieceIdByLocation(location,pieceId))
+	{
+		if(UBasePiece* piece = GetPieceById(pieceId))
+		{
+			attachActionToPiece = true;
+
+			FPieceActionHandle handle;
+			CreateActionToPiece(handle,pieceId,pieceCardConfigData.ActionConfigData);
+		}
+	}
+
+	if(!attachActionToPiece && !pieceCardConfigData.ActionConfigData->IsMustAttachToValidPiece)
+	{
+		FPieceActionHandle handle;
+		CreateAction(handle,pieceCardConfigData.ActionConfigData);
+	}
+	
 }
