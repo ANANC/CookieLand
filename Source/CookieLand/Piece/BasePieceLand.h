@@ -32,6 +32,7 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FLandLocationUnOccupyStateChangeEvent LandLocationUnOccupyStateChangeEvent;
+	
 protected:
 	
 	FName LevelName;
@@ -50,13 +51,17 @@ protected:
 	
 	UPROPERTY(VisibleAnywhere)
 	TArray<UPieceLocationInfo*> OccupyStates;
-	
+
+	int pieceAutoId{990000};
 	int actionAutoId{1};
 	
 public:
 	void CreateLand(FName levelName,class ULandDataAsset* landDA);
 
 	void DestroyLand();
+	
+	UFUNCTION(BlueprintCallable)
+	void CreateDynamicPieceByLocation(FPieceLocation location,bool isDefaultConfig = true,UPieceBaseConfigData* pieceData = nullptr);
 	
 	UFUNCTION(BlueprintCallable)
 	void DeletePieceById(int pieceId);
@@ -120,14 +125,17 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	FPieceLocation GetNearLogicLocationByActorLocation(FVector location);
-
+	
+	UFUNCTION(BlueprintPure)
+	bool GetPieceCardEnableAttach(FPieceLocation pieceLocation,FPieceLocation characterLocation,FName pieceCardName);
+	
 	UFUNCTION(BlueprintCallable)
-	void UsePieceCardToLocation(FPieceLocation location,FName pieceCardName);
+	void UsePieceCardToLocation(FPieceLocation pieceLocation,FName pieceCardName);
 	
 protected:
 	UBasePiece* CreatePiece(UPieceBaseConfigData* pieceData);
 
 	UPieceLocationInfo* GetLocationInfo(FPieceLocation location);
 
-	class UPieceBaseAction* CreateAction(FPieceActionHandle& handle,class UPieceBaseActionConfigData* actionData,int pieceId = -1);
+	class UPieceBaseAction* CreateAction(FPieceActionHandle& handle,FPieceLocation triggerLocation,class UPieceBaseActionConfigData* actionData,int pieceId = -1);
 };

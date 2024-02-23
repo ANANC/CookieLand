@@ -10,7 +10,7 @@
 #include "CookieLand/Piece/PieceLandComponent.h"
 #include "CookieLand/Piece/PieceLandSystem.h"
 
-int UPieceAction_PopTip::DynamicTipId = 999111;
+int UPieceAction_PopTip::DynamicTipId = 990000;
 
 void UPieceAction_PopTip::_Init()
 {

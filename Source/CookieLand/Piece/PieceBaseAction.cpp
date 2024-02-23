@@ -15,8 +15,21 @@ void UPieceBaseAction::SetHandle(FPieceActionHandle handle)
 
 void UPieceBaseAction::SetPiece(class UBasePiece* piece)
 {
-	Piece = piece;
-	PieceId = piece->GetId();
+	if(piece)
+	{
+		Piece = piece;
+		PieceId = piece->GetId();
+	}
+	else
+	{
+		Piece = nullptr;
+		PieceId = -1;
+	}
+}
+
+void UPieceBaseAction::SetTriggerLocation(FPieceLocation location)
+{
+	TriggerLocation = location;
 }
 
 void UPieceBaseAction::SetData(class UPieceBaseActionConfigData* data)

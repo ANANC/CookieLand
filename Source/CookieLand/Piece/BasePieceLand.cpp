@@ -41,6 +41,50 @@ void UBasePieceLand::DestroyLand()
 	LandDestroyEvent.Broadcast();
 }
 
+
+void UBasePieceLand::CreateDynamicPieceByLocation(FPieceLocation location,bool isDefaultConfig,UPieceBaseConfigData* pieceData)
+{
+	UPieceBaseConfigData* createConfigData = NewObject<UPieceBaseConfigData>();
+	createConfigData->Id = pieceAutoId;
+
+	UPieceBaseInfo* baseInfo = NewObject<UPieceBaseInfo>();
+	createConfigData->BaseInfo = baseInfo;
+	
+	if(isDefaultConfig && LandDataAsset)
+	{
+		createConfigData->ActorClass = LandDataAsset->DefaultPieceConfig&&LandDataAsset->DefaultPieceConfig->ActorClass?
+			LandDataAsset->DefaultPieceConfig->ActorClass:
+			LandDataAsset->DefaultActorClass;
+
+		if( LandDataAsset->DefaultPieceConfig)
+		{
+			baseInfo->Copy(LandDataAsset->DefaultPieceConfig->BaseInfo);
+
+			for(int index = 0;index<LandDataAsset->DefaultPieceConfig->Actions.Num();++index)
+			{
+				createConfigData->Actions.Add(LandDataAsset->DefaultPieceConfig->Actions[index]);
+			}
+		}
+	}
+	else if(pieceData)
+	{
+		createConfigData->ActorClass = pieceData->ActorClass;
+
+		baseInfo->Copy(pieceData->BaseInfo);
+
+		for(int index = 0;index<pieceData->Actions.Num();++index)
+		{
+			createConfigData->Actions.Add(pieceData->Actions[index]);
+		}
+	}
+
+	baseInfo->Location = location;
+	
+	pieceAutoId+=1;
+
+	CreatePiece(createConfigData);
+}
+
 UBasePiece* UBasePieceLand::CreatePiece(UPieceBaseConfigData* pieceData)
 {
 	UBasePiece* piece = NewObject<UBasePiece>(this);
@@ -149,7 +193,7 @@ bool UBasePieceLand::CreateActionToPiece(FPieceActionHandle& handle,int pieceId,
 		return false;
 	}
 
-	if(CreateAction(handle,actionData,pieceId))
+	if(CreateAction(handle,piece->GetCurInfo()->Info->Location,actionData,pieceId))
 	{
 		return true;
 	}
@@ -157,7 +201,7 @@ bool UBasePieceLand::CreateActionToPiece(FPieceActionHandle& handle,int pieceId,
 	return false;
 }
 
-class UPieceBaseAction* UBasePieceLand::CreateAction(FPieceActionHandle& handle,class UPieceBaseActionConfigData* actionData,int pieceId)
+class UPieceBaseAction* UBasePieceLand::CreateAction(FPieceActionHandle& handle,FPieceLocation triggerLocation,class UPieceBaseActionConfigData* actionData,int pieceId)
 {
 	UBasePiece* piece = nullptr;
 	
@@ -182,6 +226,7 @@ class UPieceBaseAction* UBasePieceLand::CreateAction(FPieceActionHandle& handle,
 	
 	action->SetHandle(handle);
 	action->SetData(actionData);
+	action->SetTriggerLocation(triggerLocation);
 	action->SetPiece(piece);
 	action->Init();
 
@@ -625,7 +670,69 @@ FPieceLocation UBasePieceLand::GetNearLogicLocationByActorLocation(FVector locat
 	return pieceLocation;
 }
 
-void UBasePieceLand::UsePieceCardToLocation(FPieceLocation location,FName pieceCardName)
+bool UBasePieceLand::GetPieceCardEnableAttach(FPieceLocation pieceLocation,FPieceLocation characterLocation,FName pieceCardName)
+{
+	UPieceLandSystem* pieceLandSystem = UCommonFunctionLibrary::GetPieceLandSystem();
+
+	FPieceCardConfigData pieceCardConfigData;
+	if(!pieceLandSystem->GetPieceCardConfigData(pieceCardName,pieceCardConfigData))
+	{
+		return false;
+	}
+	if(!pieceCardConfigData.ActionConfigData || !pieceCardConfigData.ActionConfigData->ActionClass)
+	{
+		return false;
+	}
+
+	bool isEnable = false;
+
+	do
+	{
+		int pieceId;
+		bool hasPiece = GetPieceIdByLocation(pieceLocation,pieceId);
+		
+		if(pieceCardConfigData.ActionConfigData->IsMustAttachToValidPiece && !hasPiece)
+		{
+			break;
+		}
+
+		if(pieceCardConfigData.IsOnlyCross)
+		{
+			if(!(characterLocation.X == pieceLocation.X || (characterLocation.Y == pieceLocation.Y)))
+			{
+				break;
+			}
+		}
+
+		int distance = pieceCardConfigData.ValidDistance;
+		if(abs(characterLocation.X - pieceLocation.X)>distance || abs(characterLocation.Y - pieceLocation.Y)>distance)
+		{
+			break;
+		}
+
+		if(!pieceCardConfigData.IsHorizontal)
+		{
+			if(pieceLocation!=characterLocation)
+			{
+				break;
+			}
+		}
+
+		if(!pieceCardConfigData.IsVertical)
+		{
+			if(pieceLocation.Floor != characterLocation.Floor)
+			{
+				break;
+			}
+		}
+
+		isEnable = true;
+	}while(false);
+
+	return isEnable;
+}
+
+void UBasePieceLand::UsePieceCardToLocation(FPieceLocation pieceLocation,FName pieceCardName)
 {
 	UPieceLandSystem* pieceLandSystem = UCommonFunctionLibrary::GetPieceLandSystem();
 
@@ -643,7 +750,7 @@ void UBasePieceLand::UsePieceCardToLocation(FPieceLocation location,FName pieceC
 	bool attachActionToPiece = false;
 	
 	int pieceId;
-	if( GetPieceIdByLocation(location,pieceId))
+	if( GetPieceIdByLocation(pieceLocation,pieceId))
 	{
 		if(UBasePiece* piece = GetPieceById(pieceId))
 		{
@@ -657,7 +764,7 @@ void UBasePieceLand::UsePieceCardToLocation(FPieceLocation location,FName pieceC
 	if(!attachActionToPiece && !pieceCardConfigData.ActionConfigData->IsMustAttachToValidPiece)
 	{
 		FPieceActionHandle handle;
-		CreateAction(handle,pieceCardConfigData.ActionConfigData);
+		CreateAction(handle,pieceLocation,pieceCardConfigData.ActionConfigData);
 	}
 	
 }

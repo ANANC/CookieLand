@@ -19,6 +19,8 @@ public:
 	void SetHandle(FPieceActionHandle handle);
 	
 	virtual void SetPiece(class UBasePiece* piece);
+
+	virtual void SetTriggerLocation(FPieceLocation location);
 	
 	virtual void SetData(class UPieceBaseActionConfigData* data);
 	
@@ -40,12 +42,15 @@ private:
 
 	UPROPERTY()
 	class UPieceBaseActionConfigData* BaseConfigData;
+	
 protected:
 	int PieceId;
 	
 	UPROPERTY()
 	class UBasePiece* Piece;
-	
+
+	FPieceLocation TriggerLocation;
+
 protected:
 	virtual void _Init();
 	

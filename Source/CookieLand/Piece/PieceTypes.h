@@ -53,7 +53,26 @@ public:
 	{
 		return !IsValid || !Other.IsValid || X != Other.X || Y != Other.Y || Floor != Other.Floor;
 	}
+	void operator+=(const FPieceLocation& Other)
+	{
+		if(IsValid && Other.IsValid)
+		{
+			X += Other.X;
+			Y += Other.Y;
+			Floor += Other.Floor;
+		}
+	}
 
+	void operator-=(const FPieceLocation& Other)
+	{
+		if(IsValid && Other.IsValid)
+		{
+			X -= Other.X;
+			Y -= Other.Y;
+			Floor -= Other.Floor;
+		}
+	}
+	
 	void Copy(FPieceLocation Other)
 	{
 		IsValid = Other.IsValid;
@@ -102,16 +121,6 @@ public:
 			EnableDirections.Add(sourceInfo->EnableDirections[index]);
 		}
 	}
-};
-
-UCLASS(abstract,EditInlineNew,Blueprintable)
-class COOKIELAND_API UPieceBaseStateConfigData : public UObject
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	FName Name;
 };
 
 USTRUCT(BlueprintType)
@@ -173,14 +182,11 @@ public:
 	int Id{0};
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	TSubclassOf<class ABasePieceActor> ActorClass;
+	TSubclassOf<class ABasePieceActor> ActorClass = nullptr;
 	
 	UPROPERTY(EditAnywhere,Instanced)
 	UPieceBaseInfo* BaseInfo;
 	
-	UPROPERTY(EditAnywhere,Instanced)
-	TArray<TObjectPtr<UPieceBaseStateConfigData>> States;
-
 	UPROPERTY(EditAnywhere,Instanced)
 	TArray<TObjectPtr<UPieceBaseActionConfigData>> Actions;
 };
@@ -208,6 +214,9 @@ public:
 	
 	UPROPERTY(EditAnywhere,Instanced)
 	TArray<TObjectPtr<UPieceBaseConfigData>> Pieces;
+
+	UPROPERTY(EditAnywhere,Instanced)
+	TObjectPtr<UPieceBaseConfigData> DefaultPieceConfig;
 };
 
 USTRUCT(BlueprintType)
@@ -408,8 +417,11 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FName CardName;
 	
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	FString DescribeName;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (MultiLine = "true"))
+	FText DescribeName;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (MultiLine = "true"))
+	FText Describe;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int ValidDistance{3};
