@@ -210,6 +210,21 @@ EPieceDirection UCommonFunctionLibrary::ChangeGameDirectionByAngle(float angle,E
 	return newDirection;
 }
 
+bool UCommonFunctionLibrary::IsLocationInSideWithInRange(FPieceLocation centerLocation,FPieceLocation targetLocation,FPieceLocation range)
+{
+	if(abs(targetLocation.Floor - centerLocation.Floor) <= range.Floor)
+	{
+		if(abs(targetLocation.X - centerLocation.X) <= range.X)
+		{
+			if(abs(targetLocation.Y - centerLocation.Y) <= range.Y)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 float UCommonFunctionLibrary::GetAngleBetween3DVector(FVector Vec1, FVector Vec2, FVector RefUpVector)
 {
 	Vec1.Normalize();

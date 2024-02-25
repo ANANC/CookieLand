@@ -77,6 +77,11 @@ FPieceLocation UPieceLandComponent::GetLastLocation()
 	return location;
 }
 
+FPieceLocation UPieceLandComponent::GetEnableObserveDistance()
+{
+	return EnableObserveDistance;
+}
+
 void UPieceLandComponent::CreatePieceLandEventCallback(FName levelName,int initialPieceId)
 {
 	CurLand = UCommonFunctionLibrary::GetCurPieceLand();

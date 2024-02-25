@@ -22,8 +22,9 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+	
 public:
-
+	
 	UPROPERTY(BlueprintAssignable)
 	FMoveToNextPieceEvent MoveToNextPieceEvent;
 	
@@ -31,6 +32,9 @@ public:
 	FStandByFinishPieceEvent StandByFinishPieceEvent;
 	
 protected:
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	FPieceLocation EnableObserveDistance{3,3,0};
+	
 	UPROPERTY(BlueprintReadOnly)
 	int LastPieceId{-1};
 
@@ -53,7 +57,10 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	FPieceLocation GetLastLocation();
-
+	
+	UFUNCTION(BlueprintPure)
+	FPieceLocation GetEnableObserveDistance();
+	
 protected:
 	UFUNCTION()
 	void CreatePieceLandEventCallback(FName levelName,int initialPieceId);

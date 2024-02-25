@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PieceTypes.h"
 #include "GameFramework/Actor.h"
 #include "BasePieceActor.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FPieceActorInAnimationStateChangeEvent);
 
 UCLASS()
 class COOKIELAND_API ABasePieceActor : public AActor
@@ -19,6 +22,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void BeginDestroy() override;
+
+public:
+	UPROPERTY(BlueprintAssignable)
+	FPieceActorInAnimationStateChangeEvent PieceActorStartInAnimationEvent;
+	
+	UPROPERTY(BlueprintAssignable)
+	FPieceActorInAnimationStateChangeEvent PieceActorFinishInAnimationEvent;
+	
 protected:
 	
 	UPROPERTY(BlueprintReadOnly)
@@ -26,6 +38,9 @@ protected:
 	
 	UPROPERTY(BlueprintReadWrite,VisibleAnywhere)
 	class UBasePiece* Piece;
+
+	UPROPERTY()
+	bool IsInAnimation{false};
 	
 public:
 
@@ -35,12 +50,43 @@ public:
 
 	void Init();
 
+public:
+	UFUNCTION(BlueprintPure)
+	FPieceLocation GetMyLocation();
+	
+	UFUNCTION(BlueprintPure)
+	bool GetIsPlayerStandOnMyself();
+	
+	UFUNCTION(BlueprintPure)
+	bool GetIsPlayerStandOnThisFloor();
+	
+	UFUNCTION(BlueprintPure)
+	bool GetIsFinishPieceByMyself();
+	
+	UFUNCTION(BlueprintPure)
+	int GetPlayerCurrentPieceId();
+	
+	UFUNCTION(BlueprintPure)
+	FPieceLocation GetPlayerCurrentPieceLocation();
+	
+	UFUNCTION(BlueprintPure)
+	FPieceObserveStateData GetPieceObserveState();
+	
+	UFUNCTION(BlueprintPure)
+	bool GetIsInAnimation();
 
+	UFUNCTION(BlueprintCallable)
+	void SetIsInAnimation(bool isAnimation);
+	
 protected:
 	UFUNCTION(BlueprintImplementableEvent)
 	void InitArt();
 
 public:
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void MoveToNextPieceEventCallback(FPieceLocation oldLocation, FPieceLocation newLocation);
+	
     UFUNCTION(BlueprintImplementableEvent)
     void TriggerActionArt_RemindDropOut();
 	

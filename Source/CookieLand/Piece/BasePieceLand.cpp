@@ -6,6 +6,7 @@
 #include "BasePiece.h"
 #include "BasePieceActor.h"
 #include "PieceBaseAction.h"
+#include "PieceLandComponent.h"
 #include "PieceLandSystem.h"
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 
@@ -50,20 +51,14 @@ void UBasePieceLand::CreateDynamicPieceByLocation(FPieceLocation location,bool i
 	UPieceBaseInfo* baseInfo = NewObject<UPieceBaseInfo>();
 	createConfigData->BaseInfo = baseInfo;
 	
-	if(isDefaultConfig && LandDataAsset)
+	if(isDefaultConfig && LandDataAsset &&  LandDataAsset->DefaultPieceConfig)
 	{
-		createConfigData->ActorClass = LandDataAsset->DefaultPieceConfig&&LandDataAsset->DefaultPieceConfig->ActorClass?
-			LandDataAsset->DefaultPieceConfig->ActorClass:
-			LandDataAsset->DefaultActorClass;
+		createConfigData->ActorClass = LandDataAsset->DefaultPieceConfig->ActorClass;
+		baseInfo->Copy(LandDataAsset->DefaultPieceConfig->BaseInfo);
 
-		if( LandDataAsset->DefaultPieceConfig)
+		for(int index = 0;index<LandDataAsset->DefaultPieceConfig->Actions.Num();++index)
 		{
-			baseInfo->Copy(LandDataAsset->DefaultPieceConfig->BaseInfo);
-
-			for(int index = 0;index<LandDataAsset->DefaultPieceConfig->Actions.Num();++index)
-			{
-				createConfigData->Actions.Add(LandDataAsset->DefaultPieceConfig->Actions[index]);
-			}
+			createConfigData->Actions.Add(LandDataAsset->DefaultPieceConfig->Actions[index]);
 		}
 	}
 	else if(pieceData)
@@ -76,6 +71,10 @@ void UBasePieceLand::CreateDynamicPieceByLocation(FPieceLocation location,bool i
 		{
 			createConfigData->Actions.Add(pieceData->Actions[index]);
 		}
+	}
+	else
+	{
+		return;
 	}
 
 	baseInfo->Location = location;
@@ -640,9 +639,9 @@ TArray<UBasePiece*> UBasePieceLand::GetOutDistancePieces(int pieceId,FPieceDista
 TSubclassOf<class ABasePieceActor> UBasePieceLand::GetPieceInstanceActorClass(UBasePiece* piece)
 {
 	TSubclassOf<class ABasePieceActor> actorClassType = nullptr;
-	if(LandDataAsset)
+	if(LandDataAsset && LandDataAsset->DefaultPieceConfig)
 	{
-		actorClassType = LandDataAsset->DefaultActorClass;
+		actorClassType = LandDataAsset->DefaultPieceConfig->ActorClass;
 	}
 	
 	if(!actorClassType)
@@ -767,4 +766,33 @@ void UBasePieceLand::UsePieceCardToLocation(FPieceLocation pieceLocation,FName p
 		CreateAction(handle,pieceLocation,pieceCardConfigData.ActionConfigData);
 	}
 	
+}
+
+FPieceObserveStateData UBasePieceLand::GetObserveStateData(FPieceLocation pieceLocation,class UPieceLandComponent* pieceLandComponent)
+{
+	FPieceObserveStateData pieceObserveStateData(false);
+
+	FPieceLocation enableObserveDistance = pieceLandComponent->GetEnableObserveDistance();
+	FPieceLocation curLocation = pieceLandComponent->GetCurLocation();
+	if(!curLocation.IsValid)
+	{
+		curLocation = GetLocationById(GetInitialPieceId());
+	}
+	
+	if(UCommonFunctionLibrary::IsLocationInSideWithInRange(curLocation,pieceLocation,enableObserveDistance))
+	{
+		pieceObserveStateData.IsVisible = true;
+
+		pieceObserveStateData.ObserveFormType = EPieceObserveFormType::Full;
+		if(curLocation.Floor != pieceLocation.Floor)
+		{
+			pieceObserveStateData.ObserveFormType = EPieceObserveFormType::OnlySimpleLine;
+		}
+	}
+	else
+	{
+		pieceObserveStateData.IsVisible = false;
+	}
+	
+	return pieceObserveStateData;
 }

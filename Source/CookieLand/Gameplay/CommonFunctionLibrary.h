@@ -54,6 +54,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	static EPieceDirection ChangeGameDirectionByAngle(float angle,EPieceDirection direction);
 	
+	UFUNCTION(BlueprintPure)
+	static bool IsLocationInSideWithInRange(FPieceLocation centerLocation,FPieceLocation targetLocation,FPieceLocation range);
+	
 	//计算两个向量的夹角
 	UFUNCTION(BlueprintPure)
 	static float GetAngleBetween3DVector(FVector Vec1, FVector Vec2, FVector RefUpVector);

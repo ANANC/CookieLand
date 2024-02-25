@@ -131,6 +131,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void UsePieceCardToLocation(FPieceLocation pieceLocation,FName pieceCardName);
+
+	UFUNCTION(BlueprintCallable)
+	FPieceObserveStateData GetObserveStateData(FPieceLocation pieceLocation,class UPieceLandComponent* pieceLandComponent);
 	
 protected:
 	UBasePiece* CreatePiece(UPieceBaseConfigData* pieceData);

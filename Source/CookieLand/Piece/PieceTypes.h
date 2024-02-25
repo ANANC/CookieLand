@@ -203,8 +203,8 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FVector ActorInterval{50,50,100};
 
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	TSubclassOf<class ABasePieceActor> DefaultActorClass;
+	UPROPERTY(EditAnywhere,Instanced)
+	TObjectPtr<UPieceBaseConfigData> DefaultPieceConfig;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int InitialPieceId{-1};
@@ -215,8 +215,6 @@ public:
 	UPROPERTY(EditAnywhere,Instanced)
 	TArray<TObjectPtr<UPieceBaseConfigData>> Pieces;
 
-	UPROPERTY(EditAnywhere,Instanced)
-	TObjectPtr<UPieceBaseConfigData> DefaultPieceConfig;
 };
 
 USTRUCT(BlueprintType)
@@ -450,4 +448,29 @@ public:
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TArray<FPieceCardConfigData> Cards;
+};
+
+
+
+UENUM(BlueprintType)
+enum class EPieceObserveFormType : uint8
+{
+	Full,
+	OnlySimpleLine,
+};
+
+USTRUCT(BlueprintType)
+struct FPieceObserveStateData
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool IsVisible{false};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	EPieceObserveFormType ObserveFormType{EPieceObserveFormType::Full};
+
+	FPieceObserveStateData(){}
+	FPieceObserveStateData(bool isVisible):IsVisible(isVisible){}
 };
