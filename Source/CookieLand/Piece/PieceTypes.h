@@ -28,7 +28,7 @@ struct COOKIELAND_API FPieceLocation
 
 public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	bool IsValid{true};
+	bool IsValid{false};
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int X{0};
@@ -40,11 +40,18 @@ public:
 
 	FPieceLocation(){}
 	FPieceLocation(bool isValue):IsValid(isValue){}
-	FPieceLocation(int x,int y,int floor):X(x),Y(y),Floor(floor){}
-	FPieceLocation(FVector vector):X(vector.X),Y(vector.Y),Floor(vector.Z){}
-	FPieceLocation(FPieceLocation& other):X(other.X),Y(other.Y),Floor(other.Floor){}
-	FPieceLocation(FPieceLocation& other,int floor):X(other.X),Y(other.Y),Floor(floor){}
+	FPieceLocation(int x,int y,int floor):IsValid(true),X(x),Y(y),Floor(floor){}
+	FPieceLocation(FVector vector):IsValid(true),X(vector.X),Y(vector.Y),Floor(vector.Z){}
+	FPieceLocation(FPieceLocation& other):IsValid(true),X(other.X),Y(other.Y),Floor(other.Floor){}
+	FPieceLocation(FPieceLocation& other,int floor):IsValid(true),X(other.X),Y(other.Y),Floor(floor){}
 	
+	void operator=(const FPieceLocation& Other)
+	{
+		IsValid = Other.IsValid;
+		X = Other.X;
+		Y = Other.Y;
+		Floor = Other.Floor;
+	}
 	bool operator==(const FPieceLocation& Other) const
 	{
 		return IsValid && Other.IsValid && X == Other.X && Y == Other.Y && Floor == Other.Floor;
@@ -93,6 +100,10 @@ public:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int LimitDistance{1};
+
+public:
+	FPieceDistance(){}
+	FPieceDistance(bool isUnLimit,int limitDistance):IsUnLimit(isUnLimit),LimitDistance(limitDistance){}
 };
 
 UCLASS(EditInlineNew,Blueprintable)
@@ -248,6 +259,9 @@ public:
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
 	bool IsOccupy{false};
+
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	bool IsEnableArrive{false};
 };
 
 UCLASS()
@@ -371,7 +385,7 @@ struct FAddPieceActionStateRequest
 
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	EPieceActionState State;
+	EPieceActionState State{EPieceActionState::Empty};
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool IsReqMainState{true};
@@ -473,4 +487,50 @@ public:
 
 	FPieceObserveStateData(){}
 	FPieceObserveStateData(bool isVisible):IsVisible(isVisible){}
+};
+
+
+
+USTRUCT(BlueprintType)
+struct FInstanceCubeVolumeUnit
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FPieceLocation Location;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FPieceLocation Volume;
+
+public:
+	FInstanceCubeVolumeUnit(){}
+	FInstanceCubeVolumeUnit(FPieceLocation location,FPieceLocation volume):Location(location),Volume(volume){}
+
+	bool GetEnableBind(FInstanceCubeVolumeUnit other);
+
+	TArray<FPieceLocation> GetLocations(int floor);
+
+	bool TryMerge(FInstanceCubeVolumeUnit other);
+	
+	bool GetIsInSide(FPieceLocation location);
+
+	bool GetIsInEdge(FPieceLocation location);
+};
+
+
+UCLASS(BlueprintType)
+class UInstanceCubeVolume:public UObject
+{
+	GENERATED_BODY()
+
+protected:
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	TArray<FInstanceCubeVolumeUnit> Volumes;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	int FloorHeight;
+
+public:
+	bool AddVolume(FPieceLocation location,FPieceLocation volume);
 };

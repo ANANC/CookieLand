@@ -5,9 +5,10 @@
 
 #include "BasePieceActor.h"
 #include "BasePieceLand.h"
-#include "PieceActionStateOComponent.h"
+#include "CookieLand/Piece/Component/PieceActionStateOComponent.h"
 #include "PieceBaseAction.h"
 #include "PieceTypes.h"
+#include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 
 // Sets default values
 UBasePiece::UBasePiece(const FObjectInitializer& ObjectInitializer)
@@ -47,11 +48,13 @@ void UBasePiece::Init()
 	ActionStateOComponent = AddOComponent<UPieceActionStateOComponent>(UPieceActionStateOComponent::StaticClass());
 	
 	CurInfo->IsOccupy = false;
+	CurInfo->IsEnableArrive = false;
 	CurInfo->Info->Copy(ConfigData->BaseInfo);
 
-	if(OwnLand->RequestOccupyLocation(CurInfo->Id,CurInfo->Info->Location))
+	if(OwnLand->RequestOccupyLocation(CurInfo->Id,GetLocation()))
 	{
 		CurInfo->IsOccupy = true;
+		CurInfo->IsEnableArrive = true;
 	}
 	else
 	{
@@ -61,7 +64,7 @@ void UBasePiece::Init()
 	if(CurInfo->IsOccupy)
 	{
 		FTransform transform;
-		transform.SetLocation(OwnLand->GetActorLocationByLocation(CurInfo->Info->Location));
+		transform.SetLocation(OwnLand->GetActorLocationByLocation(GetLocation()));
 	
 		FActorSpawnParameters spawnParameters;
 		spawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -106,7 +109,7 @@ void UBasePiece::UnInit()
 
 	if(OwnLand && CurInfo->IsOccupy)
 	{
-		OwnLand->RequestUnOccupyLocation(CurInfo->Id,CurInfo->Info->Location);
+		OwnLand->RequestUnOccupyLocation(CurInfo->Id,GetLocation());
 	}
 }
 
@@ -118,6 +121,50 @@ const UPieceInfo* UBasePiece::GetCurInfo()
 const UPieceBaseConfigData* UBasePiece::GetConfigData()
 {
 	return ConfigData;
+}
+
+
+FPieceLocation UBasePiece::GetLocation()
+{
+	if(CurInfo)
+	{
+		return CurInfo->Info->Location;
+	}
+	return FPieceLocation(false);
+}
+
+bool UBasePiece::GetIsEnableArrive()
+{
+	if(!CurInfo || !CurInfo->IsEnableArrive)
+	{
+		return false;
+	}
+
+	bool isEnable,isUp;
+	GetIsEnableUpOrDownMove(isEnable,isUp);
+	if(isEnable)
+	{
+		//上下不存在地块时，无法到达
+		int nextPieceId;
+		if(!GetOwnLand()->RequestToNextLocation(GetId(),isUp?EPieceDirection::Up:EPieceDirection::Down,nextPieceId))
+		{
+			return false;
+		}
+	}
+
+	//处于地块距离显示时，无法到达
+	int curStandOnPieceId = UCommonFunctionLibrary::GetMainCharacterCurrentPieceId(this);
+	if(UBasePiece* standPiece = GetOwnLand()->GetPieceById(curStandOnPieceId))
+	{
+		FPieceDistance standPieceDistance = standPiece->GetCurInfo()->Info->Distance;
+		if(!UCommonFunctionLibrary::IsLocationInSideByDistance(standPiece->GetLocation(),GetLocation(),standPieceDistance))
+		{
+			return false;
+		}
+	}
+
+	return true;
+	
 }
 
 bool UBasePiece::GetEnableMove(EPieceDirection direction)
@@ -167,6 +214,24 @@ void UBasePiece::RemoveEnableMove(EPieceDirection direction)
 	}
 
 	ProtectUpdateMoveDirection();
+}
+
+void UBasePiece::GetIsEnableUpOrDownMove(bool& isEnable,bool& isUp)
+{
+	if(GetEnableMove(EPieceDirection::Up))
+	{
+		isEnable = true;
+		isUp = true;
+	}else if(GetEnableMove(EPieceDirection::Down))
+	{
+		isEnable = true;
+		isUp = false;
+	}
+	else
+	{
+		isEnable = false;
+		isUp = true;
+	}
 }
 
 void UBasePiece::ProtectUpdateMoveDirection()

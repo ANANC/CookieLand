@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "IPieceBaseOComponent.h"
-#include "PieceTypes.h"
+#include "CookieLand/Piece/PieceTypes.h"
 #include "UObject/Object.h"
 #include "PieceActionStateOComponent.generated.h"
 

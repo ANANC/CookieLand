@@ -64,12 +64,6 @@ public:
 	bool GetIsFinishPieceByMyself();
 	
 	UFUNCTION(BlueprintPure)
-	int GetPlayerCurrentPieceId();
-	
-	UFUNCTION(BlueprintPure)
-	FPieceLocation GetPlayerCurrentPieceLocation();
-	
-	UFUNCTION(BlueprintPure)
 	FPieceObserveStateData GetPieceObserveState();
 	
 	UFUNCTION(BlueprintPure)
@@ -83,7 +77,9 @@ protected:
 	void InitArt();
 
 public:
-
+	UFUNCTION(BlueprintImplementableEvent)
+	void StandToInitialPieceEventCallback(FPieceLocation location);
+	
 	UFUNCTION(BlueprintImplementableEvent)
 	void MoveToNextPieceEventCallback(FPieceLocation oldLocation, FPieceLocation newLocation);
 	

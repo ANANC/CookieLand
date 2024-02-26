@@ -4,9 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "PieceTypes.h"
+#include "CookieLand/Piece/PieceTypes.h"
 #include "PieceLandComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStandToInitialPieceEvent, FPieceLocation, location);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMoveToNextPieceEvent, FPieceLocation, oldLocation, FPieceLocation, newLocation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FStandByFinishPieceEvent, FPieceLocation, location);
 
@@ -24,6 +25,8 @@ protected:
 	virtual void BeginPlay() override;
 	
 public:
+	UPROPERTY(BlueprintAssignable)
+	FStandToInitialPieceEvent StandToInitialPieceEvent;
 	
 	UPROPERTY(BlueprintAssignable)
 	FMoveToNextPieceEvent MoveToNextPieceEvent;

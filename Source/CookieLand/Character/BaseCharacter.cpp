@@ -7,8 +7,8 @@
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 #include "CookieLand/MoveTo/MoveToComponent.h"
 #include "CookieLand/Piece/BasePieceLand.h"
-#include "CookieLand/Piece/PieceCardComponent.h"
-#include "CookieLand/Piece/PieceLandComponent.h"
+#include "CookieLand/Piece/Component/PieceCardComponent.h"
+#include "CookieLand/Piece/Component/PieceLandComponent.h"
 #include "CookieLand/Piece/PieceLandSystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
 

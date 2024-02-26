@@ -7,7 +7,7 @@
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 #include "CookieLand/Piece/BasePiece.h"
 #include "CookieLand/Piece/BasePieceLand.h"
-#include "CookieLand/Piece/PieceLandComponent.h"
+#include "CookieLand/Piece/Component/PieceLandComponent.h"
 
 void UPieceAction_CreatePiece::_Init()
 {
@@ -20,7 +20,7 @@ void UPieceAction_CreatePiece::_Init()
 	
 void UPieceAction_CreatePiece::_UnInit()
 {
-	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
+	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(this);
 	if(mainCharacter)
 	{
 		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();
@@ -48,7 +48,7 @@ void UPieceAction_CreatePiece::Execute()
 			return;
 		}
 		
-		ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
+		ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(this);
 		if(!mainCharacter)
 		{
 			SetIsFinish(true);

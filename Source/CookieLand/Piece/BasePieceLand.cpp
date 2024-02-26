@@ -6,7 +6,7 @@
 #include "BasePiece.h"
 #include "BasePieceActor.h"
 #include "PieceBaseAction.h"
-#include "PieceLandComponent.h"
+#include "CookieLand/Piece/Component/PieceLandComponent.h"
 #include "PieceLandSystem.h"
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 
@@ -515,9 +515,11 @@ UBasePiece* UBasePieceLand::GetNearPieceByDirectionPieces(int pieceId,FPieceDist
 	if(minPiece)
 	{
 		EPieceDirection oppositeDir = UCommonFunctionLibrary::ChangeGameDirectionByAngle(180,direction);
-		if(!minPiece->GetEnableMove(EPieceDirection::Up) && !minPiece->GetEnableMove(EPieceDirection::Down)
-			&& !IsFinishPieceId(minPiece->GetId())
-			&& !minPiece->GetEnableMove(oppositeDir))
+
+		bool isEnableUpOrDown,isUp;
+		minPiece->GetIsEnableUpOrDownMove(isEnableUpOrDown,isUp);
+		if( !minPiece->GetIsEnableArrive() ||
+			(!isEnableUpOrDown && !IsFinishPieceId(minPiece->GetId()) && !minPiece->GetEnableMove(oppositeDir)))
 		{
 			minPiece = nullptr;
 		}
@@ -557,7 +559,10 @@ UBasePiece* UBasePieceLand::GetNearPieceByUpOrDown(int pieceId,FPieceDistance di
 		if(GetPieceIdByLocation(nextLocation,nextPieceId))
 		{
 			UBasePiece* nextPiece = GetPieceById(nextPieceId);
-			return nextPiece;
+			if(nextPiece->GetIsEnableArrive())
+			{
+				return nextPiece;
+			}
 		}
 	}
 

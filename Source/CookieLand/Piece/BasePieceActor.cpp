@@ -5,7 +5,7 @@
 
 #include "BasePiece.h"
 #include "BasePieceLand.h"
-#include "PieceLandComponent.h"
+#include "CookieLand/Piece/Component/PieceLandComponent.h"
 #include "CookieLand/Character/BaseCharacter.h"
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 
@@ -23,11 +23,12 @@ void ABasePieceActor::BeginPlay()
 
 void ABasePieceActor::BeginDestroy()
 {
-	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
+	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(this);
 	if(mainCharacter)
 	{
 		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();
 		pieceLandComponent->MoveToNextPieceEvent.RemoveAll(this);
+		pieceLandComponent->StandToInitialPieceEvent.RemoveAll(this);
 	}
 
 	Super::BeginDestroy();
@@ -45,11 +46,12 @@ void ABasePieceActor::SetPiece(class UBasePiece* piece)
 
 void ABasePieceActor::Init()
 {
-	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
+	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(this);
 	if(mainCharacter)
 	{
 		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();
 		pieceLandComponent->MoveToNextPieceEvent.AddDynamic(this,&ABasePieceActor::MoveToNextPieceEventCallback);
+		pieceLandComponent->StandToInitialPieceEvent.AddDynamic(this,&ABasePieceActor::StandToInitialPieceEventCallback);
 	}
 	
 	InitArt();
@@ -62,7 +64,7 @@ FPieceLocation ABasePieceActor::GetMyLocation()
 
 bool ABasePieceActor::GetIsPlayerStandOnMyself()
 {
-	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
+	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(this);
 	if(mainCharacter)
 	{
 		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();
@@ -75,7 +77,7 @@ bool ABasePieceActor::GetIsPlayerStandOnMyself()
 	
 bool ABasePieceActor::GetIsPlayerStandOnThisFloor()
 {
-	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
+	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(this);
 	if(mainCharacter)
 	{
 		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();
@@ -90,36 +92,11 @@ bool ABasePieceActor::GetIsFinishPieceByMyself()
 {
 	return Piece->GetOwnLand()->IsFinishPieceId(Piece->GetId());
 }
-	
-int ABasePieceActor::GetPlayerCurrentPieceId()
-{
-	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
-	if(mainCharacter)
-	{
-		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();
-		int pieceId;
-		if(Piece->GetOwnLand()->GetPieceIdByLocation(pieceLandComponent->GetCurLocation(),pieceId))
-		{
-			return pieceId;
-		}
-	}
-	return -1;
-}
 
-FPieceLocation ABasePieceActor::GetPlayerCurrentPieceLocation()
-{
-	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
-	if(mainCharacter)
-	{
-		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();
-		return pieceLandComponent->GetCurLocation();
-	}
-	return FPieceLocation(false);
-}
 
 FPieceObserveStateData ABasePieceActor::GetPieceObserveState()
 {
-	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
+	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(this);
 	if(mainCharacter)
 	{
 		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();

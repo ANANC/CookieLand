@@ -3,9 +3,9 @@
 
 #include "PieceActionStateOComponent.h"
 
-#include "BasePiece.h"
-#include "BasePieceActor.h"
-#include "BasePieceLand.h"
+#include "CookieLand/Piece/BasePiece.h"
+#include "CookieLand/Piece/BasePieceActor.h"
+#include "CookieLand/Piece/BasePieceLand.h"
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 
 void UPieceActionStateOComponent::SetPiece(class UBasePiece* piece)

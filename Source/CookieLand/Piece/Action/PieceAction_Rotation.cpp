@@ -7,8 +7,8 @@
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 #include "CookieLand/Piece/BasePiece.h"
 #include "CookieLand/Piece/BasePieceLand.h"
-#include "CookieLand/Piece/PieceActionStateOComponent.h"
-#include "CookieLand/Piece/PieceLandComponent.h"
+#include "CookieLand/Piece/Component/PieceActionStateOComponent.h"
+#include "CookieLand/Piece/Component/PieceLandComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
 
@@ -33,7 +33,7 @@ void UPieceAction_Rotation::_Init()
 
 void UPieceAction_Rotation::_UnInit()
 {
-	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
+	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(this);
 	if(mainCharacter)
 	{
 		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();
@@ -61,7 +61,7 @@ void UPieceAction_Rotation::SetData(class UPieceBaseActionConfigData* data)
 
 void UPieceAction_Rotation::Execute()
 {
-	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
+	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(this);
 	UPieceLandComponent* pieceLandComponent = nullptr;
 	if(mainCharacter)
 	{

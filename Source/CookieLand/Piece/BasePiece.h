@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "IPieceBaseOComponent.h"
+#include "CookieLand/Piece/Component/IPieceBaseOComponent.h"
 #include "GameFramework/Actor.h"
 #include "PieceTypes.h"
 #include "BasePiece.generated.h"
@@ -67,8 +67,14 @@ public:
 	const UPieceBaseConfigData* GetConfigData();
 	
 	UFUNCTION(BlueprintPure)
+	FPieceLocation GetLocation();
+	
+	UFUNCTION(BlueprintPure)
+	bool GetIsEnableArrive();
+	
+	UFUNCTION(BlueprintPure)
 	bool GetEnableMove(EPieceDirection direction);
-
+	
 	void OverlaySetEnableMove(TArray<EPieceDirection> directions);
 
 	void AddEnableMove(EPieceDirection direction);
@@ -81,6 +87,9 @@ public:
 	
 	class ABasePieceActor* GetPieceActor();
 
+	UFUNCTION(BlueprintPure)
+	void GetIsEnableUpOrDownMove(bool& isEnable,bool& isUp);
+	
 public:
 	
 	template <class T>

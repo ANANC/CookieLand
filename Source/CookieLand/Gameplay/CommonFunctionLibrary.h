@@ -28,8 +28,14 @@ public:
 	static UBasePieceLand* GetCurPieceLand();
 	
 	UFUNCTION(BlueprintPure)
-	static class ABaseCharacter* GetMainCharacter(class UWorld* world);
+	static class ABaseCharacter* GetMainCharacter(const UObject* WorldContextObject);
 
+	UFUNCTION(BlueprintPure)
+	static int GetMainCharacterCurrentPieceId(const UObject* WorldContextObject);
+	
+	UFUNCTION(BlueprintPure)
+	static FPieceLocation GetMainCharacterCurrentPieceLocation(const UObject* WorldContextObject);
+	
 	UFUNCTION(BlueprintPure)
 	static FVector ChangeToLogicLocation(FPieceLocation location);
 	
@@ -56,6 +62,9 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	static bool IsLocationInSideWithInRange(FPieceLocation centerLocation,FPieceLocation targetLocation,FPieceLocation range);
+	
+	UFUNCTION(BlueprintPure)
+	static bool IsLocationInSideByDistance(FPieceLocation centerLocation,FPieceLocation targetLocation,FPieceDistance distance);
 	
 	//计算两个向量的夹角
 	UFUNCTION(BlueprintPure)

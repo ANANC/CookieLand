@@ -3,9 +3,9 @@
 
 #include "PieceLandComponent.h"
 
-#include "BasePiece.h"
-#include "BasePieceLand.h"
-#include "PieceLandSystem.h"
+#include "CookieLand/Piece/BasePiece.h"
+#include "CookieLand/Piece/BasePieceLand.h"
+#include "CookieLand/Piece/PieceLandSystem.h"
 #include "CookieLand/Character/BaseCharacter.h"
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 
@@ -118,6 +118,8 @@ void UPieceLandComponent::SetInitialLocation(int pieceId)
 	{
 		FVector newLocation = CurLand->GetActorLocationById(CurPieceId);
 		MoveToInitialLocation(CurPieceId,newLocation);
+		
+		StandToInitialPieceEvent.Broadcast(newLocation);
 	}
 }
 

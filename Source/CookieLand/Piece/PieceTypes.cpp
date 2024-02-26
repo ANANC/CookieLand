@@ -4,6 +4,7 @@
 #include "PieceTypes.h"
 
 #include "BasePiece.h"
+#include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 
 void UPieceLandBoundInfo::AddPiece(class UBasePiece* piece)
 {
@@ -128,4 +129,109 @@ UPieceLandFloorBoundInfo* UPieceLandBoundInfo::GetFloorBoundInfo(int floor)
 		return floorBoundInfo;
 	}
 	return nullptr;
+}
+
+bool FInstanceCubeVolumeUnit::GetEnableBind(FInstanceCubeVolumeUnit other)
+{
+	if(Location.Floor != other.Location.Floor || Volume.Floor != other.Volume.Floor)
+	{
+		return false;
+	}
+
+	TArray<FPieceLocation> myLocations = GetLocations(Location.Floor);
+	TArray<FPieceLocation> otherLocations = GetLocations(other.Location.Floor);
+
+	FPieceDistance distance(false,1);
+	
+	for(int i = 0;i<myLocations.Num();++i)
+	{
+		FPieceLocation location1 = myLocations[i];
+		for(int j =0;j<otherLocations.Num();++j)
+		{
+			FPieceLocation location2 = otherLocations[j];
+			if(UCommonFunctionLibrary::IsLocationInSideByDistance(location1,location2,distance))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+TArray<FPieceLocation> FInstanceCubeVolumeUnit::GetLocations(int floor)
+{
+	TArray<FPieceLocation> myLocations;
+	for(int x = 0;x<Volume.X;++x)
+	{
+		for(int y = 0;y<Volume.Y;++y)
+		{
+			FPieceLocation location = Location;
+			location.X += x;
+			location.Y += y;
+			location.Floor = floor;
+			myLocations.Add(location);
+		}
+	}
+}
+
+bool FInstanceCubeVolumeUnit::TryMerge(FInstanceCubeVolumeUnit other)
+{
+	if((Volume.X == 1 && other.Volume.X == 1) && (Location.X == other.Location.X))
+	{
+		FPieceLocation newLocation = Location;
+		newLocation.Y = FMath::Min(Location.Y,other.Location.Y);
+
+		FPieceLocation newVolume = Volume;
+		newVolume.Y += other.Volume.Y;
+
+		Location = newLocation;
+		Volume = newVolume;
+		return true;
+	}
+	else if((Volume.Y == 1 && other.Volume.Y == 1) && (Location.Y == other.Location.Y))
+	{
+		FPieceLocation newLocation = Location;
+		newLocation.X = FMath::Min(Location.X,other.Location.X);
+
+		FPieceLocation newVolume = Volume;
+		newVolume.X += other.Volume.X;
+
+		Location = newLocation;
+		Volume = newVolume;
+		return true;
+	}
+
+	return false;
+}
+
+bool FInstanceCubeVolumeUnit::GetIsInSide(FPieceLocation location)
+{
+	if(location.Floor >= Location.Floor && location.Floor <= Location.Floor + Volume.Floor)
+	{
+		if(location.X >= Location.X && location.X <= Location.X + (Volume.X-1))
+		{
+			if(location.Y >= Location.Y && location.Y <= Location.Y + (Volume.Y-1))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool FInstanceCubeVolumeUnit::GetIsInEdge(FPieceLocation location)
+{
+	if(location.Floor == Location.Floor || location.Floor == Location.Floor + Volume.Floor)
+	{
+		if(location.X == Location.X || location.X == Location.X + (Volume.X-1))
+		{
+			if(location.Y == Location.Y || location.Y == Location.Y + (Volume.Y-1))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }

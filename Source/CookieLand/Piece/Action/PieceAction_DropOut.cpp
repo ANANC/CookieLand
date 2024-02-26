@@ -7,8 +7,8 @@
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
 #include "CookieLand/Piece/BasePiece.h"
 #include "CookieLand/Piece/BasePieceLand.h"
-#include "CookieLand/Piece/PieceActionStateOComponent.h"
-#include "CookieLand/Piece/PieceLandComponent.h"
+#include "CookieLand/Piece/Component/PieceActionStateOComponent.h"
+#include "CookieLand/Piece/Component/PieceLandComponent.h"
 
 void UPieceAction_DropOut::_Init()
 {
@@ -25,7 +25,7 @@ void UPieceAction_DropOut::_Init()
 
 void UPieceAction_DropOut::_UnInit()
 {
-	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
+	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(this);
 	if(mainCharacter)
 	{
 		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();
@@ -44,7 +44,7 @@ void UPieceAction_DropOut::SetData(class UPieceBaseActionConfigData* data)
 
 void UPieceAction_DropOut::Execute()
 {
-	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(GetWorld());
+	ABaseCharacter* mainCharacter = UCommonFunctionLibrary::GetMainCharacter(this);
 	if(!mainCharacter)
 	{
 		SetIsFinish(true);

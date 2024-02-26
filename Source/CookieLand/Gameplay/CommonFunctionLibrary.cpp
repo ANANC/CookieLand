@@ -5,6 +5,8 @@
 
 #include "CookieLandGameInstance.h"
 #include "CookieLand/Character/BaseCharacter.h"
+#include "CookieLand/Piece/BasePieceLand.h"
+#include "CookieLand/Piece/Component/PieceLandComponent.h"
 #include "CookieLand/Piece/PieceLandSystem.h"
 #include "GameFramework/Character.h"
 
@@ -49,11 +51,11 @@ UBasePieceLand* UCommonFunctionLibrary::GetCurPieceLand()
 	return nullptr;
 }
 
-class ABaseCharacter* UCommonFunctionLibrary::GetMainCharacter(class UWorld* world)
+class ABaseCharacter* UCommonFunctionLibrary::GetMainCharacter(const UObject* WorldContextObject)
 {
-	if (world)
+	if (WorldContextObject->GetWorld())
 	{
-		APlayerController* playerController = world->GetFirstPlayerController();
+		APlayerController* playerController = WorldContextObject->GetWorld()->GetFirstPlayerController();
 		if (playerController)
 		{
 			APawn* pawn = playerController->GetPawn();
@@ -68,6 +70,36 @@ class ABaseCharacter* UCommonFunctionLibrary::GetMainCharacter(class UWorld* wor
 		}
 	}
 	return nullptr;	
+}
+
+int UCommonFunctionLibrary::GetMainCharacterCurrentPieceId(const UObject* WorldContextObject)
+{
+	ABaseCharacter* mainCharacter = GetMainCharacter(WorldContextObject->GetWorld());
+	if(mainCharacter)
+	{
+		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();
+		if(GetCurPieceLand())
+		{
+			int pieceId;
+			if(GetCurPieceLand()->GetPieceIdByLocation(pieceLandComponent->GetCurLocation(),pieceId))
+			{
+				return pieceId;
+			}
+		}
+	}
+	return -1;
+}
+
+FPieceLocation UCommonFunctionLibrary::GetMainCharacterCurrentPieceLocation(const UObject* WorldContextObject)
+{
+	ABaseCharacter* mainCharacter = GetMainCharacter(WorldContextObject->GetWorld());
+	if(mainCharacter)
+	{
+		UPieceLandComponent* pieceLandComponent = mainCharacter->GetPieceLandComponent();
+		return pieceLandComponent->GetCurLocation();
+	}
+	
+	return FPieceLocation(false);
 }
 
 FVector UCommonFunctionLibrary::ChangeToLogicLocation(FPieceLocation location)
@@ -224,7 +256,25 @@ bool UCommonFunctionLibrary::IsLocationInSideWithInRange(FPieceLocation centerLo
 	}
 	return false;
 }
-
+bool UCommonFunctionLibrary::IsLocationInSideByDistance(FPieceLocation centerLocation,FPieceLocation targetLocation,FPieceDistance distance)
+{
+	if(distance.IsUnLimit)
+	{
+		return true;
+	}
+	
+	if(abs(targetLocation.Floor - centerLocation.Floor) <= distance.LimitDistance)
+	{
+		if(abs(targetLocation.X - centerLocation.X) <= distance.LimitDistance)
+		{
+			if(abs(targetLocation.Y - centerLocation.Y) <= distance.LimitDistance)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
 float UCommonFunctionLibrary::GetAngleBetween3DVector(FVector Vec1, FVector Vec2, FVector RefUpVector)
 {
 	Vec1.Normalize();
