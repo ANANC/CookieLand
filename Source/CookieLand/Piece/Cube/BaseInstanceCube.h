@@ -23,6 +23,7 @@ protected:
 	
 	UPROPERTY()
 	class UInstanceCubeVolume* CubeVolume;
+	
 public:
 
 	void SetCubeId(int id);
@@ -40,7 +41,15 @@ public:
 	class UBasePieceLand* GetOwnLand();
 
 public:
+	UFUNCTION(BlueprintPure)
 	bool CreateCube(FPieceLocation location);
-
+	
+	UFUNCTION(BlueprintPure)
 	bool AddVolume(FPieceLocation location);
+	
+	UFUNCTION(BlueprintPure)
+	bool GetIsInSide(FPieceLocation location);
+	
+	UFUNCTION(BlueprintPure)
+	bool GetIsInEdge(FPieceLocation location);
 };

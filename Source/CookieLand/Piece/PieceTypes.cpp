@@ -173,6 +173,8 @@ TArray<FPieceLocation> FInstanceCubeVolumeUnit::GetLocations(int floor)
 			myLocations.Add(location);
 		}
 	}
+
+	return myLocations;
 }
 
 bool FInstanceCubeVolumeUnit::TryMerge(FInstanceCubeVolumeUnit other)
@@ -234,4 +236,102 @@ bool FInstanceCubeVolumeUnit::GetIsInEdge(FPieceLocation location)
 	}
 
 	return false;
+}
+
+bool UInstanceCubeVolume::CreateNearInstanceCubeVolumeUnit(FPieceLocation location,FInstanceCubeVolumeUnit& nearVolumeUnit)
+{
+	if(GetIsInSide(location))
+	{
+		return false;
+	}
+
+	if(location.Floor >= MinFloor && location.Floor <= MaxFloor)
+	{
+		nearVolumeUnit.Location = FPieceLocation(location,MinFloor);
+		nearVolumeUnit.Volume = FPieceLocation(1,1,FloorHeight);
+		return true;
+	}
+
+	return false;
+}
+
+bool UInstanceCubeVolume::AddVolume(FPieceLocation location,FPieceLocation volume)
+{
+	bool isEnableAdd = false;
+	FInstanceCubeVolumeUnit addVolumeUnit(location,volume);
+	if(Volumes.Num() == 0)
+	{
+		Volumes.Add(addVolumeUnit);
+		FloorHeight = volume.Floor;
+
+		MinFloor = location.Floor;
+		MaxFloor = MinFloor + FloorHeight;
+
+		isEnableAdd = true;
+	}
+	else
+	{
+		for(int index = 0;index<Volumes.Num();++index)
+		{
+			FInstanceCubeVolumeUnit& curVolume = Volumes[index];
+			if(curVolume.GetEnableBind( addVolumeUnit))
+			{
+				isEnableAdd = true;
+				break;
+			}
+		}
+		bool isMerge=false;
+		for(int index = 0;index<Volumes.Num();++index)
+		{
+			FInstanceCubeVolumeUnit& curVolume = Volumes[index];
+			if(curVolume.TryMerge(addVolumeUnit))
+			{
+				isMerge = true;
+				break;
+			}
+		}
+		if(isEnableAdd && !isMerge)
+		{
+			Volumes.Add(addVolumeUnit);	
+		}
+	}
+	return isEnableAdd;
+}
+
+bool UInstanceCubeVolume::GetIsInSide(FPieceLocation location)
+{
+	for(int index = 0;index<Volumes.Num();++index)
+	{
+		FInstanceCubeVolumeUnit& curVolume = Volumes[index];
+		if(curVolume.GetIsInSide(location))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UInstanceCubeVolume::GetIsInEdge(FPieceLocation location)
+{
+	for(int index = 0;index<Volumes.Num();++index)
+	{
+		FInstanceCubeVolumeUnit& curVolume = Volumes[index];
+		if(curVolume.GetIsInEdge(location))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+TArray<FInstanceCubeVolumeUnit> UInstanceCubeVolume::GetVolumes()
+{
+	return Volumes;
+}
+
+int UInstanceCubeVolume::GetFloorHeight()
+{
+	return FloorHeight;
 }

@@ -9,6 +9,7 @@
 #include "CookieLand/Piece/Component/PieceLandComponent.h"
 #include "PieceLandSystem.h"
 #include "CookieLand/Gameplay/CommonFunctionLibrary.h"
+#include "Cube/BaseInstanceCube.h"
 
 void UBasePieceLand::CreateLand(FName levelName,class ULandDataAsset* landDA)
 {
@@ -800,4 +801,77 @@ FPieceObserveStateData UBasePieceLand::GetObserveStateData(FPieceLocation pieceL
 	}
 	
 	return pieceObserveStateData;
+}
+
+bool UBasePieceLand::TryCreateDynamicInstanceCubeByLocation(FPieceLocation location)
+{
+	int cubeId;
+	if(GetInstanceCubeIdByLocation(location,cubeId))
+	{
+		return false;
+	}
+
+	UBaseInstanceCube* instanceCube = CreateInstanceCube(location);
+	if(instanceCube)
+	{
+		return true;
+	}
+	return false;
+}
+
+UBaseInstanceCube* UBasePieceLand::CreateInstanceCube(FPieceLocation location)
+{
+	UBaseInstanceCube* instanceCube = NewObject<UBaseInstanceCube>(this);
+
+	instanceCube->SetCubeId(instanceCubeAutoId);
+	instanceCube->SetOwnLand(this);
+	instanceCube->Init();
+
+	if(!instanceCube->CreateCube(location))
+	{
+		instanceCube->UnInit();
+		return nullptr;
+	}
+
+	instanceCubeAutoId+=1;
+
+	InstanceCubes.Add(instanceCube);
+	InstanceCubeMap.Add(instanceCube->GetCubeId(),instanceCube);
+	
+	return instanceCube;
+}
+
+bool UBasePieceLand::TryBindToInstanceCube(FPieceLocation location,int instanceCubeId)
+{
+	UBaseInstanceCube* instanceCube = GetInstanceCubeById(instanceCubeId);
+	if(!instanceCube)
+	{
+		return false;
+	}
+
+	return instanceCube->AddVolume(location);
+}
+
+bool UBasePieceLand::GetInstanceCubeIdByLocation(FPieceLocation location,int& cubeId)
+{
+	for(int index = 0;index<InstanceCubes.Num();++index)
+	{
+		if(InstanceCubes[index]->GetIsInSide(location))
+		{
+			cubeId = InstanceCubes[index]->GetCubeId();
+			return true;
+		}
+	}
+
+	return false;
+}
+
+UBaseInstanceCube* UBasePieceLand::GetInstanceCubeById(int instanceCubeId)
+{
+	UBaseInstanceCube** instanceCubePtr = InstanceCubeMap.Find(instanceCubeId);
+	if(instanceCubePtr)
+	{
+		return *instanceCubePtr;
+	}
+	return nullptr;
 }

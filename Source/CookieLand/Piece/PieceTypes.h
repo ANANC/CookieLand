@@ -41,9 +41,9 @@ public:
 	FPieceLocation(){}
 	FPieceLocation(bool isValue):IsValid(isValue){}
 	FPieceLocation(int x,int y,int floor):IsValid(true),X(x),Y(y),Floor(floor){}
-	FPieceLocation(FVector vector):IsValid(true),X(vector.X),Y(vector.Y),Floor(vector.Z){}
-	FPieceLocation(FPieceLocation& other):IsValid(true),X(other.X),Y(other.Y),Floor(other.Floor){}
-	FPieceLocation(FPieceLocation& other,int floor):IsValid(true),X(other.X),Y(other.Y),Floor(floor){}
+	FPieceLocation(const FVector vector):IsValid(true),X(vector.X),Y(vector.Y),Floor(vector.Z){}
+	FPieceLocation(const FPieceLocation& other):IsValid(true),X(other.X),Y(other.Y),Floor(other.Floor){}
+	FPieceLocation(const FPieceLocation& other,int floor):IsValid(true),X(other.X),Y(other.Y),Floor(floor){}
 	
 	void operator=(const FPieceLocation& Other)
 	{
@@ -503,10 +503,23 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	FPieceLocation Volume;
 
+	void operator=(const FInstanceCubeVolumeUnit& Other)
+	{
+		Location = Other.Location;
+		Volume = Other.Volume;
+	}
+	
 public:
 	FInstanceCubeVolumeUnit(){}
-	FInstanceCubeVolumeUnit(FPieceLocation location,FPieceLocation volume):Location(location),Volume(volume){}
+	FInstanceCubeVolumeUnit(const FPieceLocation location,const FPieceLocation volume):Location(location),Volume(volume){}
+	FInstanceCubeVolumeUnit(const FInstanceCubeVolumeUnit& volumeUnit):Location(volumeUnit.Location),Volume(volumeUnit.Volume){}
 
+	bool operator==(const FInstanceCubeVolumeUnit& Other) const
+	{
+		return Location == Other.Location && Volume == Other.Volume;
+	}
+
+	
 	bool GetEnableBind(FInstanceCubeVolumeUnit other);
 
 	TArray<FPieceLocation> GetLocations(int floor);
@@ -529,8 +542,31 @@ protected:
 	TArray<FInstanceCubeVolumeUnit> Volumes;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadOnly)
-	int FloorHeight;
+	int MinFloor;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	int MaxFloor;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadOnly)
+	int FloorHeight{0};
 
 public:
+	UFUNCTION(BlueprintPure)
+	bool CreateNearInstanceCubeVolumeUnit(FPieceLocation location,FInstanceCubeVolumeUnit& nearVolumeUnit);
+	
+	UFUNCTION(BlueprintPure)
 	bool AddVolume(FPieceLocation location,FPieceLocation volume);
+	
+	UFUNCTION(BlueprintPure)
+	bool GetIsInSide(FPieceLocation location);
+	
+	UFUNCTION(BlueprintPure)
+	bool GetIsInEdge(FPieceLocation location);
+	
+	UFUNCTION(BlueprintPure)
+	TArray<FInstanceCubeVolumeUnit> GetVolumes();
+	
+	UFUNCTION(BlueprintPure)
+	int GetFloorHeight();
+	
 };

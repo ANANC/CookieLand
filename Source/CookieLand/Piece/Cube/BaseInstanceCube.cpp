@@ -49,8 +49,23 @@ bool UBaseInstanceCube::CreateCube(FPieceLocation location)
 		{
 			return false;
 		}
+		UBasePiece* nextPiece = OwnLand->GetNearPieceByUpOrDown(pieceId,piece->GetCurInfo()->Info->Distance,isUp?EPieceDirection::Up:EPieceDirection::Down);
+		if(!nextPiece)
+		{
+			return false;
+		}
 
+		int floor = abs(piece->GetLocation().Floor - nextPiece->GetLocation().Floor);
 		
+		FPieceLocation volumeLocation = piece->GetLocation().Floor < nextPiece->GetLocation().Floor?piece->GetLocation():nextPiece->GetLocation();
+		FPieceLocation volume(1,1,floor);
+		
+		if(!CubeVolume->AddVolume(volumeLocation,volume))
+		{
+			return false;
+		}
+
+		return true;
 	}
 
 	return false;
@@ -58,5 +73,49 @@ bool UBaseInstanceCube::CreateCube(FPieceLocation location)
 
 bool UBaseInstanceCube::AddVolume(FPieceLocation location)
 {
+	if(CubeVolume)
+	{
+		FInstanceCubeVolumeUnit nearVolumeUnit;
+		if(CubeVolume->CreateNearInstanceCubeVolumeUnit(location,nearVolumeUnit))
+		{
+			TArray<FPieceLocation> sideLocations;
+			sideLocations.Add(FPieceLocation(nearVolumeUnit.Location));
+			sideLocations.Add(FPieceLocation(nearVolumeUnit.Location,nearVolumeUnit.Volume.Floor));
+
+			for(int index = 0;index<sideLocations.Num();++index)
+			{
+				int pieceId;
+				if(!OwnLand->GetPieceIdByLocation(sideLocations[index],pieceId))
+				{
+					return false;
+				}
+			}
+
+			if(!CubeVolume->AddVolume(nearVolumeUnit.Location,nearVolumeUnit.Volume))
+			{
+				return false;
+			}
+
+			return true;
+		}
+	}
+	return false;
+}
+
+bool UBaseInstanceCube::GetIsInSide(FPieceLocation location)
+{
+	if(CubeVolume)
+	{
+		return CubeVolume->GetIsInSide(location);
+	}
+	return false;
+}
+
+bool UBaseInstanceCube::GetIsInEdge(FPieceLocation location)
+{
+	if(CubeVolume)
+	{
+		return CubeVolume->GetIsInEdge(location);
+	}
 	return false;
 }

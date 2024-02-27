@@ -52,7 +52,14 @@ protected:
 	UPROPERTY(VisibleAnywhere)
 	TArray<UPieceLocationInfo*> OccupyStates;
 
+	UPROPERTY(VisibleAnywhere)
+	TArray<class UBaseInstanceCube*> InstanceCubes;
+	
+	UPROPERTY()
+	TMap<int,class UBaseInstanceCube*> InstanceCubeMap;
+	
 	int pieceAutoId{990000};
+	int instanceCubeAutoId{990000};
 	int actionAutoId{1};
 	
 public:
@@ -134,6 +141,18 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FPieceObserveStateData GetObserveStateData(FPieceLocation pieceLocation,class UPieceLandComponent* pieceLandComponent);
+
+	UFUNCTION(BlueprintPure)
+	bool TryCreateDynamicInstanceCubeByLocation(FPieceLocation location);
+	
+	UFUNCTION(BlueprintPure)
+	bool TryBindToInstanceCube(FPieceLocation location,int instanceCubeId);
+
+	UFUNCTION(BlueprintPure)
+	bool GetInstanceCubeIdByLocation(FPieceLocation location,int& cubeId);
+	
+	UFUNCTION(BlueprintPure)
+	class UBaseInstanceCube* GetInstanceCubeById(int instanceCubeId);
 	
 protected:
 	UBasePiece* CreatePiece(UPieceBaseConfigData* pieceData);
@@ -141,4 +160,6 @@ protected:
 	UPieceLocationInfo* GetLocationInfo(FPieceLocation location);
 
 	class UPieceBaseAction* CreateAction(FPieceActionHandle& handle,FPieceLocation triggerLocation,class UPieceBaseActionConfigData* actionData,int pieceId = -1);
+
+	class UBaseInstanceCube* CreateInstanceCube(FPieceLocation location);
 };
