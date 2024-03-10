@@ -215,7 +215,10 @@ public:
 	FVector ActorInterval{50,50,100};
 
 	UPROPERTY(EditAnywhere,Instanced)
-	TObjectPtr<UPieceBaseConfigData> DefaultPieceConfig;
+	TObjectPtr<class UPieceBaseConfigData> DefaultPieceConfig;
+
+	UPROPERTY(EditAnywhere,Instanced)
+	TObjectPtr<class UInstanceCubeBaseConfigData> DefaultInstanceCubeConfig;
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	int InitialPieceId{-1};
@@ -569,4 +572,23 @@ public:
 	UFUNCTION(BlueprintPure)
 	int GetFloorHeight();
 	
+};
+
+UCLASS(EditInlineNew,Blueprintable)
+class COOKIELAND_API UInstanceCubeBaseConfigData : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	int Id{0};
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<class ABaseInstanceCubeActor> ActorClass = nullptr;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	FPieceLocation CreateLocation;
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TArray<FPieceLocation> BindLocations;
 };

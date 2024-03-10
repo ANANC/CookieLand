@@ -24,6 +24,9 @@ protected:
 	UPROPERTY()
 	class UInstanceCubeVolume* CubeVolume;
 	
+	UPROPERTY()
+	class ABaseInstanceCubeActor* CubeActor;
+	
 public:
 
 	void SetCubeId(int id);
@@ -52,4 +55,8 @@ public:
 	
 	UFUNCTION(BlueprintPure)
 	bool GetIsInEdge(FPieceLocation location);
+
+protected:
+
+	void CreateCubeActor();
 };

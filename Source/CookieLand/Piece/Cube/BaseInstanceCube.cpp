@@ -64,7 +64,9 @@ bool UBaseInstanceCube::CreateCube(FPieceLocation location)
 		{
 			return false;
 		}
-
+		
+		CreateCubeActor();
+		
 		return true;
 	}
 
@@ -96,6 +98,7 @@ bool UBaseInstanceCube::AddVolume(FPieceLocation location)
 				return false;
 			}
 
+
 			return true;
 		}
 	}
@@ -118,4 +121,25 @@ bool UBaseInstanceCube::GetIsInEdge(FPieceLocation location)
 		return CubeVolume->GetIsInEdge(location);
 	}
 	return false;
+}
+
+void UBaseInstanceCube::CreateCubeActor()
+{
+	if(CubeActor)
+	{
+		return;
+	}
+
+	TSubclassOf<class ABasePieceActor> actorType = OwnLand->GetPieceInstanceActorClass(this);
+	if(actorType)
+	{
+		AActor* actor = GetWorld()->SpawnActor(actorType, &transform, spawnParameters);
+		if(actor)
+		{
+			PieceActor = Cast<ABasePieceActor>(actor);
+			PieceActor->SetOwnLand(OwnLand);
+			PieceActor->SetPiece(this);
+			PieceActor->Init();
+		}
+	}
 }
