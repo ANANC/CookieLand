@@ -130,6 +130,7 @@ void UBaseInstanceCube::CreateCubeActor()
 		return;
 	}
 
+	/*
 	TSubclassOf<class ABasePieceActor> actorType = OwnLand->GetPieceInstanceActorClass(this);
 	if(actorType)
 	{
@@ -142,4 +143,5 @@ void UBaseInstanceCube::CreateCubeActor()
 			PieceActor->Init();
 		}
 	}
+	*/
 }
