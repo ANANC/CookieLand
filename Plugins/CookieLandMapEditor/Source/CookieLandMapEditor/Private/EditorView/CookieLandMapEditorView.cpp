@@ -409,26 +409,32 @@ void UCookieLandMapEditorView::DrawUpdateSelectContext()
 	SelectMapCube->SelectContextVerticalBox->AddSlot()
 	.AutoHeight()
 	[
-		Draw_Orientation().ToSharedRef()
+		SNew(SBorder)
+		.VAlign(VAlign_Fill)
+		.HAlign(HAlign_Fill)
+		[
+			Draw_Orientation().ToSharedRef()
+		]
 	];
+
+	Checkerboard->SelectPieceContextVerticalBox = SNew(SVerticalBox);
 
 	SelectMapCube->SelectContextVerticalBox->AddSlot()
 	.Padding(0,10,0,0)
 	.AutoHeight()
 	[
-		Draw_SelectPieceContext().ToSharedRef()
+		Checkerboard->SelectPieceContextVerticalBox.ToSharedRef()
 	];
-	
+	DrawUpdateSelectPieceContext();
 }
 
 TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_Orientation()
 {
 	TArray<int> OrientationValues = { -1,0,-1,-1,4,-1,2,-1,3,-1,5,-1, -1,1,-1 };
-	TMap<ECookieLandPieceOrientation, FString> OrientationNames{
-		{ECookieLandPieceOrientation::Up,"/\\"},{ECookieLandPieceOrientation::Down,"\\/"},{ECookieLandPieceOrientation::Left,"<"},{ECookieLandPieceOrientation::Right,">"},{ECookieLandPieceOrientation::Forward,"F"},{ECookieLandPieceOrientation::Backward,"B"}
-	};
 
 	TSharedPtr<SVerticalBox> OrientationVerticalBox = SNew(SVerticalBox);
+
+	Checkerboard->Orientation2Border.Empty();
 
 	for (int y = 0; y < 5; ++y)
 	{
@@ -442,41 +448,25 @@ TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_Orientation()
 			{
 				ECookieLandPieceOrientation Orientation = (ECookieLandPieceOrientation)(Value);
 
-				bool bIsSelect = SelectMapCube->SelectOrientation == Orientation;
-				FSlateColor PieceColor = HasPieceDataByLocation(SelectMapCube->SelectLocation, Orientation) ? Checkerboard->BgHasDataColor : Checkerboard->BgEmptyColor;
+				TSharedPtr<SBorder> Border = SNew(SBorder);
+
+				Checkerboard->Orientation2Border.Add(Orientation, Border);
 
 				horizontalBox->AddSlot()
 				.AutoWidth()
-				.Padding(4, 4)
 				[
-					SNew(SOverlay)
-
-					+ SOverlay::Slot()
-					[
-						SNew(SBorder)
-						.BorderImage(bIsSelect ? new FSlateRoundedBoxBrush(PieceColor, 6.0f, Checkerboard->SelectColor, 3.f) : new FSlateRoundedBoxBrush(PieceColor, 6.0f))
-					]
-
-					+ SOverlay::Slot()
-					[
-						SNew(SButton)
-						.Text(FText::FromString(OrientationNames[Orientation]))
-						.OnClicked_Lambda([this, Orientation]() {
-							OrientationButtonClickCallback(Orientation);
-							return FReply::Handled();
-						})
-					]
-					
+					Border.ToSharedRef()
 				];
+
+				DrawUpdateSelectOrientation(Orientation);
 			}
 			else
 			{
 				horizontalBox->AddSlot()
 				.AutoWidth()
-				.Padding(4, 4)
 				[
-					SNew(SButton)
-					.Text(FText::FromString("	"))
+					SNew(STextBlock)
+					.Text(FText::FromString("				"))
 				];
 			}
 		}
@@ -491,15 +481,73 @@ TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_Orientation()
 	return OrientationVerticalBox;
 }
 
-void UCookieLandMapEditorView::OrientationButtonClickCallback(ECookieLandPieceOrientation PieceOrientation)
+void UCookieLandMapEditorView::DrawUpdateSelectOrientation(ECookieLandPieceOrientation Orientation)
 {
-	SelectMapCube->SelectOrientation = PieceOrientation;
-	DrawUpdateSelectContext();
+	TSharedPtr<SBorder>* BorderPtr = Checkerboard->Orientation2Border.Find(Orientation);
+	if (!BorderPtr)
+	{
+		return;
+	}
+	TSharedPtr<SBorder> Border = *BorderPtr;
+
+	TMap<ECookieLandPieceOrientation, FString> OrientationNames = {
+	{ECookieLandPieceOrientation::Up,"/\\"},{ECookieLandPieceOrientation::Down,"\\/"},{ECookieLandPieceOrientation::Left,"<"},{ECookieLandPieceOrientation::Right,">"},{ECookieLandPieceOrientation::Forward,"F"},{ECookieLandPieceOrientation::Backward,"B"}
+	};
+	FString OrientationName = OrientationNames[Orientation];
+
+	bool bIsSelect = SelectMapCube->SelectOrientation == Orientation;
+	FSlateColor PieceColor = HasPieceDataByLocation(SelectMapCube->SelectLocation, Orientation) ? Checkerboard->BgHasDataColor : Checkerboard->BgEmptyColor;
+
+
+	TSharedPtr<SBox> box = SNew(SBox)
+		.WidthOverride(Checkerboard->size_x)
+		.HeightOverride(Checkerboard->size_y)
+		[
+			SNew(SOverlay)
+
+			+ SOverlay::Slot()
+			[
+				SNew(SBorder)
+				.BorderImage(bIsSelect ? new FSlateRoundedBoxBrush(PieceColor, 6.0f, Checkerboard->SelectColor, 3.f) : new FSlateRoundedBoxBrush(PieceColor, 6.0f))
+			]
+
+			+ SOverlay::Slot()
+			[
+				SNew(SButton)
+				.ButtonStyle(&FAppStyle::Get().GetWidgetStyle<FButtonStyle>("SimpleButton"))
+				.Text(FText::FromString(OrientationName))
+				.OnClicked_Lambda([this, Orientation]() {
+					OrientationButtonClickCallback(Orientation);
+					return FReply::Handled();
+				})
+			]
+		];
+
+	Border->SetContent(
+		SNew(SBorder)
+		.VAlign(VAlign_Fill)
+		.HAlign(HAlign_Fill)
+		[
+			box.ToSharedRef()
+		]);
 }
 
-TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_SelectPieceContext()
+void UCookieLandMapEditorView::OrientationButtonClickCallback(ECookieLandPieceOrientation PieceOrientation)
 {
-	TSharedPtr<SVerticalBox> PieceContextVerticalBox = SNew(SVerticalBox);
+	ECookieLandPieceOrientation LastOrientation = SelectMapCube->SelectOrientation;
+	SelectMapCube->SelectOrientation = PieceOrientation;
+
+	DrawUpdateSelectOrientation(LastOrientation);
+	DrawUpdateSelectOrientation(PieceOrientation);
+
+	DrawUpdateSelectPieceContext();
+}
+
+void UCookieLandMapEditorView::DrawUpdateSelectPieceContext()
+{
+	TSharedPtr<SVerticalBox> PieceContextVerticalBox = Checkerboard->SelectPieceContextVerticalBox;
+
+	PieceContextVerticalBox->ClearChildren();
 
 	bool bHasData = HasPieceDataByLocation(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation);
 	UCookieLandPiece* Piece = GetPiece(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation);
@@ -564,8 +612,6 @@ TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_SelectPieceContext()
 			]
 		];
 	}
-
-	return PieceContextVerticalBox;
 }
 
 void UCookieLandMapEditorView::CreatePieceButtonClickCallback()

@@ -124,11 +124,11 @@ FVector UCookieLandMapBuildLibrary::CalculatePieceActorInstanceLocation(const FC
 		PieceLocation.Floor * InMapBuildInfo.LocationSortInterval->Value.Z);
 
 	FVector PieceInstanceOrientation = FVector(
-		PieceLocation.X * InMapBuildInfo.OrientationSortInterval->Value.X * (PieceOrientation == ECookieLandPieceOrientation::Forward ? 1 : PieceOrientation == ECookieLandPieceOrientation::Backward ? -1 : 0),
-		PieceLocation.Y * InMapBuildInfo.OrientationSortInterval->Value.Y * (PieceOrientation == ECookieLandPieceOrientation::Left ? 1 : PieceOrientation == ECookieLandPieceOrientation::Right ? -1 : 0),
-		PieceLocation.Floor * InMapBuildInfo.OrientationSortInterval->Value.Z * (PieceOrientation == ECookieLandPieceOrientation::Up ? 1 : PieceOrientation == ECookieLandPieceOrientation::Down ? -1 : 0));
+		InMapBuildInfo.OrientationSortInterval->Value.X * (PieceOrientation == ECookieLandPieceOrientation::Forward ? 1 : PieceOrientation == ECookieLandPieceOrientation::Backward ? -1 : 0),
+		InMapBuildInfo.OrientationSortInterval->Value.Y * (PieceOrientation == ECookieLandPieceOrientation::Left ? 1 : PieceOrientation == ECookieLandPieceOrientation::Right ? -1 : 0),
+		InMapBuildInfo.OrientationSortInterval->Value.Z * (PieceOrientation == ECookieLandPieceOrientation::Up ? 1 : PieceOrientation == ECookieLandPieceOrientation::Down ? -1 : 0));
 
-	PieceInstanceLocation += InitLocation;
+	PieceInstanceLocation += InitLocation + PieceInstanceOrientation;
 
 	return PieceInstanceLocation;
 }
@@ -140,20 +140,26 @@ FQuat UCookieLandMapBuildLibrary::CalculatePieceActorInstanceRotation(const FCoo
 	switch(PieceOrientation)
 	{
 	case ECookieLandPieceOrientation::Left:
-		Rotator = FRotator(270, 0, 0);
+		Rotator = FRotator(0, 0, 90);
+		break;
 	case ECookieLandPieceOrientation::Right:
-		Rotator = FRotator(90, 0, 0);
+		Rotator = FRotator(0, 0, 270);
+		break;
 	case ECookieLandPieceOrientation::Up:
 		Rotator = FRotator(0, 0, 0);
+		break;
 	case ECookieLandPieceOrientation::Down:
 		Rotator = FRotator(0, 180, 0);
+		break;
 	case ECookieLandPieceOrientation::Forward:
-		Rotator = FRotator(0, 270, 0);
+		Rotator = FRotator(270, 0, 0);
+		break;
 	case ECookieLandPieceOrientation::Backward:
-		Rotator = FRotator(0, 90, 0);
+		Rotator = FRotator(90, 0, 0);
+		break;
 	};
 	
-	FQuat Quat = FQuat(Rotator);
+	FQuat Quat = Rotator.Quaternion();
 
 	return Quat;
 }

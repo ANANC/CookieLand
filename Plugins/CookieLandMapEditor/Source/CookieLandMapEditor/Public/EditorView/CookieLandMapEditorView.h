@@ -39,6 +39,9 @@ public:
 	int size_y = 25;
 
 	TMap< FVector, TSharedPtr<SBorder>> Location2Border;
+	TMap< ECookieLandPieceOrientation, TSharedPtr<SBorder>>Orientation2Border;
+
+	TSharedPtr<SVerticalBox> SelectPieceContextVerticalBox;
 };
 
 
@@ -105,8 +108,11 @@ protected:
 	// 渲染 地图构建页-选中详情-方位
 	TSharedPtr<SVerticalBox> Draw_Orientation();
 
-	// 渲染 地图构建页-选中详情-棋子
-	TSharedPtr<SVerticalBox> Draw_SelectPieceContext();
+	// 更新 地图构建页-选中详情-方位块
+	void DrawUpdateSelectOrientation(ECookieLandPieceOrientation Orientation);
+
+	// 更新 地图构建页-选中详情-棋子
+	void DrawUpdateSelectPieceContext();
 
 	// 渲染 编辑器操作页
 	TSharedPtr<SVerticalBox> Draw_ViewControlContext();

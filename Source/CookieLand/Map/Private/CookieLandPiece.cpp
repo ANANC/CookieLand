@@ -43,6 +43,7 @@ void UCookieLandPiece::Init(FCookieLandPieceBuildInfo InBuildInfo)
 	bInit = true;
 	BuildInfo = InBuildInfo;
 	PieceLocation = BuildInfo.PieceLocation;
+	PieceOrientation = BuildInfo.PieceOrientation;
 }
 
 void UCookieLandPiece::UnInit()
