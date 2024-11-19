@@ -6,21 +6,20 @@ public class CookieLand : ModuleRules
 {
 	public CookieLand(ReadOnlyTargetRules Target) : base(Target)
 	{
-
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" ,"GameplayAbilities", "GameplayTags", "GameplayTasks",});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
-		PrivateDependencyModuleNames.AddRange(new string[] {  });
-		
-		OptimizeCode = CodeOptimization.Never;
-		
-		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-		
-		// Uncomment if you are using online features
-		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
+        // 指定公共头文件目录
+        PublicIncludePaths.AddRange(new string[] {
+                 "CookieLand/Map/Public",
+                 "CookieLand/Global/Public",
+             });
 
-		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
-	}
+        // 指定私有头文件目录
+        PrivateIncludePaths.AddRange(new string[] {
+                 "CookieLand/Map/Private",
+                 "CookieLand/Global/Private",
+             });
+    }
 }
