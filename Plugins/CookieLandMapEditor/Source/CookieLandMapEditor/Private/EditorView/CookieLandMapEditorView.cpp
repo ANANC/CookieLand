@@ -5,6 +5,8 @@
 #include "CookieLand/Map/Public/CookieLandMapBuildActor.h"
 #include "CookieLand/Map/Public/CookieLandPiece.h"
 #include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
+#include "CookieLand/Map/Public/CookieLandMapBuilder.h"
+#include "CookieLand/Map/Public/CookieLandMapActorGather.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Input/SButton.h"
@@ -552,6 +554,14 @@ void UCookieLandMapEditorView::DrawUpdateSelectPieceContext()
 	bool bHasData = HasPieceDataByLocation(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation);
 	UCookieLandPiece* Piece = GetPiece(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation);
 
+	// 强制连接
+	PieceContextVerticalBox->AddSlot()
+	.Padding(0, 0, 0, 10)
+	.AutoHeight()
+	[
+		Draw_ForceLinkContext().ToSharedRef()
+	];
+
 	if (!bHasData || Piece == nullptr)
 	{
 		PieceContextVerticalBox->AddSlot()
@@ -650,6 +660,112 @@ void UCookieLandMapEditorView::PieceActorTypeChangeCallback(const FAssetData& As
 	}
 }
 
+TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_ForceLinkContext()
+{
+	TSharedPtr<SVerticalBox> ForceLinkVerticalBox = SNew(SVerticalBox);
+
+	FCookieLandOrientationLinkInfo ForceLinkInfo;
+	MapBuildActor->GetMapBuilder()->GetForceLineInfo(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation, ForceLinkInfo);
+
+	if (ForceLinkInfo.GetIsValid())
+	{
+		ForceLinkVerticalBox->AddSlot()
+		.AutoHeight()
+		[
+			SNew(SHorizontalBox)
+
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(STextBlock)
+				.Text(FText::FromString(SelectMapCube->SelectLocation == ForceLinkInfo.Max_PieceLocation?"Curr":"    "))
+			]
+
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SButton)
+				.Text(FText::FromString(FString::Printf(TEXT("Max %s"), *ForceLinkInfo.Max_PieceLocation.ToVector().ToString())))
+				.OnClicked_Lambda([this, ForceLinkInfo]() {
+					ChangeFloorButtonClickCallback(ForceLinkInfo.Max_PieceLocation.Floor - SelectMapCube->SelectLocation.Z);
+					return FReply::Handled();
+				})
+			]
+		];
+
+		if (SelectMapCube->SelectLocation != ForceLinkInfo.Max_PieceLocation && SelectMapCube->SelectLocation != ForceLinkInfo.Min_PieceLocation)
+		{
+			ForceLinkVerticalBox->AddSlot()
+			.AutoHeight()
+			[
+				SNew(SHorizontalBox)
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(STextBlock)
+						.Text(FText::FromString(SelectMapCube->SelectLocation == ForceLinkInfo.Max_PieceLocation ? "Curr" : "    "))
+				]
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SButton)
+						.Text(FText::FromString(FString::Printf(TEXT("%s"), *SelectMapCube->SelectLocation.ToString())))
+						.OnClicked_Lambda([this, ForceLinkInfo]() {
+						ChangeFloorButtonClickCallback(ForceLinkInfo.Max_PieceLocation.Floor - SelectMapCube->SelectLocation.Z);
+						return FReply::Handled();
+							})
+				]
+			];
+		}
+				
+		ForceLinkVerticalBox->AddSlot()
+		.AutoHeight()
+		[
+			SNew(SHorizontalBox)
+
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(STextBlock)
+				.Text(FText::FromString(SelectMapCube->SelectLocation == ForceLinkInfo.Min_PieceLocation?"Curr":"    "))
+			]
+
+			+ SHorizontalBox::Slot()
+			.AutoWidth()
+			[
+				SNew(SButton)
+					.Text(FText::FromString(FString::Printf(TEXT("Min %s"), *ForceLinkInfo.Min_PieceLocation.ToVector().ToString())))
+				.OnClicked_Lambda([this, ForceLinkInfo]() {
+					ChangeFloorButtonClickCallback(ForceLinkInfo.Min_PieceLocation.Floor - SelectMapCube->SelectLocation.Z);
+					return FReply::Handled();
+				})
+			]
+		];
+
+		//todo:配置强制连接 输入层数+确认
+
+		if (SelectMapCube->SelectLocation == ForceLinkInfo.Max_PieceLocation || SelectMapCube->SelectLocation == ForceLinkInfo.Min_PieceLocation)
+		{
+			SNew(SButton)
+			.Text(FText::FromString("Delete Force Link"))
+			.OnClicked_Lambda([this]() {
+				DeleteForceLink(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation);
+				return FReply::Handled();
+			});
+		}
+
+	}
+
+	return ForceLinkVerticalBox;
+}
+
+
+void UCookieLandMapEditorView::DeleteForceLink(FCookieLandLocation PieceLocation, ECookieLandPieceOrientation PieceOrientation)
+{
+	//todo:删除连接
+}
 
 TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_ViewControlContext()
 {

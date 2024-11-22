@@ -22,28 +22,17 @@ public:
 	// 方位占领
 	TMap<ECookieLandPieceOrientation, bool> OrientationOccupys;
 
-	// 方位连接
-	TMap< ECookieLandPieceOrientation, FCookieLandLocation> OrientationForceLinks;
-
-	// 当前强制关联状态
-	bool bForceLine = false;
 public:
 	void OccupyPiece(const ECookieLandPieceOrientation PieceOrientation);
 
 	void ReleasePiece(const ECookieLandPieceOrientation PieceOrientation);
 
 	void UpdateOccupyState();
-
-	void AddForceLine(const ECookieLandPieceOrientation PieceOrientation, const FCookieLandLocation LineLocation);
-
-	void DeleteForceLine(const ECookieLandPieceOrientation PieceOrientation);
-
-	void UpdateForceLineState();
 };
 
 
 USTRUCT(BlueprintType)
-struct FCookieLandOrientationLinkRangeInfo
+struct FCookieLandOrientationLinkInfo
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -52,23 +41,66 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FCookieLandLocation Max_PieceLocation;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	ECookieLandPieceOrientation Max_PieceOrientation;
-
 	// 范围[左，下，后]
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FCookieLandLocation Min_PieceLocation;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	ECookieLandPieceOrientation Min_PieceOrientation;
+	ECookieLandPieceOrientation Orientation;
 
-	// 距离
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	int Distance;
+protected:
+	bool bValid = false;
+
+	// 距离 没有/只有一个=0
+	int Distance = 0;
+
+public:
+	bool GetIsValid() const { return bValid; }
+	int GetDistance() const { return Distance; }
+	void SetData(ECookieLandPieceOrientation InOrientation,FCookieLandLocation InMax, FCookieLandLocation InMin);
+	void SetMax(FCookieLandLocation InMax);
+	void SetMin(FCookieLandLocation InMin);
+	void AddLocation(FCookieLandLocation Location);
+	void ClearData();
+
+	// 是否在范围内[Min,Max]
+	bool GetIsInSide(FCookieLandLocation Location);
+protected:
+	void UpdateDistance();
+
+public:
+	bool operator==(const FCookieLandOrientationLinkInfo& Other) const
+	{
+		return GetIsValid() && Other.GetIsValid() && Max_PieceLocation == Other.Max_PieceLocation && Min_PieceLocation == Other.Min_PieceLocation && Orientation == Other.Orientation;
+	}
 };
 
 UCLASS()
-class UCookieLandMapBuilder : public UObject
+class UCookieLandMapRangeInfo : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	// 方向 [左右->左，前后->前，上下->上]
+	ECookieLandPieceOrientation Orientation;
+
+	// 坐标 [左右->[y,Floor],前后->[x,Floor],上下->[x,y]]
+	FCookieLandLocation Location;
+
+	// 整个方向上的地块
+	TArray<FCookieLandLocation> PieceLocastions;
+
+	// 强制连接关系
+	TArray< FCookieLandOrientationLinkInfo> ForceLineInfos;
+
+public:
+	bool GetIsConformanceRange(const FCookieLandLocation MapCubeLocation);
+	void AddPiece(const FCookieLandLocation PieceLocation);
+	void RemovePiece(const FCookieLandLocation PieceLocation);
+};
+
+UCLASS()
+class COOKIELAND_API UCookieLandMapBuilder : public UObject
 {
 	GENERATED_BODY()
 	
@@ -79,6 +111,9 @@ protected:
 
 	UPROPERTY()
 	TMap<FVector, UCookieLandMapCubeInfo*> Location2MapCubeInfos;
+
+	UPROPERTY()
+	TArray< UCookieLandMapRangeInfo*> MapRangeInfos;
 
 public:
 	void Init();
@@ -112,23 +147,19 @@ public:
 
 public:
 
-	// 获取地块强制连接的地块
-	bool GetPieceForceLineLocation(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation, FCookieLandPieceLocator& OutLineLocator);
-
 	// 地块强制连接
 	bool PieceForceLine(const FCookieLandLocation RequsetPieceLocation, const FCookieLandLocation TryLinePieceLocation, const ECookieLandPieceOrientation PieceOrientation);
 
 	// 地块删除强制连接
-	bool PieceDeleteForceLine(const FCookieLandLocation RequsetPieceLocation, const FCookieLandLocation TryLinePieceLocation, const ECookieLandPieceOrientation PieceOrientation);
+	bool PieceDeleteForceLine(const FCookieLandLocation RequsetPieceLocation, const ECookieLandPieceOrientation PieceOrientation);
 
-	// 是否在连接状态
-	bool GetIsInLineState(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation);
+	// 获取是否在强制连接的内部状态且非处于边缘
+	bool GetsWhetherInternalStateOfForcedLineAndNotAtEdge(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation);
+	bool GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(const FCookieLandOrientationLinkInfo& LineInfo, const FCookieLandLocation PieceLocation);
 
-	// 获取是否在连接的内部状态
-	bool GetIsInLineRangeState(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation);
+	// 获取当前所在的强制连接范围
+	bool GetForceLineInfo(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation,FCookieLandOrientationLinkInfo& OutLineInfo);
 
-	// 获取当前所在的连接范围（包含强制连接，自动连接）
-	bool GetLineRangeInfo(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation,FCookieLandOrientationLinkRangeInfo& OutLineRangeInfo);
 protected:
 
 	// 创建/获取立方体
@@ -136,5 +167,11 @@ protected:
 
 	// 获取立方体
 	UCookieLandMapCubeInfo* GetMapCubeInfo(const FCookieLandLocation MapCubeLocation);
+
+	// 创建/获取地图范围
+	UCookieLandMapRangeInfo* CreateOrGetMapRangeInfo(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation);
+
+	// 更新地图范围
+	void UpdateMapRange(bool bIsAdd, const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation);
 
 };

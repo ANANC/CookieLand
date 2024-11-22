@@ -11,7 +11,8 @@ class SVerticalBox;
 class SBorder;
 class ACookieLandMapBuildActor;
 class UCookieLandPiece;
-
+class UCookieLandMapBuilder;
+class UCookieLandMapActorGather;
 
 UENUM(BlueprintType)
 enum class ECookieLandMapEditorContentTyle : uint8
@@ -114,6 +115,9 @@ protected:
 	// 更新 地图构建页-选中详情-棋子
 	void DrawUpdateSelectPieceContext();
 
+	// 渲染 地图构造页-选中详情-强制连接
+	TSharedPtr<SVerticalBox> Draw_ForceLinkContext();
+
 	// 渲染 编辑器操作页
 	TSharedPtr<SVerticalBox> Draw_ViewControlContext();
 
@@ -152,6 +156,9 @@ protected:
 
 	// 删除全部地块点击回调
 	void DeleteAllPieceButtonClickCallback();
+
+	// 删除强制连接
+	void DeleteForceLink(FCookieLandLocation PieceLocation, ECookieLandPieceOrientation PieceOrientation);
 protected:
 
 	// 将地形数据保存到da

@@ -26,7 +26,7 @@ public:
 
 
 UCLASS()
-class UCookieLandMapActorGather : public UObject
+class COOKIELAND_API UCookieLandMapActorGather : public UObject
 {
 	GENERATED_BODY()
 	

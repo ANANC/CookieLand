@@ -52,6 +52,9 @@ protected:
 	UCookieLandMapActorGather* MapActorGather;
 
 public:
+	UCookieLandMapBuilder* GetMapBuilder() { return MapBuilder; }
+	UCookieLandMapActorGather* GetMapActorGather() { return MapActorGather; }
+public:
 	// 重新加载地形数据
 	void ReloadMapBuildInfo();
 
@@ -98,4 +101,5 @@ public:
 
 	// [MapBuilder] 获取全部占领的层
 	TArray<int> GetAllOccupyFloor();
+
 };

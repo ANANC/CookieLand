@@ -44,35 +44,6 @@ void UCookieLandMapCubeInfo::UpdateOccupyState()
 	bOccupy = bNewOccupy;
 }
 
-void UCookieLandMapCubeInfo::AddForceLine(const ECookieLandPieceOrientation PieceOrientation, const FCookieLandLocation LineLocation)
-{
-	if (OrientationForceLinks.Contains(PieceOrientation))
-	{
-		OrientationForceLinks[PieceOrientation] = LineLocation;
-	}
-	else
-	{
-		OrientationForceLinks.Add(PieceOrientation, LineLocation);
-	}
-
-	UpdateForceLineState();
-}
-
-void UCookieLandMapCubeInfo::DeleteForceLine(const ECookieLandPieceOrientation PieceOrientation)
-{
-	if (OrientationForceLinks.Contains(PieceOrientation))
-	{
-		OrientationForceLinks.Remove(PieceOrientation);
-	}
-
-	UpdateForceLineState();
-}
-
-void UCookieLandMapCubeInfo::UpdateForceLineState()
-{
-	bool bNewForceLine = OrientationForceLinks.Num() > 0;
-	bForceLine = bNewForceLine;
-}
 
 void UCookieLandMapBuilder::Init()
 {
@@ -139,6 +110,8 @@ bool UCookieLandMapBuilder::OccupyPieceByLocation(const FCookieLandLocation MapC
 	UCookieLandMapCubeInfo* MapCubeInfo = CreateOrGetMapCubeInfo(MapCubeLocation);
 	MapCubeInfo->OccupyPiece(PieceOrientation);
 
+	UpdateMapRange(true, MapCubeLocation, PieceOrientation);
+
 	return true;
 }
 
@@ -148,6 +121,8 @@ bool UCookieLandMapBuilder::ReleasePieceByLocation(const FCookieLandLocation Map
 	{
 		return false;
 	}
+
+	UpdateMapRange(false, MapCubeLocation, PieceOrientation);
 
 	UCookieLandMapCubeInfo* MapCubeInfo = CreateOrGetMapCubeInfo(MapCubeLocation);
 	MapCubeInfo->ReleasePiece(PieceOrientation);
@@ -257,94 +232,348 @@ UCookieLandMapCubeInfo* UCookieLandMapBuilder::GetMapCubeInfo(const FCookieLandL
 }
 
 
-bool UCookieLandMapBuilder::GetPieceForceLineLocation(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation, FCookieLandPieceLocator& OutLineLocator)
-{
-	UCookieLandMapCubeInfo* MapCubeInfo = GetMapCubeInfo(MapCubeLocation);
-	if (!MapCubeInfo)
-	{
-		return false;
-	}
-
-	if (MapCubeInfo->OrientationForceLinks.Contains(PieceOrientation))
-	{
-		OutLineLocator.PieceLocation = MapCubeInfo->OrientationForceLinks[PieceOrientation];
-		OutLineLocator.PieceOrientation = PieceOrientation;
-
-		return true;
-	}
-
-	return false;
-}
-
 bool UCookieLandMapBuilder::PieceForceLine(const FCookieLandLocation RequsetPieceLocation, const FCookieLandLocation TryLinePieceLocation, const ECookieLandPieceOrientation PieceOrientation)
 {
-	if (!GetIsPieceOccupyByLocation(RequsetPieceLocation, PieceOrientation) || !GetIsPieceOccupyByLocation(TryLinePieceLocation, PieceOrientation))
+	if (!GetIsPieceOccupyByLocation(RequsetPieceLocation, PieceOrientation) || !GetIsPieceOccupyByLocation(TryLinePieceLocation, PieceOrientation) || TryLinePieceLocation == RequsetPieceLocation)
 	{
 		return false;
 	}
 
-	switch (PieceOrientation)
-	{
-	case ECookieLandPieceOrientation::Up:
-		if (RequsetPieceLocation.X != TryLinePieceLocation.X || RequsetPieceLocation.Y != TryLinePieceLocation.Y)
-		{
-			return false;
-		}
-		break;
-	case ECookieLandPieceOrientation::Down:
-		if (RequsetPieceLocation.X != TryLinePieceLocation.X || RequsetPieceLocation.Y != TryLinePieceLocation.Y)
-		{
-			return false;
-		}
-		break;
-	case ECookieLandPieceOrientation::Left:
-		if (RequsetPieceLocation.Y != TryLinePieceLocation.Y || RequsetPieceLocation.Floor != TryLinePieceLocation.Floor)
-		{
-			return false;
-		}
-		break;
-	case ECookieLandPieceOrientation::Right:
-		if (RequsetPieceLocation.Y != TryLinePieceLocation.Y || RequsetPieceLocation.Floor != TryLinePieceLocation.Floor)
-		{
-			return false;
-		}
-		break;
-		break;
-	case ECookieLandPieceOrientation::Forward:
-		if (RequsetPieceLocation.X != TryLinePieceLocation.X || RequsetPieceLocation.Floor != TryLinePieceLocation.Floor)
-		{
-			return false;
-		}
-		break;
-		break;
-	case ECookieLandPieceOrientation::Backward:
-		if (RequsetPieceLocation.X != TryLinePieceLocation.X || RequsetPieceLocation.Floor != TryLinePieceLocation.Floor)
-		{
-			return false;
-		}
-		break;
-	};
+	UCookieLandMapRangeInfo* MapRangeInfo = CreateOrGetMapRangeInfo(RequsetPieceLocation, PieceOrientation);
 
-	UCookieLandMapCubeInfo* RequsetMapCubeInfo = GetMapCubeInfo(RequsetPieceLocation);
-	if (!RequsetMapCubeInfo)
+	// 同方向的才能执行连接
+	if (!MapRangeInfo->GetIsConformanceRange(TryLinePieceLocation))
 	{
 		return false;
 	}
-	//todo:要判断是否内部状态且非边缘，无法发起连接
 
-	//todo:连接要判断自动连接状态
-
-	if (RequsetMapCubeInfo->OrientationForceLinks.Contains(PieceOrientation))
+	FCookieLandLocation MinPieceLocation, MaxPieceLocation;
+	if (RequsetPieceLocation.GetIsMaxByOrientation(PieceOrientation, TryLinePieceLocation))
 	{
-		RequsetMapCubeInfo->OrientationForceLinks.Remove(PieceOrientation);
+		MaxPieceLocation = RequsetPieceLocation;
+		MinPieceLocation = TryLinePieceLocation;
+	}
+	else
+	{
+		MaxPieceLocation = TryLinePieceLocation;
+		MinPieceLocation = RequsetPieceLocation;
 	}
 
-	RequsetMapCubeInfo->OrientationForceLinks.Add(PieceOrientation, RequsetPieceLocation);
+	FCookieLandOrientationLinkInfo MinLineInfo;
+	GetForceLineInfo(MinPieceLocation, PieceOrientation, MinLineInfo);
+
+	FCookieLandOrientationLinkInfo MaxLineInfo;
+	GetForceLineInfo(MaxPieceLocation, PieceOrientation, MaxLineInfo);
+
+	// 判断是否都在连接中
+	if (MinLineInfo.GetIsValid() && MaxLineInfo.GetIsValid())
+	{
+		// 判断是否在同一个连接中
+		if (MinLineInfo.Max_PieceLocation == MaxLineInfo.Max_PieceLocation && MinLineInfo.Min_PieceLocation == MaxLineInfo.Min_PieceLocation)
+		{
+			return false;
+		}
+
+		// 判断是否内部状态且非边缘，无法发起连接
+		if (GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(MinLineInfo, MinPieceLocation) || GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(MaxLineInfo, MaxPieceLocation))
+		{
+			return false;
+		}
+
+		// 两个模块连接,中间的模块也会被合并
+		TArray< FCookieLandOrientationLinkInfo> DeleteLineInfos;
+		for (int Index = 0; Index < MapRangeInfo->ForceLineInfos.Num(); ++Index)
+		{
+			FCookieLandOrientationLinkInfo LineInfo = MapRangeInfo->ForceLineInfos[Index];
+			if (LineInfo.Min_PieceLocation.GetIsMaxByOrientation(PieceOrientation, MinLineInfo.Max_PieceLocation) && LineInfo.Max_PieceLocation.GetIsMinByOrientation(PieceOrientation, MaxLineInfo.Min_PieceLocation))
+			{
+				DeleteLineInfos.Add(LineInfo);
+			}
+		}
+		DeleteLineInfos.Add(MinLineInfo);
+		DeleteLineInfos.Add(MaxLineInfo);
+
+		//清理模块
+		for (int Index = 0; Index < DeleteLineInfos.Num(); ++Index)
+		{
+			FCookieLandOrientationLinkInfo DeleteLineInfo = DeleteLineInfos[Index];
+			MapRangeInfo->ForceLineInfos.Remove(DeleteLineInfo);
+		}
+
+		// 得到新模块
+		MinLineInfo.SetMax(MaxLineInfo.Max_PieceLocation);
+		MapRangeInfo->ForceLineInfos.Add(MinLineInfo);
+	}
+
+	// 其中一个在连接中
+	else if(MinLineInfo.GetIsValid() || MinLineInfo.GetIsValid())
+	{
+		FCookieLandOrientationLinkInfo* LineInfoPtr = MinLineInfo.GetIsValid() ? &MinLineInfo : &MinLineInfo;
+		FCookieLandLocation* AddLocation = MinLineInfo.GetIsValid() ? &MaxPieceLocation : &MinPieceLocation;
+
+		// 判断是否内部状态且非边缘，无法发起连接
+		if (GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(*LineInfoPtr, *AddLocation))
+		{
+			return false;
+		}
+
+		// 添加地块
+		LineInfoPtr->AddLocation(*AddLocation);
+
+		// 记录下来
+		MapRangeInfo->ForceLineInfos.Remove(*LineInfoPtr);
+		MapRangeInfo->ForceLineInfos.Add(*LineInfoPtr);
+	}
+	
+	// 没有任何连接
+	else
+	{
+		FCookieLandOrientationLinkInfo LineInfo;
+		LineInfo.SetData(PieceOrientation, MaxPieceLocation, MinPieceLocation);
+
+		MapRangeInfo->ForceLineInfos.Add(LineInfo);
+	}
 
 	return true;
 }
 
-bool UCookieLandMapBuilder::GetLineRangeInfo(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation, FCookieLandOrientationLinkRangeInfo& OutLineRangeInfo)
+bool UCookieLandMapBuilder::PieceDeleteForceLine(const FCookieLandLocation RequsetPieceLocation, const ECookieLandPieceOrientation PieceOrientation)
 {
+	if (!GetIsPieceOccupyByLocation(RequsetPieceLocation, PieceOrientation))
+	{
+		return false;
+	}
+
+	FCookieLandOrientationLinkInfo LinkRangeInfo;
+
+	// 并非强制连接,无需解绑
+	if (!GetForceLineInfo(RequsetPieceLocation, PieceOrientation, LinkRangeInfo))
+	{
+		return false;
+	}
+
+	if (!LinkRangeInfo.GetIsValid())
+	{
+		return false;
+	}
+
+	// 判断是否内部状态且非边缘，无法解绑连接
+	if (GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(LinkRangeInfo,RequsetPieceLocation))
+	{
+		return false;
+	}
+
+	// 移除绑定
+	UCookieLandMapRangeInfo* MapRangeInfo = CreateOrGetMapRangeInfo(RequsetPieceLocation, PieceOrientation);
+	MapRangeInfo->ForceLineInfos.Remove(LinkRangeInfo);
+
+	return true;
+}
+
+bool UCookieLandMapBuilder::GetsWhetherInternalStateOfForcedLineAndNotAtEdge(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation)
+{
+	FCookieLandOrientationLinkInfo LineInfo;
+	if (GetForceLineInfo(PieceLocation, PieceOrientation, LineInfo))
+	{
+		return GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(LineInfo, PieceLocation);
+	}
 	return false;
+}
+
+bool UCookieLandMapBuilder::GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(const FCookieLandOrientationLinkInfo& LineInfo, const FCookieLandLocation PieceLocation)
+{
+	if (LineInfo.GetIsValid())
+	{
+		if (PieceLocation.GetIsMaxByOrientation(LineInfo.Orientation, LineInfo.Min_PieceLocation) && PieceLocation.GetIsMinByOrientation(LineInfo.Orientation, LineInfo.Max_PieceLocation))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UCookieLandMapBuilder::GetForceLineInfo(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation, FCookieLandOrientationLinkInfo& OutLineInfo)
+{
+	UCookieLandMapRangeInfo* MapRangeInfo = CreateOrGetMapRangeInfo(PieceLocation, PieceOrientation);
+	if (MapRangeInfo->ForceLineInfos.Num() == 0)
+	{
+		return false;
+	}
+
+	for (int Index = 0; Index < MapRangeInfo->ForceLineInfos.Num(); ++Index)
+	{
+		FCookieLandOrientationLinkInfo LinkInfo = MapRangeInfo->ForceLineInfos[Index];
+		if (LinkInfo.GetIsInSide(PieceLocation))
+		{
+			OutLineInfo = LinkInfo;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UCookieLandMapRangeInfo::GetIsConformanceRange(const FCookieLandLocation MapCubeLocation)
+{
+	switch(Orientation)
+	{
+	case ECookieLandPieceOrientation::Up:
+	case ECookieLandPieceOrientation::Down:
+		if (Orientation == ECookieLandPieceOrientation::Up)
+		{
+			return Location.X == MapCubeLocation.X && Location.Y == MapCubeLocation.Y;
+		}
+		break;
+	case ECookieLandPieceOrientation::Left:
+	case ECookieLandPieceOrientation::Right:
+		if (Orientation == ECookieLandPieceOrientation::Left)
+		{
+			return Location.Y == MapCubeLocation.Y && Location.Floor == MapCubeLocation.Floor;
+		}
+		break;
+	case ECookieLandPieceOrientation::Forward:
+	case ECookieLandPieceOrientation::Backward:
+		if (Orientation == ECookieLandPieceOrientation::Forward)
+		{
+			return Location.X == MapCubeLocation.X && Location.Floor == MapCubeLocation.Floor;
+		}
+		break;
+	};
+
+	return false;
+}
+
+void FCookieLandOrientationLinkInfo::SetData(ECookieLandPieceOrientation InOrientation, FCookieLandLocation InMax, FCookieLandLocation InMin)
+{
+	bValid = true;
+	Max_PieceLocation = InMax;
+	Min_PieceLocation = InMin;
+	Orientation = InOrientation;	
+	UpdateDistance();
+}
+
+void FCookieLandOrientationLinkInfo::SetMax(FCookieLandLocation InMax)
+{
+	Max_PieceLocation = InMax;
+	UpdateDistance();
+}
+
+void FCookieLandOrientationLinkInfo::SetMin(FCookieLandLocation InMin)
+{
+	Min_PieceLocation = InMin;
+	UpdateDistance();
+}
+
+void FCookieLandOrientationLinkInfo::AddLocation(FCookieLandLocation Location)
+{
+	if (Location.GetIsMinByOrientation(Orientation, Min_PieceLocation))
+	{
+		SetMin(Location);
+	}
+	else if (Location.GetIsMaxByOrientation(Orientation, Max_PieceLocation))
+	{
+		SetMax(Location);
+	}
+}
+
+void FCookieLandOrientationLinkInfo::UpdateDistance()
+{
+	Distance = 0;
+
+	switch (Orientation)
+	{
+	case ECookieLandPieceOrientation::Up:
+	case ECookieLandPieceOrientation::Down:
+		Distance = Max_PieceLocation.Floor - Min_PieceLocation.Floor;
+		break;
+	case ECookieLandPieceOrientation::Left:
+	case ECookieLandPieceOrientation::Right:
+		Distance = Max_PieceLocation.X - Min_PieceLocation.X;
+		break;
+	case ECookieLandPieceOrientation::Forward:
+	case ECookieLandPieceOrientation::Backward:
+		Distance = Max_PieceLocation.Y - Min_PieceLocation.Y;
+		break;
+	};
+}
+
+void FCookieLandOrientationLinkInfo::ClearData()
+{
+	Max_PieceLocation = FCookieLandLocation();
+	Min_PieceLocation = FCookieLandLocation();
+	Distance = 0;
+	bValid = false;
+}
+
+bool FCookieLandOrientationLinkInfo::GetIsInSide(FCookieLandLocation Location)
+{
+	if (Location.GetIsMaxEqualByOrientation(Orientation, Min_PieceLocation) && Location.GetIsMinEqualByOrientation(Orientation, Max_PieceLocation))
+	{
+		return true;
+	}
+	return false;
+}
+
+void UCookieLandMapRangeInfo::AddPiece(const FCookieLandLocation PieceLocation)
+{
+	PieceLocastions.Add(PieceLocation);
+}
+
+void UCookieLandMapRangeInfo::RemovePiece(const FCookieLandLocation PieceLocation)
+{
+	PieceLocastions.Remove(PieceLocation);
+}
+
+UCookieLandMapRangeInfo* UCookieLandMapBuilder::CreateOrGetMapRangeInfo(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation)
+{
+	for (int Index = 0; Index < MapRangeInfos.Num(); ++Index)
+	{
+		UCookieLandMapRangeInfo* MapRangeInfo = MapRangeInfos[Index];
+		if (MapRangeInfo->GetIsConformanceRange(PieceLocation))
+		{
+			return MapRangeInfo;
+		}
+	}
+
+	UCookieLandMapRangeInfo* MapRangeInfo = NewObject<UCookieLandMapRangeInfo>();
+	switch (PieceOrientation)
+	{
+	case ECookieLandPieceOrientation::Up:
+	case ECookieLandPieceOrientation::Down:
+		MapRangeInfo->Orientation = ECookieLandPieceOrientation::Up;
+		MapRangeInfo->Location.X = PieceLocation.X;
+		MapRangeInfo->Location.Y = PieceLocation.Y;
+		break;
+	case ECookieLandPieceOrientation::Left:
+	case ECookieLandPieceOrientation::Right:
+		MapRangeInfo->Orientation = ECookieLandPieceOrientation::Left;
+		MapRangeInfo->Location.Y = PieceLocation.Y;
+		MapRangeInfo->Location.Floor = PieceLocation.Floor;
+		break;
+	case ECookieLandPieceOrientation::Forward:
+	case ECookieLandPieceOrientation::Backward:
+		MapRangeInfo->Orientation = ECookieLandPieceOrientation::Forward;
+		MapRangeInfo->Location.X = PieceLocation.X;
+		MapRangeInfo->Location.Floor = PieceLocation.Floor;
+		break;
+	};
+
+	return MapRangeInfo;
+}
+
+void UCookieLandMapBuilder::UpdateMapRange(bool bIsAdd, const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation)
+{
+	UCookieLandMapRangeInfo* MapRangeInfo = CreateOrGetMapRangeInfo(PieceLocation, PieceOrientation);
+
+	if (bIsAdd)
+	{
+		MapRangeInfo->AddPiece(PieceLocation);
+	}
+	else
+	{
+		// 地块被移除时，自动移除强制绑定
+		PieceDeleteForceLine(PieceLocation, PieceOrientation);
+		MapRangeInfo->RemovePiece(PieceLocation);
+	}
 }

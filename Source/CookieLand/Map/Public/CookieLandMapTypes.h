@@ -58,6 +58,90 @@ public:
 	{
 		return FVector(X, Y, Floor);
 	}
+
+	// 大于
+	bool GetIsMaxByOrientation(ECookieLandPieceOrientation Orientation, const FCookieLandLocation& Other) const
+	{
+		switch (Orientation)
+		{
+		case ECookieLandPieceOrientation::Up:
+		case ECookieLandPieceOrientation::Down:
+			return Floor > Other.Floor;
+			break;
+		case ECookieLandPieceOrientation::Left:
+		case ECookieLandPieceOrientation::Right:
+			return X > Other.X;
+			break;
+		case ECookieLandPieceOrientation::Forward:
+		case ECookieLandPieceOrientation::Backward:
+			return Y > Other.Y;
+			break;
+		}
+		return false;
+	}
+
+	// 大于等于
+	bool GetIsMaxEqualByOrientation(ECookieLandPieceOrientation Orientation, const FCookieLandLocation& Other) const
+	{
+		switch (Orientation)
+		{
+		case ECookieLandPieceOrientation::Up:
+		case ECookieLandPieceOrientation::Down:
+			return Floor >= Other.Floor;
+			break;
+		case ECookieLandPieceOrientation::Left:
+		case ECookieLandPieceOrientation::Right:
+			return X >= Other.X;
+			break;
+		case ECookieLandPieceOrientation::Forward:
+		case ECookieLandPieceOrientation::Backward:
+			return Y >= Other.Y;
+			break;
+		}
+		return false;
+	}
+
+	// 小于
+	bool GetIsMinByOrientation(ECookieLandPieceOrientation Orientation, const FCookieLandLocation& Other) const
+	{
+		switch (Orientation)
+		{
+		case ECookieLandPieceOrientation::Up:
+		case ECookieLandPieceOrientation::Down:
+			return Floor < Other.Floor;
+			break;
+		case ECookieLandPieceOrientation::Left:
+		case ECookieLandPieceOrientation::Right:
+			return X < Other.X;
+			break;
+		case ECookieLandPieceOrientation::Forward:
+		case ECookieLandPieceOrientation::Backward:
+			return Y < Other.Y;
+			break;
+		}
+		return false;
+	}
+
+	// 小于等于
+	bool GetIsMinEqualByOrientation(ECookieLandPieceOrientation Orientation, const FCookieLandLocation& Other) const
+	{
+		switch (Orientation)
+		{
+		case ECookieLandPieceOrientation::Up:
+		case ECookieLandPieceOrientation::Down:
+			return Floor <= Other.Floor;
+			break;
+		case ECookieLandPieceOrientation::Left:
+		case ECookieLandPieceOrientation::Right:
+			return X <= Other.X;
+			break;
+		case ECookieLandPieceOrientation::Forward:
+		case ECookieLandPieceOrientation::Backward:
+			return Y <= Other.Y;
+			break;
+		}
+		return false;
+	}
 };
 
 
