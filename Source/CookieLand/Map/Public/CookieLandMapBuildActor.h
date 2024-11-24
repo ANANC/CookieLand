@@ -85,21 +85,4 @@ public:
 	// 获取全部的地块信息
 	TArray<FCookieLandPieceBuildInfo> GetAllPieceBuildInfo();
 
-public:
-
-	// [MapBuilder] 获取是否立方体已经占领
-	bool GetIsCubeOccupyByLocation(const FCookieLandLocation MapCubeLocation);
-
-	// [MapBuilder] 获取是否地块已经占领
-	bool GetIsPieceOccupyByLocation(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);
-
-	// [MapActorGather] 获取地块
-	UCookieLandPiece* GetPiece(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);
-
-	// [MapActorGather] 切换地块的实例类型
-	void ChangePieceActorType(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation, TSubclassOf< ACookieLandPieceActor> InPieceActorType);
-
-	// [MapBuilder] 获取全部占领的层
-	TArray<int> GetAllOccupyFloor();
-
 };

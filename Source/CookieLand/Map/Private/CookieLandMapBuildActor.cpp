@@ -173,28 +173,3 @@ TArray<FCookieLandPieceBuildInfo> ACookieLandMapBuildActor::GetAllPieceBuildInfo
 
 	return PieceBuildInfos;
 }
-
-bool ACookieLandMapBuildActor::GetIsCubeOccupyByLocation(const FCookieLandLocation MapCubeLocation)
-{
-	return MapBuilder->GetIsCubeOccupyByLocation(MapCubeLocation);
-}
-
-bool ACookieLandMapBuildActor::GetIsPieceOccupyByLocation(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)
-{
-	return MapBuilder->GetIsPieceOccupyByLocation(MapCubeLocation, PieceOrientation);
-}
-
-UCookieLandPiece* ACookieLandMapBuildActor::GetPiece(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)
-{
-	return MapActorGather->GetPiece(MapCubeLocation, PieceOrientation);
-}
-
-void ACookieLandMapBuildActor::ChangePieceActorType(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation, TSubclassOf< ACookieLandPieceActor> InPieceActorType)
-{
-	MapActorGather->ChangePieceActorType(MapCubeLocation, PieceOrientation, InPieceActorType);
-}
-
-TArray<int> ACookieLandMapBuildActor::GetAllOccupyFloor()
-{
-	return MapBuilder->GetAllOccupyFloor();
-}

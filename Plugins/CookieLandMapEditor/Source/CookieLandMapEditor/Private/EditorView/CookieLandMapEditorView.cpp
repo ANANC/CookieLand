@@ -370,7 +370,7 @@ bool UCookieLandMapEditorView::HasMapBuildDataByLocation(FCookieLandLocation Pie
 {
 	if (MapBuildActor)
 	{
-		return MapBuildActor->GetIsCubeOccupyByLocation(PieceLocation);
+		return MapBuildActor->GetMapBuilder()->GetIsCubeOccupyByLocation(PieceLocation);
 	}
 	return false;
 }
@@ -379,7 +379,7 @@ bool UCookieLandMapEditorView::HasPieceDataByLocation(FCookieLandLocation PieceL
 {
 	if (MapBuildActor)
 	{
-		return MapBuildActor->GetIsPieceOccupyByLocation(PieceLocation, PieceOrientation);
+		return MapBuildActor->GetMapBuilder()->GetIsPieceOccupyByLocation(PieceLocation, PieceOrientation);
 	}
 	return false;
 }
@@ -388,7 +388,7 @@ UCookieLandPiece* UCookieLandMapEditorView::GetPiece(FCookieLandLocation PieceLo
 {
 	if (MapBuildActor)
 	{
-		return MapBuildActor->GetPiece(PieceLocation, PieceOrientation);
+		return MapBuildActor->GetMapActorGather()->GetPiece(PieceLocation, PieceOrientation);
 	}
 
 	return nullptr;
@@ -656,7 +656,7 @@ void UCookieLandMapEditorView::PieceActorTypeChangeCallback(const FAssetData& As
 	UClass* LoadedClass = StaticLoadClass(UObject::StaticClass(), nullptr, *AssetData.ObjectPath.ToString());
 	if (LoadedClass && LoadedClass->IsChildOf(ACookieLandPieceActor::StaticClass()))
 	{
-		MapBuildActor->ChangePieceActorType(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation, LoadedClass);
+		MapBuildActor->GetMapActorGather()->ChangePieceActorType(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation, LoadedClass);
 	}
 }
 
@@ -666,6 +666,8 @@ TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_ForceLinkContext()
 
 	FCookieLandOrientationLinkInfo ForceLinkInfo;
 	MapBuildActor->GetMapBuilder()->GetForceLineInfo(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation, ForceLinkInfo);
+
+	Checkerboard->ForceLineNumberText = FText::FromString("0");
 
 	if (ForceLinkInfo.GetIsValid())
 	{
@@ -743,28 +745,89 @@ TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_ForceLinkContext()
 				})
 			]
 		];
+	}
 
-		//todo:配置强制连接 输入层数+确认
+	bool bIsInEgde = ForceLinkInfo.GetIsValid() && (SelectMapCube->SelectLocation == ForceLinkInfo.Max_PieceLocation || SelectMapCube->SelectLocation == ForceLinkInfo.Min_PieceLocation);
 
-		if (SelectMapCube->SelectLocation == ForceLinkInfo.Max_PieceLocation || SelectMapCube->SelectLocation == ForceLinkInfo.Min_PieceLocation)
-		{
-			SNew(SButton)
-			.Text(FText::FromString("Delete Force Link"))
-			.OnClicked_Lambda([this]() {
-				DeleteForceLink(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation);
-				return FReply::Handled();
-			});
-		}
+	if (bIsInEgde || !ForceLinkInfo.GetIsValid())
+	{
+		ForceLinkVerticalBox->AddSlot()
+			.AutoHeight()
+			[
+				SNew(SHorizontalBox)
 
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(STextBlock)
+					.Text(FText::FromString("Force Line Num:"))
+				]
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SEditableTextBox)
+					.Text(Checkerboard->ForceLineNumberText)
+					.OnTextChanged_Lambda([this](const FText& InFilterText) {Checkerboard->ForceLineNumberText = InFilterText; })
+				]
+
+				+ SHorizontalBox::Slot()
+				.AutoWidth()
+				[
+					SNew(SButton)
+					.Text(FText::FromString("Update"))
+					.OnClicked_Lambda([this, ForceLinkInfo]() {
+						UpdateForceLineNumberButtonClickCallback();
+						return FReply::Handled();
+					})
+				]
+			];
+	}
+
+	if (bIsInEgde)
+	{
+		SNew(SButton)
+		.Text(FText::FromString("Delete Force Link"))
+		.OnClicked_Lambda([this]() {
+			DeleteForceLinkButtonClickCallback();
+			return FReply::Handled();
+		});
 	}
 
 	return ForceLinkVerticalBox;
 }
 
-
-void UCookieLandMapEditorView::DeleteForceLink(FCookieLandLocation PieceLocation, ECookieLandPieceOrientation PieceOrientation)
+void UCookieLandMapEditorView::UpdateForceLineNumberButtonClickCallback()
 {
-	//todo:删除连接
+	if (!MapBuildActor)
+	{
+		return;
+	}
+
+	int UpdateForceLineNumber = FCString::Atoi(*Checkerboard->ForceLineNumberText.ToString());
+	if (UpdateForceLineNumber == 0) { return; }
+
+	FCookieLandOrientationLinkInfo ForceLinkInfo;
+	MapBuildActor->GetMapBuilder()->GetForceLineInfo(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation, ForceLinkInfo);
+
+	FCookieLandLocation LineLocation(SelectMapCube->SelectLocation);
+	LineLocation.AddDistanceByThreeDirection(SelectMapCube->SelectOrientation, UpdateForceLineNumber);
+
+	MapBuildActor->GetMapBuilder()->PieceForceLine(SelectMapCube->SelectLocation, LineLocation, SelectMapCube->SelectOrientation);
+
+	DrawUpdateSelectPieceContext();
+}
+
+void UCookieLandMapEditorView::DeleteForceLinkButtonClickCallback()
+{
+	if (!MapBuildActor)
+	{
+		return;
+	}
+
+	MapBuildActor->GetMapBuilder()->PieceDeleteForceLine(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation);
+
+	DrawUpdateSelectPieceContext();
 }
 
 TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_ViewControlContext()
@@ -817,16 +880,17 @@ TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_ViewControlContext()
 			.Text(FText::FromString("Has Data Floor:"))
 		];
 
-		TArray<int> OccupyFloors = MapBuildActor->GetAllOccupyFloor();
+		TArray<int> OccupyFloors = MapBuildActor->GetMapBuilder()->GetAllOccupyFloor();
 		for (int Index = 0; Index < OccupyFloors.Num(); ++Index)
 		{
+			int Floor = OccupyFloors[Index];
 			ViewControlVerticalBox->AddSlot()
 			.AutoHeight()
 			[
 				SNew(SButton)
-				.Text(FText::FromString(FString::Printf(TEXT("%d"), Index)))
-				.OnClicked_Lambda([this, Index]() {
-					ChangeFloorButtonClickCallback(Index - SelectMapCube->SelectLocation.Z);
+				.Text(FText::FromString(FString::Printf(TEXT("%d"), Floor)))
+				.OnClicked_Lambda([this, Floor]() {
+					ChangeFloorButtonClickCallback(Floor - SelectMapCube->SelectLocation.Z);
 					return FReply::Handled();
 					})
 			];

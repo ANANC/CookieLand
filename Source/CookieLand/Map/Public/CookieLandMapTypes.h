@@ -76,7 +76,7 @@ public:
 		case ECookieLandPieceOrientation::Backward:
 			return Y > Other.Y;
 			break;
-		}
+		};
 		return false;
 	}
 
@@ -97,7 +97,7 @@ public:
 		case ECookieLandPieceOrientation::Backward:
 			return Y >= Other.Y;
 			break;
-		}
+		};
 		return false;
 	}
 
@@ -118,7 +118,7 @@ public:
 		case ECookieLandPieceOrientation::Backward:
 			return Y < Other.Y;
 			break;
-		}
+		};
 		return false;
 	}
 
@@ -139,8 +139,27 @@ public:
 		case ECookieLandPieceOrientation::Backward:
 			return Y <= Other.Y;
 			break;
-		}
+		};
 		return false;
+	}
+
+	void AddDistanceByThreeDirection(ECookieLandPieceOrientation Orientation, int32 Distance)
+	{
+		switch (Orientation)
+		{
+		case ECookieLandPieceOrientation::Up:
+		case ECookieLandPieceOrientation::Down:
+			Floor += Distance;
+			break;
+		case ECookieLandPieceOrientation::Left:
+		case ECookieLandPieceOrientation::Right:
+			X += Distance;
+			break;
+		case ECookieLandPieceOrientation::Forward:
+		case ECookieLandPieceOrientation::Backward:
+			Y += Distance;
+			break;
+		};
 	}
 };
 

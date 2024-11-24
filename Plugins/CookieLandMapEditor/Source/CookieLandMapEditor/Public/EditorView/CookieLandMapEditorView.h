@@ -43,6 +43,8 @@ public:
 	TMap< ECookieLandPieceOrientation, TSharedPtr<SBorder>>Orientation2Border;
 
 	TSharedPtr<SVerticalBox> SelectPieceContextVerticalBox;
+
+	FText ForceLineNumberText;
 };
 
 
@@ -157,8 +159,12 @@ protected:
 	// 删除全部地块点击回调
 	void DeleteAllPieceButtonClickCallback();
 
+	// 更新强制连接
+	void UpdateForceLineNumberButtonClickCallback();
+
 	// 删除强制连接
-	void DeleteForceLink(FCookieLandLocation PieceLocation, ECookieLandPieceOrientation PieceOrientation);
+	void DeleteForceLinkButtonClickCallback();
+
 protected:
 
 	// 将地形数据保存到da
