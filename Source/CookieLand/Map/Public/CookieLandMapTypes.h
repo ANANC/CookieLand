@@ -344,6 +344,58 @@ public:
 	FCookieLandMapBuildInfo BuildInfo;
 };
 
+UENUM(BlueprintType)
+enum class ECookieLandMapShowType : uint8
+{
+	Plane,
+	ThreeDimensions,
+};
+
+
+USTRUCT(BlueprintType)
+struct FCookieLandMapShowInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "显示类型"))
+	ECookieLandMapShowType MapShowType;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "是否限制显示层数"))
+	bool bConfineFloor = true;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "限制显示的层数"), meta = (EditCondition = "bConfineFloor"))
+	int ConfineFloorNumber = 3;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "是否限制显示周围"))
+	bool bConfineRound = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "限制显示的周围数量"), meta = (EditCondition = "bConfineRound"))
+	int ConfineRoundNumber = 5;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "是否立方体遮挡显示"))
+	bool bCubeOcclusionDisplay = true;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "是否立方体只显示边缘"))
+	bool bOnlyDisplayEgdeWhenCubeOcclusionDisplay = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "是否立方体边缘显示细节"))
+	bool bDisplayDetailInEgdeWhenCubeOcclusionDisplay = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "是否立方体内部显示细节"))
+	bool bDisplayDetailInSideWhenCubeOcclusionDisplay = false;
+};
+
+UCLASS(BlueprintType)
+class UCookieLandMapShowDataAsset : public UDataAsset
+{
+	GENERATED_BODY()
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "显示配置"))
+	FCookieLandMapShowInfo MapShowInfo;
+};
+
+
 USTRUCT(BlueprintType)
 struct FCookieLandMapBuildDataTableRow : public FTableRowBase
 {
@@ -352,6 +404,9 @@ struct FCookieLandMapBuildDataTableRow : public FTableRowBase
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "地形配置"))
 	TObjectPtr<UCookieLandMapBuildDataAsset> BuildDataAsset = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "显示配置"))
+	TObjectPtr< UCookieLandMapShowDataAsset> ShowDataAsset = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "地块数据"))
 	TObjectPtr<UCookieLandMapPiecesDataAsset> PiecesDataAsset = nullptr;

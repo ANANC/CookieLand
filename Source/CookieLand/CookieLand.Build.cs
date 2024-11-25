@@ -7,8 +7,9 @@ public class CookieLand : ModuleRules
 	public CookieLand(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+        OptimizeCode = CodeOptimization.Never;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
 
         // 指定公共头文件目录
         PublicIncludePaths.AddRange(new string[] {

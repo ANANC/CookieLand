@@ -6,6 +6,7 @@
 #include "CookieLand/Map/Public/CookieLandPiece.h"
 #include "CookieLand/Map/Public/CookieLandMapBuilder.h"
 #include "CookieLand/Map/Public/CookieLandMapActorGather.h"
+#include "CookieLand/Map/Public/CookieLandMapShowDirector.h"
 
 #if WITH_EDITOR
 ACookieLandMapBuildActor* ACookieLandMapBuildActor::MapBuildActorInstance = nullptr;
@@ -19,8 +20,12 @@ ACookieLandMapBuildActor::ACookieLandMapBuildActor()
 
 	MapBuilder = CreateDefaultSubobject<UCookieLandMapBuilder>("MapBuilder");
 	MapActorGather = CreateDefaultSubobject<UCookieLandMapActorGather>("MapActorGather");
+	ShowDirector = CreateDefaultSubobject<UCookieLandMapShowDirector>("ShowDirector");
+
+	ShowDirector->SetBuildActor(this);
 
 	MapActorGather->MapBuildInfo = MapBuildInfo;
+	ShowDirector->MapShowInfo = MapShowInfo;
 }
 
 
@@ -45,6 +50,13 @@ void ACookieLandMapBuildActor::PostEditChangeProperty(FPropertyChangedEvent& Pro
 				MapActorGather->MapBuildInfo = MapBuildInfo;
 			}
 		}
+		else if (MemberPropertyName == GET_MEMBER_NAME_CHECKED(ACookieLandMapBuildActor, MapShowInfo))
+		{
+			if (ShowDirector)
+			{
+				ShowDirector->MapShowInfo = MapShowInfo;
+			}
+		}
 	}
 }
 #endif
@@ -56,8 +68,8 @@ void ACookieLandMapBuildActor::ReloadMapBuildInfo()
 	{
 		if (TargetMapBuildData.BuildDataAsset)
 		{
-			MapBuildInfo = TargetMapBuildData.BuildDataAsset->BuildInfo;
-			MapActorGather->MapBuildInfo = MapBuildInfo;
+			MapActorGather->MapBuildInfo = TargetMapBuildData.BuildDataAsset->BuildInfo;
+			ShowDirector->MapShowInfo = TargetMapBuildData.ShowDataAsset->MapShowInfo;
 		}
 	}
 }
@@ -90,6 +102,11 @@ void ACookieLandMapBuildActor::CreatePiece(const FCookieLandLocation PieceLocati
 	{
 		FCookieLandPieceBuildInfo PieceBuildInfo = UCookieLandMapBuildLibrary::CratePieceBuildInfo(PieceLocation, PieceOrientation);
 		MapActorGather->AddPiece(PieceBuildInfo);
+
+		if (PieceBuildInfo.bAutoCreateActorInstance)
+		{
+			TryCreatePieceActorToPiece(PieceLocation, PieceOrientation);
+		}
 	}
 }
 
@@ -172,4 +189,58 @@ TArray<FCookieLandPieceBuildInfo> ACookieLandMapBuildActor::GetAllPieceBuildInfo
 	}
 
 	return PieceBuildInfos;
+}
+
+
+bool ACookieLandMapBuildActor::TryCreatePieceActorToPiece(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)
+{
+	UCookieLandPiece* Piece = MapActorGather->GetPiece(MapCubeLocation, PieceOrientation);
+	if (!Piece)
+	{
+		return false;
+	}
+
+	if (Piece->GetPieceAction())
+	{
+		return true;
+	}
+
+	ACookieLandPieceActor* ActorInstance = UCookieLandMapBuildLibrary::CreatePieceActorInstanceByBuildInfo(this, MapBuildInfo, Piece->GetBuildInfo());
+	if (ActorInstance)
+	{
+		ActorInstance->Init(Piece);
+		ActorInstance->SetMapShowDirector(ShowDirector);
+
+		Piece->SetPieceActor(ActorInstance);
+
+		return true;
+	}
+
+	return false;
+}
+
+void ACookieLandMapBuildActor::ChangePieceActorType(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation, TSubclassOf< ACookieLandPieceActor> InPieceActorType)
+{
+	UCookieLandPiece* Piece = MapActorGather->GetPiece(MapCubeLocation, PieceOrientation);
+	if (!Piece)
+	{
+		return;
+	}
+
+	if (ACookieLandPieceActor* ActorInstance = Piece->GetPieceAction())
+	{
+		if (ActorInstance && ActorInstance->GetClass() == InPieceActorType)
+		{
+			return;
+		}
+
+		if (ActorInstance && ActorInstance->GetClass() != InPieceActorType)
+		{
+			Piece->SetPieceActor(nullptr);
+			ActorInstance->Destroy();
+		}
+	}
+
+	Piece->SetPieceActorType(InPieceActorType);
+	TryCreatePieceActorToPiece(MapCubeLocation, PieceOrientation);
 }

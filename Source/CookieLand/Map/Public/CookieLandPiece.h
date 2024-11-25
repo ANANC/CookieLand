@@ -8,6 +8,7 @@
 #include "CookieLandPiece.generated.h"
 
 class UCookieLandPiece;
+class UCookieLandMapShowDirector;
 
 UCLASS(Blueprintable,BlueprintType)
 class COOKIELAND_API ACookieLandPieceActor : public AActor
@@ -27,6 +28,10 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	TObjectPtr< UCookieLandPiece> CookieLandPiece = nullptr;
 
+protected:
+	UPROPERTY(BlueprintReadWrite)
+	UCookieLandMapShowDirector* MapShowDirector;
+
 public:
 	virtual void BeginDestroy() override;
 
@@ -34,6 +39,11 @@ public:
 	virtual void UnInit();
 
 	bool GetIsInit();
+
+public:
+	void SetMapShowDirector(UCookieLandMapShowDirector* InMapShowDirector) { MapShowDirector = InMapShowDirector; }
+
+	virtual void UpdateDisplay(){}
 };
 
 

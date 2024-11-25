@@ -7,10 +7,11 @@
 #include "CookieLandMapTypes.h"
 #include "CookieLandMapBuildActor.generated.h"
 
+class UCookieLandPiece;
 class ACookieLandPieceActor;
 class UCookieLandMapBuilder;
 class UCookieLandMapActorGather;
-class UCookieLandPiece;
+class UCookieLandMapShowDirector;
 
 
 UCLASS()
@@ -43,6 +44,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Map, meta = (DisplayName = "地形数据"))
 	FCookieLandMapBuildInfo MapBuildInfo;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Map, meta = (DisplayName = "显示数据"))
+	FCookieLandMapShowInfo MapShowInfo;
 protected:
 
 	UPROPERTY()
@@ -51,9 +54,14 @@ protected:
 	UPROPERTY()
 	UCookieLandMapActorGather* MapActorGather;
 
+	UPROPERTY()
+	UCookieLandMapShowDirector* ShowDirector;
+
 public:
 	UCookieLandMapBuilder* GetMapBuilder() { return MapBuilder; }
 	UCookieLandMapActorGather* GetMapActorGather() { return MapActorGather; }
+	UCookieLandMapShowDirector* GetShowDirector() { return ShowDirector; }
+
 public:
 	// 重新加载地形数据
 	void ReloadMapBuildInfo();
@@ -84,5 +92,11 @@ public:
 
 	// 获取全部的地块信息
 	TArray<FCookieLandPieceBuildInfo> GetAllPieceBuildInfo();
+
+	// 给地块创建实例（如果已经存在不会二次创建）
+	bool TryCreatePieceActorToPiece(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);
+
+	// 切换地块的实例类型
+	void ChangePieceActorType(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation, TSubclassOf< ACookieLandPieceActor> InPieceActorType);
 
 };

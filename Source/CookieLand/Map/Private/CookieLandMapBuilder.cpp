@@ -306,9 +306,9 @@ bool UCookieLandMapBuilder::PieceForceLine(const FCookieLandLocation RequsetPiec
 	}
 
 	// 其中一个在连接中
-	else if(MinLineInfo.GetIsValid() || MinLineInfo.GetIsValid())
+	else if(MinLineInfo.GetIsValid() || MaxLineInfo.GetIsValid())
 	{
-		FCookieLandOrientationLinkInfo* LineInfoPtr = MinLineInfo.GetIsValid() ? &MinLineInfo : &MinLineInfo;
+		FCookieLandOrientationLinkInfo* LineInfoPtr = MinLineInfo.GetIsValid() ? &MinLineInfo : &MaxLineInfo;
 		FCookieLandLocation* AddLocation = MinLineInfo.GetIsValid() ? &MaxPieceLocation : &MinPieceLocation;
 
 		// 判断是否内部状态且非边缘，无法发起连接
@@ -316,12 +316,12 @@ bool UCookieLandMapBuilder::PieceForceLine(const FCookieLandLocation RequsetPiec
 		{
 			return false;
 		}
+		MapRangeInfo->ForceLineInfos.Remove(*LineInfoPtr);
 
 		// 添加地块
 		LineInfoPtr->AddLocation(*AddLocation);
 
 		// 记录下来
-		MapRangeInfo->ForceLineInfos.Remove(*LineInfoPtr);
 		MapRangeInfo->ForceLineInfos.Add(*LineInfoPtr);
 	}
 	
@@ -558,6 +558,8 @@ UCookieLandMapRangeInfo* UCookieLandMapBuilder::CreateOrGetMapRangeInfo(const FC
 		MapRangeInfo->Location.Floor = PieceLocation.Floor;
 		break;
 	};
+
+	MapRangeInfos.Add(MapRangeInfo);
 
 	return MapRangeInfo;
 }

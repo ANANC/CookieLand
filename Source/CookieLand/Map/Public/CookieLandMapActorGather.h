@@ -53,17 +53,12 @@ public:
 	// 移除地块
 	bool RemovePiece(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);
 
-	// 切换地块的实例类型
-	void ChangePieceActorType(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation, TSubclassOf< ACookieLandPieceActor> InPieceActorType);
-
 	// 获取地块
 	UCookieLandPiece* GetPiece(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);
 
 	// 获取全部地块
 	TArray<UCookieLandPiece*> GetAllPieces();
 
-	// 给地块创建实例（如果已经存在不会二次创建）
-	bool TryCreatePieceActorToPiece(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);
 protected:
 
 	// 创建或者创建地块

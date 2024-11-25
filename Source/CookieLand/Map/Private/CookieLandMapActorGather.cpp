@@ -35,11 +35,6 @@ bool UCookieLandMapActorGather::AddPiece(const FCookieLandPieceBuildInfo PieceBu
 
 	Piece->Init(PieceBuildInfo);
 
-	if (PieceBuildInfo.bAutoCreateActorInstance)
-	{
-		TryCreatePieceActorToPiece(PieceBuildInfo.PieceLocation, PieceBuildInfo.PieceOrientation);
-	}
-
 	return true;
 }
 
@@ -59,31 +54,6 @@ bool UCookieLandMapActorGather::RemovePiece(const FCookieLandLocation MapCubeLoc
 	return true;
 }
 
-void UCookieLandMapActorGather::ChangePieceActorType(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation, TSubclassOf< ACookieLandPieceActor> InPieceActorType)
-{
-	UCookieLandPiece* Piece = GetPiece(MapCubeLocation, PieceOrientation);
-	if (!Piece)
-	{
-		return;
-	}
-
-	if (ACookieLandPieceActor* ActorInstance = Piece->GetPieceAction()) 
-	{
-		if (ActorInstance && ActorInstance->GetClass() != InPieceActorType)
-		{
-			Piece->SetPieceActor(nullptr);
-			ActorInstance->Destroy();
-		}
-	}
-
-	Piece->SetPieceActorType(InPieceActorType);
-
-	if (Piece->GetBuildInfo().bAutoCreateActorInstance)
-	{
-		TryCreatePieceActorToPiece(MapCubeLocation, PieceOrientation);
-	}
-
-}
 
 UCookieLandPiece* UCookieLandMapActorGather::GetPiece(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)
 {
@@ -123,37 +93,6 @@ UCookieLandPiece* UCookieLandMapActorGather::CreatePieceToMapCubeInfo(const FCoo
 	MapCubeInfo->OrientationPieces.Add(PieceOrientation, Piece);
 
 	return Piece;
-}
-
-ACookieLandPieceActor* UCookieLandMapActorGather::CreatePieceAction(const FCookieLandPieceBuildInfo PieceBuildInfo)
-{
-	ACookieLandPieceActor* ActorInstance = UCookieLandMapBuildLibrary::CreatePieceActorInstanceByBuildInfo(this, MapBuildInfo, PieceBuildInfo);
-	return ActorInstance;
-}
-
-bool UCookieLandMapActorGather::TryCreatePieceActorToPiece(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)
-{
-	UCookieLandPiece* Piece = GetPiece(MapCubeLocation, PieceOrientation);
-	if (!Piece)
-	{
-		return false;
-	}
-
-	if (Piece->GetPieceAction())
-	{
-		return true;
-	}
-
-	ACookieLandPieceActor* ActorInstance = CreatePieceAction(Piece->GetBuildInfo());
-	if (ActorInstance)
-	{
-		ActorInstance->Init(Piece);
-		Piece->SetPieceActor(ActorInstance);
-
-		return true;
-	}
-
-	return false;
 }
 
 void UCookieLandMapActorGather::RemovePieceFromMapCubeInfo(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)
