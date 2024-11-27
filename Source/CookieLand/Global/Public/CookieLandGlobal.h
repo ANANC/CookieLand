@@ -25,6 +25,9 @@ public:
 public:
 	UPROPERTY(BlueprintReadWrite,EditDefaultsOnly, meta = (DisplayName = "地图Table"))
 	class UDataTable* MapBuildDataTable;//FCookieLandMapBuildDataTableRow
+
+	UPROPERTY(BlueprintReadWrite, EditDefaultsOnly, meta = (DisplayName = "感知者Table"))
+	class UDataTable* PerceptualObjectPerceptionDataTable;//FCookieLandPerceptualObjectPerceptionDataTableRow
 };
 
 UCLASS(config = Engine)

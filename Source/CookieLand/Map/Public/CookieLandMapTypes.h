@@ -161,6 +161,99 @@ public:
 			break;
 		};
 	}
+	void AddDistanceBySixDirection(ECookieLandPieceOrientation Orientation, int32 Distance)
+	{
+		switch (Orientation)
+		{
+		case ECookieLandPieceOrientation::Up:
+			Floor += Distance;
+			break;
+		case ECookieLandPieceOrientation::Down:
+			Floor -= Distance;
+			break;
+		case ECookieLandPieceOrientation::Left:
+			X += Distance;
+			break;
+		case ECookieLandPieceOrientation::Right:
+			X -= Distance;
+			break;
+		case ECookieLandPieceOrientation::Forward:
+			Y += Distance;
+			break;
+		case ECookieLandPieceOrientation::Backward:
+			Y -= Distance;
+			break;
+		};
+	}
+
+	TArray<ECookieLandPieceOrientation> GetRelativeOrientations(FCookieLandLocation Location) const
+	{
+		TArray<ECookieLandPieceOrientation> RelativeOrientations;
+
+		if (Location.X > X)
+		{
+			RelativeOrientations.Add(ECookieLandPieceOrientation::Right);
+		}
+		else if (Location.X < X)
+		{
+			RelativeOrientations.Add(ECookieLandPieceOrientation::Left);
+		}
+
+		if (Location.Y > Y)
+		{
+			RelativeOrientations.Add(ECookieLandPieceOrientation::Forward);
+		}
+		else if (Location.Y < Y)
+		{
+			RelativeOrientations.Add(ECookieLandPieceOrientation::Backward);
+		}
+
+		if (Location.Floor > Floor)
+		{
+			RelativeOrientations.Add(ECookieLandPieceOrientation::Up);
+		}
+		else if (Location.Floor < Floor)
+		{
+			RelativeOrientations.Add(ECookieLandPieceOrientation::Down);
+		}
+
+		return RelativeOrientations;
+	}
+
+
+	TMap<ECookieLandPieceOrientation,int> GetRelativeOrientationAndDistances(FCookieLandLocation Location) const
+	{
+		TMap<ECookieLandPieceOrientation, int> RelativeOrientationAndDistances;
+
+		if (Location.X > X)
+		{
+			RelativeOrientationAndDistances.Add(ECookieLandPieceOrientation::Right, Location.X - X);
+		}
+		else if (Location.X < X)
+		{
+			RelativeOrientationAndDistances.Add(ECookieLandPieceOrientation::Left, X - Location.X);
+		}
+
+		if (Location.Y > Y)
+		{
+			RelativeOrientationAndDistances.Add(ECookieLandPieceOrientation::Forward, Location.Y - Y);
+		}
+		else if (Location.Y < Y)
+		{
+			RelativeOrientationAndDistances.Add(ECookieLandPieceOrientation::Backward, Y - Location.Y);
+		}
+
+		if (Location.Floor > Floor)
+		{
+			RelativeOrientationAndDistances.Add(ECookieLandPieceOrientation::Up, Location.Floor - Floor);
+		}
+		else if (Location.Floor < Floor)
+		{
+			RelativeOrientationAndDistances.Add(ECookieLandPieceOrientation::Down, Floor - Location.Floor);
+		}
+
+		return RelativeOrientationAndDistances;
+	}
 };
 
 
@@ -410,4 +503,51 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "地块数据"))
 	TObjectPtr<UCookieLandMapPiecesDataAsset> PiecesDataAsset = nullptr;
+};
+
+
+USTRUCT(BlueprintType)
+struct FCookieLandPerceptualObjectPerceptionInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "感知范围"))
+	int PerceptionRange = 5;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "被感知范围"))
+	int PassivePerceptionRange = 5;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "能否在感知到其他感知者时，感知到周围地形"))
+	bool bEnableSenseMapWhenPerception = true;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "地形感知范围"), meta = (EditCondition = "bEnableSenseMapWhenPerception"))
+	int SenseMapRange = 2;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "能否在异域时，感知到其他感知者"))
+	bool bEnablePerceptionWhereInForeignMap = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "能否在异域感知到其他感知者时，显示地块信息"))
+	bool bEnableSenseDetailWhereInForeignMap = false;
+};
+
+USTRUCT(BlueprintType)
+struct FCookieLandPerceptualObjectPerceptionDataTableRow : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "感知信息"))
+	FCookieLandPerceptualObjectPerceptionInfo PerceptionInfo;
+
+};
+
+UENUM(BlueprintType)
+enum class ECookieLandMapAngleViewType : uint8
+{
+	ForwardAndRight,
+	ForwardAndLeft,
+	BackwardAndLeft,
+	BackwardAndRight,
 };

@@ -22,10 +22,16 @@ protected:
 	UPROPERTY()
 	ACookieLandMapBuildActor* BuildActor;
 
+	bool bDisplayAll = false;
 public:
 	void SetBuildActor(ACookieLandMapBuildActor* InBuildActor);
 
+	void SetDisplayAll(bool bValue);
+
 public:
-	// 获取能否显示
+	// 获取能否显示【总计算】
 	bool GetEnableDisplay(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);
+
+	// 获取能否显示【根据显示类型】
+	bool GetEnableDisplaySwitchMapShowType(FCookieLandPieceLocator MainLocator, const ECookieLandPieceOrientation PieceOrientation);
 };

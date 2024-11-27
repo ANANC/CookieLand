@@ -275,7 +275,7 @@ bool UCookieLandMapBuilder::PieceForceLine(const FCookieLandLocation RequsetPiec
 		}
 
 		// 判断是否内部状态且非边缘，无法发起连接
-		if (GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(MinLineInfo, MinPieceLocation) || GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(MaxLineInfo, MaxPieceLocation))
+		if (GetWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(MinLineInfo, MinPieceLocation) || GetWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(MaxLineInfo, MaxPieceLocation))
 		{
 			return false;
 		}
@@ -312,7 +312,7 @@ bool UCookieLandMapBuilder::PieceForceLine(const FCookieLandLocation RequsetPiec
 		FCookieLandLocation* AddLocation = MinLineInfo.GetIsValid() ? &MaxPieceLocation : &MinPieceLocation;
 
 		// 判断是否内部状态且非边缘，无法发起连接
-		if (GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(*LineInfoPtr, *AddLocation))
+		if (GetWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(*LineInfoPtr, *AddLocation))
 		{
 			return false;
 		}
@@ -358,7 +358,7 @@ bool UCookieLandMapBuilder::PieceDeleteForceLine(const FCookieLandLocation Requs
 	}
 
 	// 判断是否内部状态且非边缘，无法解绑连接
-	if (GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(LinkRangeInfo,RequsetPieceLocation))
+	if (GetWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(LinkRangeInfo,RequsetPieceLocation))
 	{
 		return false;
 	}
@@ -370,21 +370,34 @@ bool UCookieLandMapBuilder::PieceDeleteForceLine(const FCookieLandLocation Requs
 	return true;
 }
 
-bool UCookieLandMapBuilder::GetsWhetherInternalStateOfForcedLineAndNotAtEdge(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation)
+bool UCookieLandMapBuilder::GetWhetherInternalStateOfForcedLineAndNotAtEdge(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation)
 {
 	FCookieLandOrientationLinkInfo LineInfo;
 	if (GetForceLineInfo(PieceLocation, PieceOrientation, LineInfo))
 	{
-		return GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(LineInfo, PieceLocation);
+		return GetWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(LineInfo, PieceLocation);
 	}
 	return false;
 }
 
-bool UCookieLandMapBuilder::GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(const FCookieLandOrientationLinkInfo& LineInfo, const FCookieLandLocation PieceLocation)
+bool UCookieLandMapBuilder::GetWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(const FCookieLandOrientationLinkInfo& LineInfo, const FCookieLandLocation PieceLocation)
 {
 	if (LineInfo.GetIsValid())
 	{
 		if (PieceLocation.GetIsMaxByOrientation(LineInfo.Orientation, LineInfo.Min_PieceLocation) && PieceLocation.GetIsMinByOrientation(LineInfo.Orientation, LineInfo.Max_PieceLocation))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UCookieLandMapBuilder::GetInEdgeByLineInfo(const FCookieLandOrientationLinkInfo& LineInfo, const FCookieLandLocation PieceLocation)
+{
+	if (LineInfo.GetIsValid())
+	{
+		if (PieceLocation == LineInfo.Min_PieceLocation || PieceLocation == LineInfo.Max_PieceLocation)
 		{
 			return true;
 		}
@@ -411,6 +424,27 @@ bool UCookieLandMapBuilder::GetForceLineInfo(const FCookieLandLocation PieceLoca
 		}
 	}
 
+	return false;
+}
+
+bool UCookieLandMapBuilder::GetNearestForceLineInfo(const ECookieLandPieceOrientation PieceOrientation, const FCookieLandLocation StartPieceLocation, int Distance, FCookieLandOrientationLinkInfo& OutLineInfo)
+{
+	UCookieLandMapRangeInfo* MapRangeInfo = CreateOrGetMapRangeInfo(StartPieceLocation, PieceOrientation);
+	if (MapRangeInfo->ForceLineInfos.Num() == 0)
+	{
+		return false;
+	}
+
+	for (int Index = 0; Index < Distance; ++Index)
+	{
+		FCookieLandLocation FindLocation(StartPieceLocation);
+		FindLocation.AddDistanceBySixDirection(PieceOrientation, Distance);
+
+		if (GetForceLineInfo(FindLocation, PieceOrientation, OutLineInfo))
+		{
+			return true;
+		}
+	}
 	return false;
 }
 

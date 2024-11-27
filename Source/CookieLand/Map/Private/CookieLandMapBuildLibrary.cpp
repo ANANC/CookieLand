@@ -4,7 +4,7 @@
 #include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
 #include "CookieLand/Global/Public/CookieLandGlobal.h"
 #include "CookieLand/Map/Public/CookieLandPiece.h"
-
+#include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
 
 bool UCookieLandMapBuildLibrary::GetSourceMapBuildDataTable(FName MapName, FCookieLandMapBuildDataTableRow& OutMapBuildDataTableRow)
 {
@@ -182,4 +182,137 @@ TArray< FCookieLandPieceBuildInfo> UCookieLandMapBuildLibrary::CrateCubeBuildInf
 FCookieLandPieceBuildInfo UCookieLandMapBuildLibrary::CratePieceBuildInfo(const FCookieLandLocation& PieceLocation, const ECookieLandPieceOrientation& PieceOrientation)
 {
 	return FCookieLandPieceBuildInfo(PieceLocation, PieceOrientation);
+}
+
+UCookieLandPerceptualObjectSubsystem* UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem(const UObject* WCO)
+{
+	UWorld* World = nullptr;
+	if (WCO)
+	{
+		World = WCO->GetWorld();
+	}
+	if (!World)
+	{
+		World = UCookieLandGlobal::Get().GetWorld();
+	}
+	if (!World)
+	{
+		return nullptr;
+	}
+
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = World->GetGameInstance()->GetSubsystem<UCookieLandPerceptualObjectSubsystem>();
+	return PerceptualObjectSubsystem;
+}
+
+bool UCookieLandMapBuildLibrary::GetPerceptualObjectPerceptionDataTable(FName PerceptualObjectType, FCookieLandPerceptualObjectPerceptionDataTableRow& OutPerceptualObjectPerceptionDataTableRow)
+{
+	UDataTable* PerceptualObjectPerceptionDataTable = UCookieLandGlobal::Get().GetGameData().PerceptualObjectPerceptionDataTable;
+	ensure(PerceptualObjectPerceptionDataTable);
+
+	FCookieLandPerceptualObjectPerceptionDataTableRow* Row = PerceptualObjectPerceptionDataTable->FindRow<FCookieLandPerceptualObjectPerceptionDataTableRow>(PerceptualObjectType, TEXT("FCookieLandPerceptualObjectPerceptionDataTableRow"));
+	if (Row)
+	{
+		OutPerceptualObjectPerceptionDataTableRow = *Row;
+		return true;
+	}
+	return false;
+}
+
+bool UCookieLandMapBuildLibrary::GetPerceptualObjectPerceptionInfoFromTable(FName PerceptualObjectType, FCookieLandPerceptualObjectPerceptionInfo& OutPerceptualObjectPerceptionInfo)
+{
+	FCookieLandPerceptualObjectPerceptionDataTableRow PerceptualObjectPerceptionDataTableRow;
+	if (GetPerceptualObjectPerceptionDataTable(PerceptualObjectType, PerceptualObjectPerceptionDataTableRow))
+	{
+		OutPerceptualObjectPerceptionInfo = PerceptualObjectPerceptionDataTableRow.PerceptionInfo;
+		return true;
+	}
+
+	return false;
+}
+
+TArray<ECookieLandPieceOrientation> UCookieLandMapBuildLibrary::GetMapAgnleViewOrientations(ECookieLandMapAngleViewType MapAngleViewType, const ECookieLandPieceOrientation& PieceOrientation)
+{
+	switch (PieceOrientation)
+	{
+	case ECookieLandPieceOrientation::Up:
+		switch (MapAngleViewType)
+		{
+		case ECookieLandMapAngleViewType::ForwardAndRight:
+			return { ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Forward,ECookieLandPieceOrientation::Right};
+		case ECookieLandMapAngleViewType::ForwardAndLeft:
+			return { ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Forward,ECookieLandPieceOrientation::Left };
+		case ECookieLandMapAngleViewType::BackwardAndRight:
+			return { ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Backward,ECookieLandPieceOrientation::Right };
+		case ECookieLandMapAngleViewType::BackwardAndLeft:
+			return { ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Backward,ECookieLandPieceOrientation::Left };;
+		}
+		return {};
+	case ECookieLandPieceOrientation::Down:
+		switch (MapAngleViewType)
+		{
+		case ECookieLandMapAngleViewType::ForwardAndRight:
+			return { ECookieLandPieceOrientation::Down,ECookieLandPieceOrientation::Backward,ECookieLandPieceOrientation::Right };
+		case ECookieLandMapAngleViewType::ForwardAndLeft:
+			return { ECookieLandPieceOrientation::Down,ECookieLandPieceOrientation::Backward,ECookieLandPieceOrientation::Left };
+		case ECookieLandMapAngleViewType::BackwardAndRight:
+			return { ECookieLandPieceOrientation::Down,ECookieLandPieceOrientation::Forward,ECookieLandPieceOrientation::Right };
+		case ECookieLandMapAngleViewType::BackwardAndLeft:
+			return { ECookieLandPieceOrientation::Down,ECookieLandPieceOrientation::Forward,ECookieLandPieceOrientation::Left };
+		}
+		return {};
+	case ECookieLandPieceOrientation::Left:
+		switch (MapAngleViewType)
+		{
+		case ECookieLandMapAngleViewType::ForwardAndRight:
+			return { ECookieLandPieceOrientation::Left,ECookieLandPieceOrientation::Down,ECookieLandPieceOrientation::Forward };
+		case ECookieLandMapAngleViewType::ForwardAndLeft:
+			return { ECookieLandPieceOrientation::Left,ECookieLandPieceOrientation::Down,ECookieLandPieceOrientation::Backward };
+		case ECookieLandMapAngleViewType::BackwardAndRight:
+			return { ECookieLandPieceOrientation::Left,ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Forward };
+		case ECookieLandMapAngleViewType::BackwardAndLeft:
+			return { ECookieLandPieceOrientation::Left,ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Backward };
+		}
+		return {};
+	case ECookieLandPieceOrientation::Right:
+		switch (MapAngleViewType)
+		{
+		case ECookieLandMapAngleViewType::ForwardAndRight:
+			return { ECookieLandPieceOrientation::Right,ECookieLandPieceOrientation::Down,ECookieLandPieceOrientation::Backward };
+		case ECookieLandMapAngleViewType::ForwardAndLeft:
+			return { ECookieLandPieceOrientation::Right,ECookieLandPieceOrientation::Down,ECookieLandPieceOrientation::Forward };
+		case ECookieLandMapAngleViewType::BackwardAndRight:
+			return { ECookieLandPieceOrientation::Right,ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Backward };
+		case ECookieLandMapAngleViewType::BackwardAndLeft:
+			return { ECookieLandPieceOrientation::Right,ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Forward };
+		}
+		return {};
+	case ECookieLandPieceOrientation::Forward:
+		switch (MapAngleViewType)
+		{
+		case ECookieLandMapAngleViewType::ForwardAndRight:
+			return { ECookieLandPieceOrientation::Forward,ECookieLandPieceOrientation::Down,ECookieLandPieceOrientation::Right };
+		case ECookieLandMapAngleViewType::ForwardAndLeft:
+			return { ECookieLandPieceOrientation::Forward,ECookieLandPieceOrientation::Down,ECookieLandPieceOrientation::Left };
+		case ECookieLandMapAngleViewType::BackwardAndRight:
+			return { ECookieLandPieceOrientation::Forward,ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Right };
+		case ECookieLandMapAngleViewType::BackwardAndLeft:
+			return { ECookieLandPieceOrientation::Forward,ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Left };
+		}
+		return {};
+	case ECookieLandPieceOrientation::Backward:
+		switch (MapAngleViewType)
+		{
+		case ECookieLandMapAngleViewType::ForwardAndRight:
+			return { ECookieLandPieceOrientation::Backward,ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Right };
+		case ECookieLandMapAngleViewType::ForwardAndLeft:
+			return { ECookieLandPieceOrientation::Backward,ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Left };
+		case ECookieLandMapAngleViewType::BackwardAndRight:
+			return { ECookieLandPieceOrientation::Backward,ECookieLandPieceOrientation::Down,ECookieLandPieceOrientation::Right };
+		case ECookieLandMapAngleViewType::BackwardAndLeft:
+			return { ECookieLandPieceOrientation::Backward,ECookieLandPieceOrientation::Down,ECookieLandPieceOrientation::Left };
+		}
+		return {};
+	default:
+		return {};
+	}
 }

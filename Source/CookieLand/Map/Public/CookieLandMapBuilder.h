@@ -153,12 +153,18 @@ public:
 	// 地块删除强制连接
 	bool PieceDeleteForceLine(const FCookieLandLocation RequsetPieceLocation, const ECookieLandPieceOrientation PieceOrientation);
 
-	// 获取是否在强制连接的内部状态且非处于边缘
-	bool GetsWhetherInternalStateOfForcedLineAndNotAtEdge(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation);
-	bool GetsWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(const FCookieLandOrientationLinkInfo& LineInfo, const FCookieLandLocation PieceLocation);
+	// 获取是否在强制连接的内部状态且【非处于边缘】
+	bool GetWhetherInternalStateOfForcedLineAndNotAtEdge(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation);
+	bool GetWhetherInternalStateOfForcedLineAndNotAtEdgeByLineInfo(const FCookieLandOrientationLinkInfo& LineInfo, const FCookieLandLocation PieceLocation);
+
+	// 获取是否在强制连接的内部状态且【处于边缘】
+	bool GetInEdgeByLineInfo(const FCookieLandOrientationLinkInfo& LineInfo, const FCookieLandLocation PieceLocation);
 
 	// 获取当前所在的强制连接范围
 	bool GetForceLineInfo(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation,FCookieLandOrientationLinkInfo& OutLineInfo);
+
+	// 获取基于当前坐标最靠近的强制连接
+	bool GetNearestForceLineInfo(const ECookieLandPieceOrientation PieceOrientation, const FCookieLandLocation StartPieceLocation, int Distance, FCookieLandOrientationLinkInfo& OutLineInfo);
 
 protected:
 

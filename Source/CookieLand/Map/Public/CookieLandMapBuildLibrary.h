@@ -8,6 +8,7 @@
 #include "CookieLandMapBuildLibrary.generated.h"
 
 class ACookieLandPieceActor;
+class UCookieLandPerceptualObjectSubsystem;
 
 
 UCLASS()
@@ -17,11 +18,11 @@ class COOKIELAND_API UCookieLandMapBuildLibrary : public UBlueprintFunctionLibra
 	
 public:
 
-	// 直接从表中读取原始数据
+	// 直接从地形表中读取地形原始数据
 	UFUNCTION(BlueprintPure)
 	static bool GetSourceMapBuildDataTable(FName MapName, FCookieLandMapBuildDataTableRow& OutMapBuildDataTableRow);
 
-	// 获取修正后的地形数据。根据默认数据进行填充。
+	// 获取修正后的地形数据，根据默认数据进行填充。
 	UFUNCTION(BlueprintPure)
 	static bool GetAmendMapBuildDataTable(FName MapName, FCookieLandMapBuildDataTableRow& OutMapBuildDataTableRow);
 
@@ -47,4 +48,18 @@ public:
 	// 创建地块构建信息
 	UFUNCTION(BlueprintPure)
 	static FCookieLandPieceBuildInfo CratePieceBuildInfo(const FCookieLandLocation& PieceLocation, const ECookieLandPieceOrientation& PieceOrientation);
+
+	// 获取感知者系统
+	UFUNCTION(BlueprintPure)
+	static UCookieLandPerceptualObjectSubsystem* GetPerceptualObjectSubsystem(const UObject* WCO = nullptr);
+
+	// 从感知者表中读取感知数据
+	UFUNCTION(BlueprintPure)
+	static bool GetPerceptualObjectPerceptionDataTable(FName PerceptualObjectType, FCookieLandPerceptualObjectPerceptionDataTableRow& OutPerceptualObjectPerceptionDataTableRow);
+
+	// 从感知表中读取感知配置
+	static bool GetPerceptualObjectPerceptionInfoFromTable(FName PerceptualObjectType, FCookieLandPerceptualObjectPerceptionInfo& OutPerceptualObjectPerceptionInfo);
+
+	// 获取视角对应的方向列表
+	static TArray<ECookieLandPieceOrientation> GetMapAgnleViewOrientations(ECookieLandMapAngleViewType MapAngleViewType, const ECookieLandPieceOrientation& PieceOrientation);
 };
