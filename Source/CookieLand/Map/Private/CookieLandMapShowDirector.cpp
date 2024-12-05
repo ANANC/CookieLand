@@ -6,6 +6,8 @@
 #include "CookieLand/Map/Public/CookieLandMapBuilder.h"
 #include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
 #include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
+#include "CookieLand/Map/Public/CookieLandMapActorGather.h"
+#include "CookieLand/Map/Public/CookieLandPiece.h"
 
 
 void UCookieLandMapShowDirector::SetBuildActor(ACookieLandMapBuildActor* InBuildActor)
@@ -135,4 +137,37 @@ bool UCookieLandMapShowDirector::GetEnableDisplaySwitchMapShowType(FCookieLandPi
 		return false;
 	}
 	return false;
+}
+
+void UCookieLandMapShowDirector::ReceivePerceptualObjectLocatorChangeEventCallback(int Id, FCookieLandPieceLocator OldLocator, FCookieLandPieceLocator NewLocator)
+{
+	TArray<FCookieLandPieceLocator> UpdateLocators;
+	
+	UCookieLandMapBuildLibrary::GetRectPieceLocators(UpdateLocators, OldLocator, MapShowInfo.bConfineFloor ? MapShowInfo.ConfineFloorNumber : 0, true, MapShowInfo.bConfineRound ? MapShowInfo.ConfineRoundNumber:0);
+	UCookieLandMapBuildLibrary::GetRectPieceLocators(UpdateLocators, NewLocator, MapShowInfo.bConfineFloor ? MapShowInfo.ConfineFloorNumber : 0, true, MapShowInfo.bConfineRound ? MapShowInfo.ConfineRoundNumber : 0);
+
+	if (BuildActor)
+	{
+		for (int Index = 0; Index < UpdateLocators.Num(); ++Index)
+		{
+			FCookieLandPieceLocator UpdateLocator = UpdateLocators[Index];
+			UCookieLandPiece*  Piece = BuildActor->GetMapActorGather()->GetPiece(UpdateLocator.PieceLocation, UpdateLocator.PieceOrientation);
+			if (Piece)
+			{
+				ACookieLandPieceActor* PieceActor = Piece->GetPieceAction();
+				if (PieceActor)
+				{
+					PieceActor->UpdateDisplay();
+				}
+			}
+		}
+	}
+	else
+	{
+		for (int Index = 0; Index < UpdateLocators.Num(); ++Index)
+		{
+			FCookieLandPieceLocator UpdateLocator = UpdateLocators[Index];
+			TriggerPieceActorRenderUpdateEvent.Broadcast(UpdateLocator);
+		}
+	}
 }

@@ -44,6 +44,7 @@ void UCookieLandPiece::Init(FCookieLandPieceBuildInfo InBuildInfo)
 	BuildInfo = InBuildInfo;
 	PieceLocation = BuildInfo.PieceLocation;
 	PieceOrientation = BuildInfo.PieceOrientation;
+	BaseAction = BuildInfo.BaseAction;
 }
 
 void UCookieLandPiece::UnInit()
@@ -80,6 +81,11 @@ FCookieLandLocation UCookieLandPiece::GetPieceLocation()
 ECookieLandPieceOrientation UCookieLandPiece::GetPieceOrientation()
 {
 	return PieceOrientation;
+}
+
+FCookieLandPieceBaseAction UCookieLandPiece::GetBaseAction()
+{
+	return BaseAction;
 }
 
 FCookieLandPieceBuildInfo UCookieLandPiece::GetBuildInfo()

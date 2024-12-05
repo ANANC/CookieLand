@@ -5,9 +5,12 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "CookieLand/Map/Public/CookieLandMapTypes.h"
+#include "Runtime/Core/Public/Delegates/DelegateCombinations.h"
 #include "CookieLandMapShowDirector.generated.h"
 
 class ACookieLandMapBuildActor;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTriggerPieceActorRenderUpdateEvent, FCookieLandPieceLocator, Locator);
 
 UCLASS()
 class COOKIELAND_API UCookieLandMapShowDirector : public UObject
@@ -17,6 +20,11 @@ class COOKIELAND_API UCookieLandMapShowDirector : public UObject
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Map, meta = (DisplayName = "显示数据"))
 	FCookieLandMapShowInfo MapShowInfo;
+
+public:
+
+	// 通知地块Acotr更新渲染
+	FTriggerPieceActorRenderUpdateEvent TriggerPieceActorRenderUpdateEvent;
 
 protected:
 	UPROPERTY()
@@ -34,4 +42,9 @@ public:
 
 	// 获取能否显示【根据显示类型】
 	bool GetEnableDisplaySwitchMapShowType(FCookieLandPieceLocator MainLocator, const ECookieLandPieceOrientation PieceOrientation);
+
+protected:
+	// 监听感知者移动回调
+	UFUNCTION()
+	void ReceivePerceptualObjectLocatorChangeEventCallback(int Id, FCookieLandPieceLocator OldLocator, FCookieLandPieceLocator NewLocator);
 };

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "CookieLand/Map/Public/CookieLandMapTypes.h"
+#include "Runtime/Core/Public/Delegates/DelegateCombinations.h"
 #include "CookieLandPerceptualObjectSubsystem.generated.h"
 
 UCLASS()
@@ -30,6 +31,8 @@ public:
 };
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FPerceptualObjectLocatorChangeEvent, int, Id, FCookieLandPieceLocator, OldLocator, FCookieLandPieceLocator, NewLocator);
+
 UCLASS()
 class COOKIELAND_API UCookieLandPerceptualObjectSubsystem : public UGameInstanceSubsystem
 {
@@ -39,6 +42,10 @@ public:
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 	virtual void Deinitialize() override;
+
+public:
+	FPerceptualObjectLocatorChangeEvent MainPerceptualObjectLocatorChangeEvent;
+	FPerceptualObjectLocatorChangeEvent PerceptualObjectLocatorChangeEvent;
 
 protected:
 

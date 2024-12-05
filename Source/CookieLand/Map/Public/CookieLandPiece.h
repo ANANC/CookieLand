@@ -65,6 +65,9 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	ECookieLandPieceOrientation PieceOrientation;
 
+	UPROPERTY(BlueprintReadWrite)
+	FCookieLandPieceBaseAction BaseAction;
+
 protected:
 	bool bInit = false;
 
@@ -86,6 +89,9 @@ public:
 
 	// 获取方位
 	ECookieLandPieceOrientation GetPieceOrientation();
+
+	// 获取基础行为
+	FCookieLandPieceBaseAction GetBaseAction();
 
 	// 获取构建信息
 	FCookieLandPieceBuildInfo GetBuildInfo();

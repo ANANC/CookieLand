@@ -273,8 +273,29 @@ public:
 public:
 	FCookieLandPieceLocator(){}
 	FCookieLandPieceLocator(FCookieLandLocation InPieceLocation, ECookieLandPieceOrientation InPieceOrientation) { PieceLocation = InPieceLocation; PieceOrientation = InPieceOrientation; }
+
+	bool operator==(const FCookieLandPieceLocator& Other) const
+	{
+		return PieceLocation == Other.PieceLocation && PieceOrientation == Other.PieceOrientation;
+	}
 };
 
+
+// todo 基础移动行为
+USTRUCT(BlueprintType)
+struct FCookieLandPieceBaseAction
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "可移动方向"))
+	TArray<ECookieLandPieceOrientation> EnableOrientations;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "阻碍方向"))
+	TArray<ECookieLandPieceOrientation> ImpedeOrientations;
+};
+
+// todo 地块行为
 
 USTRUCT(BlueprintType)
 struct FCookieLandPieceBuildInfo
@@ -294,6 +315,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "地块类型"))
 	TSubclassOf< ACookieLandPieceActor> PieceActorType = nullptr;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "基础行为"))
+	FCookieLandPieceBaseAction BaseAction;
 public:
 	FCookieLandPieceBuildInfo(){}
 	FCookieLandPieceBuildInfo(FCookieLandLocation InPieceLocation, ECookieLandPieceOrientation InPieceOrientation) { PieceLocation = InPieceLocation; PieceOrientation = InPieceOrientation; }
@@ -389,6 +412,7 @@ public:
 		}
 	}
 };
+
 
 USTRUCT(BlueprintType)
 struct FCookieLandMapBuildInfo

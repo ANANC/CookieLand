@@ -316,3 +316,61 @@ TArray<ECookieLandPieceOrientation> UCookieLandMapBuildLibrary::GetMapAgnleViewO
 		return {};
 	}
 }
+
+void UCookieLandMapBuildLibrary::GetRectPieceLocators(TArray< FCookieLandPieceLocator>& OutLocators, FCookieLandPieceLocator CenterLocator, int FloorDistance, bool bNeedOtherFloorLocator, int RoundDistance)
+{
+	TArray< ECookieLandPieceOrientation> Floor{ ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Down };
+	TArray< TArray<ECookieLandPieceOrientation>> Round{
+		{ECookieLandPieceOrientation::Left,ECookieLandPieceOrientation::Forward},
+		{ECookieLandPieceOrientation::Left,ECookieLandPieceOrientation::Backward},
+		{ECookieLandPieceOrientation::Right,ECookieLandPieceOrientation::Forward},
+		{ECookieLandPieceOrientation::Right,ECookieLandPieceOrientation::Backward},
+	};
+
+	TArray< FCookieLandPieceLocator> CenterLocators{ CenterLocator };
+
+	if (FloorDistance > 0)
+	{
+		for (int FloorIndex = 0; FloorIndex < FloorDistance; ++FloorIndex)
+		{
+			for (int FloorOrientationIndex = 0; FloorOrientationIndex < Floor.Num(); ++FloorOrientationIndex)
+			{
+				ECookieLandPieceOrientation FloorOrientation = Floor[FloorOrientationIndex];
+
+				FCookieLandPieceLocator FloorLocator(CenterLocator);
+				FloorLocator.PieceLocation.AddDistanceBySixDirection(FloorOrientation, FloorIndex);
+				
+				if (bNeedOtherFloorLocator && RoundDistance > 0)
+				{
+					CenterLocators.Add(FloorLocator);
+				}
+				else
+				{
+					OutLocators.AddUnique(FloorLocator);
+				}
+			}
+		}
+	}
+
+	for (int CenterIndex = 0; CenterIndex < CenterLocators.Num(); ++CenterIndex)
+	{
+		FCookieLandPieceLocator Locator = CenterLocators[CenterIndex];
+		OutLocators.AddUnique(Locator);
+
+		for (int RoundIndex = 0; RoundIndex < RoundDistance; ++RoundIndex)
+		{
+			for (int RoundIndex = 0; RoundIndex < Round.Num(); ++RoundIndex)
+			{
+				FCookieLandPieceLocator RoundLocator(CenterLocator);
+
+				TArray<ECookieLandPieceOrientation> RoundOrientations = Round[RoundIndex];
+				for (int RoundOrientationsIndex = 0; RoundOrientationsIndex < RoundOrientations.Num(); ++RoundOrientationsIndex)
+				{
+					ECookieLandPieceOrientation RoundOrientation = RoundOrientations[RoundOrientationsIndex];
+					RoundLocator.PieceLocation.AddDistanceBySixDirection(RoundOrientation, RoundIndex);
+				}
+				OutLocators.AddUnique(RoundLocator);
+			}
+		}
+	}
+}

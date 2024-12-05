@@ -62,4 +62,7 @@ public:
 
 	// 获取视角对应的方向列表
 	static TArray<ECookieLandPieceOrientation> GetMapAgnleViewOrientations(ECookieLandMapAngleViewType MapAngleViewType, const ECookieLandPieceOrientation& PieceOrientation);
+
+	// 获取范围坐标
+	static void GetRectPieceLocators(TArray< FCookieLandPieceLocator>& OutLocators, FCookieLandPieceLocator CenterLocator, int FloorDistance, bool bNeedOtherFloorLocator, int RoundDistance);
 };

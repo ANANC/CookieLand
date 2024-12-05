@@ -50,10 +50,18 @@ void UCookieLandPerceptualObjectSubsystem::UpdatePerceptualObjectLocator(int Id,
 		return;
 	}
 
+	FCookieLandPieceLocator OldPieceLocator = FCookieLandPieceLocator(PerceptualObject->PieceLocation, PerceptualObject->PieceOrientation);
+
 	PerceptualObject->PieceLocation = PieceLocator.PieceLocation;
 	PerceptualObject->PieceOrientation = PieceLocator.PieceOrientation;
 
 	UpdatePassivePerceptualObjectLocators();
+
+	if (PerceptualObject == MainPerceptualObject)
+	{
+		MainPerceptualObjectLocatorChangeEvent.Broadcast(PerceptualObject->Id, OldPieceLocator, PieceLocator);
+	}
+	PerceptualObjectLocatorChangeEvent.Broadcast(PerceptualObject->Id, OldPieceLocator, PieceLocator);
 }
 
 void UCookieLandPerceptualObjectSubsystem::UpdatePerceptualObjectEnablePerceptual(int Id, bool bInEnablePerceptual)
