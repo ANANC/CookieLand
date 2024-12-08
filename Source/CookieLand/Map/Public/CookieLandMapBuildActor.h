@@ -26,15 +26,10 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	virtual void BeginDestroy() override;
 
 #if WITH_EDITOR
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
-
-public:
-
-#if WITH_EDITORONLY_DATA
-	static ACookieLandMapBuildActor* MapBuildActorInstance;
 #endif
 
 public:	
@@ -68,6 +63,9 @@ public:
 
 	// 创建环境
 	void CreateEnvironment();
+
+	// 销毁场景
+	void DestryEnvironment();
 
 	// 创建立方体
 	void CreateCube(const FCookieLandLocation CubeLoaction);

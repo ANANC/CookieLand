@@ -8,6 +8,8 @@
 #include "CookieLand/Map/Public/CookieLandMapBuildActor.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Input/SButton.h"
+#include "CookieLand/Map/Public/CookieLandMapSubsystem.h"
+#include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
 
 #define LOCTEXT_NAMESPACE "CookieLandMapBuildActorDetail"  
 
@@ -24,13 +26,11 @@ void FCookieLandMapBuildActorDetail::CustomizeDetails(IDetailLayoutBuilder& InDe
 	{
 		if (Object->IsA<ACookieLandMapBuildActor>())
 		{
-			ACookieLandMapBuildActor* ModifierInstance = Cast<ACookieLandMapBuildActor>(Object.Get());
-			ModifierInstances.Add(ModifierInstance);
+			ModifierInstance = Cast<ACookieLandMapBuildActor>(Object.Get());
 		}
 	}
 
-	// If we have found a valid modifier instance add a revision bump button to the details panel
-	if (ModifierInstances.Num() == 0)
+	if (!ModifierInstance)
 	{
 		return;
 	}
@@ -75,38 +75,32 @@ void FCookieLandMapBuildActorDetail::CustomizeDetails(IDetailLayoutBuilder& InDe
 
 FReply FCookieLandMapBuildActorDetail::ReloadMapBuildInfoButtonClick()
 {
-	for (auto MapBuildActor : ModifierInstances)
+	if (ModifierInstance) 
 	{
-		if (MapBuildActor)
-		{
-			MapBuildActor->ReloadMapBuildInfo();
-		}
+		ModifierInstance->ReloadMapBuildInfo();
 	}
+
 	return FReply::Handled();
 }
 
 FReply FCookieLandMapBuildActorDetail::CreateEnvironmentButtonClick()
 {
-	for (auto MapBuildActor : ModifierInstances)
+	
+	if (ModifierInstance)
 	{
-		if (MapBuildActor)
-		{
-			MapBuildActor->CreateEnvironment();
-		}
+		ModifierInstance->CreateEnvironment();
 	}
+	
 	return FReply::Handled();
 }
 
 FReply FCookieLandMapBuildActorDetail::OpenMapBuilderEditorViewButtonClick()
 {
 #if WITH_EDITOR
-	for (auto MapBuildActor : ModifierInstances)
-	{
-		if (MapBuildActor)
-		{
-			ACookieLandMapBuildActor::MapBuildActorInstance = MapBuildActor;
-		}
-	}
+	
+	UCookieLandMapSubsystem* MapSubsystem = UCookieLandMapBuildLibrary::GetMapSubsystem(ModifierInstance);
+	MapSubsystem->RegisterMapBuildActor(ModifierInstance);
+	MapSubsystem->EnterMap(ModifierInstance->MapName);
 
 	FName TabName("CookieLandMapEditor");
 	FGlobalTabmanager::Get()->TryInvokeTab(TabName);

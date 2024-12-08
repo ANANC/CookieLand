@@ -2,6 +2,8 @@
 
 
 #include "CookieLand/Global/Public/CookieLandGlobal.h"
+#include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
+#include "CookieLand/Map/Public/CookieLandMapSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogCookieLandGlobal);
 
@@ -28,6 +30,11 @@ void UCookieLandGameData::LoadStartupData()
 void UCookieLandGameData::ClearCacheData()
 {
 
+}
+
+UCookieLandGlobal::UCookieLandGlobal()
+{
+	InitSubsystems();
 }
 
 void UCookieLandGlobal::ReloadGameData()
@@ -68,4 +75,25 @@ void UCookieLandGlobal::ClearGameData()
 		GameData->ClearCacheData();
 		GameData = nullptr;
 	}
+}
+
+
+void UCookieLandGlobal::InitSubsystems()
+{
+	Subsystems.Add(NewObject<UCookieLandPerceptualObjectSubsystem>());
+	Subsystems.Add(NewObject<UCookieLandMapSubsystem>());
+}
+
+UObject* UCookieLandGlobal::FindSubsystem(UClass* SubsystemClass)
+{
+	for (int Index = 0; Index < Subsystems.Num(); ++Index)
+	{
+		UObject* Subsystem = Subsystems[Index];
+		if (Subsystem->GetClass() == SubsystemClass)
+		{
+			return Subsystem;
+		}
+	}
+
+	return nullptr;
 }

@@ -7,6 +7,7 @@
 #include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
 #include "CookieLand/Map/Public/CookieLandMapBuilder.h"
 #include "CookieLand/Map/Public/CookieLandMapActorGather.h"
+#include "CookieLand/Map/Public/CookieLandMapSubsystem.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Input/SButton.h"
@@ -33,10 +34,8 @@ void UCookieLandMapEditorView::Init()
 	Checkerboard->BgHasDataColor = FAppStyle::Get().GetSlateColor("Colors.SelectInactive");
 	Checkerboard->BgEmptyColor = FAppStyle::Get().GetSlateColor("Colors.Header");
 
-#if WITH_EDITOR
-	MapBuildActor = ACookieLandMapBuildActor::MapBuildActorInstance;
-	ACookieLandMapBuildActor::MapBuildActorInstance = nullptr;
-#endif
+	UCookieLandMapSubsystem* MapSubsystem = UCookieLandMapBuildLibrary::GetMapSubsystem();
+	MapBuildActor = MapSubsystem->GetMainMapBuildActor();
 }
 
 TSharedRef<SDockTab> UCookieLandMapEditorView::Draw()

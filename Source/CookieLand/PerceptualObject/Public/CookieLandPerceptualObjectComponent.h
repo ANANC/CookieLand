@@ -52,8 +52,15 @@ public:
 		
 	void UnInit();
 
+	// 移动方向
+	UFUNCTION(BlueprintCallable)
+	void Move(ECookieLandPieceOrientation MoveOrientation,int Distance = 1);
+
 protected:
+
+	// 设置移动目标位置
 	void SetLocation(FCookieLandLocation InMapCubeLocation);
 
+	// 设置移动目标坐标
 	void SetLocator(FCookieLandPieceLocator InLocator);
 };

@@ -43,6 +43,9 @@ TSharedRef< FSlateStyleSet > FCookieLandMapEditorStyle::Create()
 
 	Style->Set("CookieLandMapEditor.OpenPluginWindow", new IMAGE_BRUSH_SVG(TEXT("PlaceholderButtonIcon"), Icon20x20));
 
+	Style->Set("Icons.arrow-down", new IMAGE_BRUSH_SVG("arrow-down", Icon16x16));
+	Style->Set("Icons.arrow-up", new IMAGE_BRUSH_SVG("arrow-up", Icon16x16));
+
 	return Style;
 }
 

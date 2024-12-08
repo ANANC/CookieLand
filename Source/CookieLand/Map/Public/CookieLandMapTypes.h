@@ -289,7 +289,7 @@ struct FCookieLandPieceBaseAction
 
 public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "可移动方向"))
-	TArray<ECookieLandPieceOrientation> EnableOrientations;
+	TArray<ECookieLandPieceOrientation> EnableOrientations = { ECookieLandPieceOrientation::Left,ECookieLandPieceOrientation::Right,ECookieLandPieceOrientation::Forward,ECookieLandPieceOrientation::Backward };
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "阻碍方向"))
 	TArray<ECookieLandPieceOrientation> ImpedeOrientations;

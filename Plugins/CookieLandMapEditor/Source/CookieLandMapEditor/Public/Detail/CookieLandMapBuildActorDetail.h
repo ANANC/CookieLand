@@ -22,7 +22,8 @@ public:
 	virtual void CustomizeDetails(IDetailLayoutBuilder& InDetailBuilder) override;
 
 protected:
-	TArray<ACookieLandMapBuildActor*> ModifierInstances;
+	UPROPERTY()
+	ACookieLandMapBuildActor* ModifierInstance;
 
 protected:
 

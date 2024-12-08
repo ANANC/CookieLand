@@ -38,7 +38,7 @@ void UCookieLandPerceptualObjectComponent::Init(FCookieLandPieceLocator InitLoca
 {
 	UCookieLandMapBuildLibrary::GetPerceptualObjectPerceptionInfoFromTable(PerceptualObjectType, PerceptionInfo);
 
-	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem(this);
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
 	if (PerceptualObjectSubsystem)
 	{
 		PerceptualObjectId = PerceptualObjectSubsystem->AddPerceptualObject(bMainPerceptualObject, PerceptualObjectType, true);
@@ -49,12 +49,17 @@ void UCookieLandPerceptualObjectComponent::Init(FCookieLandPieceLocator InitLoca
 
 void UCookieLandPerceptualObjectComponent::UnInit()
 {
-	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem(this);
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
 	if (PerceptualObjectSubsystem)
 	{
 		PerceptualObjectSubsystem->RemovePerceptualObject(PerceptualObjectId);
 		PerceptualObjectId = -1;
 	}
+}
+
+void UCookieLandPerceptualObjectComponent::Move(ECookieLandPieceOrientation MoveOrientation, int Distance)
+{
+	//todo:要先拿到当前的map，然后判断能否移动，能移动再设置坐标
 }
 
 void UCookieLandPerceptualObjectComponent::SetLocation(FCookieLandLocation InMapCubeLocation)
@@ -67,7 +72,7 @@ void UCookieLandPerceptualObjectComponent::SetLocator(FCookieLandPieceLocator In
 	MapCubeLocation = InLocator.PieceLocation;
 	PieceOrientation = InLocator.PieceOrientation;
 
-	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem(this);
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
 	if (PerceptualObjectSubsystem)
 	{
 		PerceptualObjectSubsystem->UpdatePerceptualObjectLocator(PerceptualObjectId, InLocator);

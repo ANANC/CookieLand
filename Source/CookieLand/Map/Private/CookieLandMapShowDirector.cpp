@@ -38,7 +38,7 @@ bool UCookieLandMapShowDirector::GetEnableDisplay(const FCookieLandLocation MapC
 		return false;
 	}
 	
-	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem(this);
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
 	if (!PerceptualObjectSubsystem) 
 	{
 		return false;
@@ -121,7 +121,7 @@ bool UCookieLandMapShowDirector::GetEnableDisplaySwitchMapShowType(FCookieLandPi
 	case ECookieLandMapShowType::Plane:
 		return PieceOrientation == MainLocator.PieceOrientation;
 	case ECookieLandMapShowType::ThreeDimensions:
-		UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem(this);
+		UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
 		if (PerceptualObjectSubsystem)
 		{
 			ECookieLandMapAngleViewType MapAngleViewType = PerceptualObjectSubsystem->GetMapAngleViewType();

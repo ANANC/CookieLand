@@ -2,18 +2,6 @@
 
 #include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
 
-void UCookieLandPerceptualObjectSubsystem::Initialize(FSubsystemCollectionBase& Collection)
-{
-	Super::Initialize(Collection);
-}
-
-void UCookieLandPerceptualObjectSubsystem::Deinitialize()
-{
-	PerceptualObjects.Empty();
-	AutoId = 0;
-
-	Super::Deinitialize();
-}
 
 int UCookieLandPerceptualObjectSubsystem::AddPerceptualObject(bool bMainPerceptualObject, FName InPerceptualObjectType, bool bInEnablePerceptual)
 {

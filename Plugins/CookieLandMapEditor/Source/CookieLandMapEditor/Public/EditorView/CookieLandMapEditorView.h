@@ -165,6 +165,9 @@ protected:
 	// 删除强制连接
 	void DeleteForceLinkButtonClickCallback();
 
+	// PieceBuildInfo属性修改回调
+	void PieceBuildInfoOnFinishedChangingPropertiesCallback(const FPropertyChangedEvent& PropertyChangedEvent);
+
 protected:
 
 	// 将地形数据保存到da

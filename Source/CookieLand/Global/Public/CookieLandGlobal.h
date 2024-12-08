@@ -63,6 +63,8 @@ public:
 
 	static void ReloadGameData();
 
+	UCookieLandGlobal();
+
 protected:
 	UPROPERTY(config, EditDefaultsOnly, meta = (AllowedClasses = "/Script/CookieLand.CookieLandGameData", DisplayName = "CookieLandGameData"))
 	FSoftObjectPath GameDataRef;
@@ -70,7 +72,15 @@ protected:
 	UPROPERTY()
 	UCookieLandGameData* GameData;
 
+	UPROPERTY()
+	TArray<UObject*> Subsystems;
+
 private:
 	void LoadGameData();
 	void ClearGameData();
+
+	void InitSubsystems();
+
+public:
+	UObject* FindSubsystem(UClass* SubsystemClass);
 };

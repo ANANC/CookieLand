@@ -5,6 +5,19 @@
 #include "CookieLand/Global/Public/CookieLandGlobal.h"
 #include "CookieLand/Map/Public/CookieLandPiece.h"
 #include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
+#include "CookieLand/Map/Public/CookieLandMapSubsystem.h"
+
+UCookieLandPerceptualObjectSubsystem* UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem()
+{
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = Cast< UCookieLandPerceptualObjectSubsystem>(UCookieLandGlobal::Get().FindSubsystem(UCookieLandPerceptualObjectSubsystem::StaticClass()));
+	return PerceptualObjectSubsystem;
+}
+
+UCookieLandMapSubsystem* UCookieLandMapBuildLibrary::GetMapSubsystem()
+{
+	UCookieLandMapSubsystem* MapSubsystem = Cast< UCookieLandMapSubsystem>(UCookieLandGlobal::Get().FindSubsystem(UCookieLandMapSubsystem::StaticClass()));
+	return MapSubsystem;
+}
 
 bool UCookieLandMapBuildLibrary::GetSourceMapBuildDataTable(FName MapName, FCookieLandMapBuildDataTableRow& OutMapBuildDataTableRow)
 {
@@ -184,26 +197,6 @@ FCookieLandPieceBuildInfo UCookieLandMapBuildLibrary::CratePieceBuildInfo(const 
 	return FCookieLandPieceBuildInfo(PieceLocation, PieceOrientation);
 }
 
-UCookieLandPerceptualObjectSubsystem* UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem(const UObject* WCO)
-{
-	UWorld* World = nullptr;
-	if (WCO)
-	{
-		World = WCO->GetWorld();
-	}
-	if (!World)
-	{
-		World = UCookieLandGlobal::Get().GetWorld();
-	}
-	if (!World)
-	{
-		return nullptr;
-	}
-
-	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = World->GetGameInstance()->GetSubsystem<UCookieLandPerceptualObjectSubsystem>();
-	return PerceptualObjectSubsystem;
-}
-
 bool UCookieLandMapBuildLibrary::GetPerceptualObjectPerceptionDataTable(FName PerceptualObjectType, FCookieLandPerceptualObjectPerceptionDataTableRow& OutPerceptualObjectPerceptionDataTableRow)
 {
 	UDataTable* PerceptualObjectPerceptionDataTable = UCookieLandGlobal::Get().GetGameData().PerceptualObjectPerceptionDataTable;
@@ -357,7 +350,7 @@ void UCookieLandMapBuildLibrary::GetRectPieceLocators(TArray< FCookieLandPieceLo
 		FCookieLandPieceLocator Locator = CenterLocators[CenterIndex];
 		OutLocators.AddUnique(Locator);
 
-		for (int RoundIndex = 0; RoundIndex < RoundDistance; ++RoundIndex)
+		for (int RoundDistanceIndex = 0; RoundDistanceIndex < RoundDistance; ++RoundDistanceIndex)
 		{
 			for (int RoundIndex = 0; RoundIndex < Round.Num(); ++RoundIndex)
 			{
@@ -374,3 +367,32 @@ void UCookieLandMapBuildLibrary::GetRectPieceLocators(TArray< FCookieLandPieceLo
 		}
 	}
 }
+
+bool UCookieLandMapBuildLibrary::GetEnableMoveUpByMyself(const FCookieLandPieceBaseAction& BaseAction)
+{
+	for (int Index = 0; Index < BaseAction.EnableOrientations.Num(); ++Index)
+	{
+		ECookieLandPieceOrientation EnablePieceOrientation = BaseAction.EnableOrientations[Index];
+		if (EnablePieceOrientation == ECookieLandPieceOrientation::Up)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool UCookieLandMapBuildLibrary::GetEnableMoveDownByMyself(const FCookieLandPieceBaseAction& BaseAction)
+{
+	for (int Index = 0; Index < BaseAction.EnableOrientations.Num(); ++Index)
+	{
+		ECookieLandPieceOrientation EnablePieceOrientation = BaseAction.EnableOrientations[Index];
+		if (EnablePieceOrientation == ECookieLandPieceOrientation::Down)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+

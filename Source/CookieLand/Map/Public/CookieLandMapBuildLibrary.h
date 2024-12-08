@@ -9,6 +9,7 @@
 
 class ACookieLandPieceActor;
 class UCookieLandPerceptualObjectSubsystem;
+class UCookieLandMapSubsystem;
 
 
 UCLASS()
@@ -16,6 +17,16 @@ class COOKIELAND_API UCookieLandMapBuildLibrary : public UBlueprintFunctionLibra
 {
 	GENERATED_BODY()
 	
+public:
+
+	// 获取感知者系统
+	UFUNCTION(BlueprintPure)
+	static UCookieLandPerceptualObjectSubsystem* GetPerceptualObjectSubsystem();
+
+	// 获取地块系统
+	UFUNCTION(BlueprintPure)
+	static UCookieLandMapSubsystem* GetMapSubsystem();
+
 public:
 
 	// 直接从地形表中读取地形原始数据
@@ -38,6 +49,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	static FVector CalculatePieceActorInstanceLocation(const FCookieLandMapBuildInfo& InMapBuildInfo,const FCookieLandLocation& PieceLocation, const ECookieLandPieceOrientation& PieceOrientation);
 
+	// 计算地块的旋转
 	UFUNCTION(BlueprintPure)
 	static FQuat CalculatePieceActorInstanceRotation(const FCookieLandMapBuildInfo& InMapBuildInfo, const ECookieLandPieceOrientation& PieceOrientation);
 
@@ -48,10 +60,6 @@ public:
 	// 创建地块构建信息
 	UFUNCTION(BlueprintPure)
 	static FCookieLandPieceBuildInfo CratePieceBuildInfo(const FCookieLandLocation& PieceLocation, const ECookieLandPieceOrientation& PieceOrientation);
-
-	// 获取感知者系统
-	UFUNCTION(BlueprintPure)
-	static UCookieLandPerceptualObjectSubsystem* GetPerceptualObjectSubsystem(const UObject* WCO = nullptr);
 
 	// 从感知者表中读取感知数据
 	UFUNCTION(BlueprintPure)
@@ -65,4 +73,11 @@ public:
 
 	// 获取范围坐标
 	static void GetRectPieceLocators(TArray< FCookieLandPieceLocator>& OutLocators, FCookieLandPieceLocator CenterLocator, int FloorDistance, bool bNeedOtherFloorLocator, int RoundDistance);
+
+	// 获取自身能否往上移动
+	static bool GetEnableMoveUpByMyself(const FCookieLandPieceBaseAction& BaseAction);
+
+	// 获取自身能否往上移动
+	static bool GetEnableMoveDownByMyself(const FCookieLandPieceBaseAction& BaseAction);
+
 };

@@ -7,10 +7,7 @@
 #include "CookieLand/Map/Public/CookieLandMapBuilder.h"
 #include "CookieLand/Map/Public/CookieLandMapActorGather.h"
 #include "CookieLand/Map/Public/CookieLandMapShowDirector.h"
-
-#if WITH_EDITOR
-ACookieLandMapBuildActor* ACookieLandMapBuildActor::MapBuildActorInstance = nullptr;
-#endif
+#include "CookieLand/Map/Public/CookieLandMapSubsystem.h"
 
 // Sets default values
 ACookieLandMapBuildActor::ACookieLandMapBuildActor()
@@ -33,8 +30,24 @@ ACookieLandMapBuildActor::ACookieLandMapBuildActor()
 void ACookieLandMapBuildActor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UCookieLandMapSubsystem* MapSubsystem = UCookieLandMapBuildLibrary::GetMapSubsystem();
+	if (MapSubsystem) 
+	{
+		MapSubsystem->RegisterMapBuildActor(this);
+	}
 }
 
+void ACookieLandMapBuildActor::BeginDestroy()
+{
+	UCookieLandMapSubsystem* MapSubsystem = UCookieLandMapBuildLibrary::GetMapSubsystem();
+	if (MapSubsystem) 
+	{
+		MapSubsystem->UnRegisterMapBuildActor(this);
+	}
+
+	Super::BeginDestroy();
+}
 
 #if WITH_EDITOR
 void ACookieLandMapBuildActor::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
@@ -68,7 +81,10 @@ void ACookieLandMapBuildActor::ReloadMapBuildInfo()
 	{
 		if (TargetMapBuildData.BuildDataAsset)
 		{
+			MapBuildInfo = TargetMapBuildData.BuildDataAsset->BuildInfo;
 			MapActorGather->MapBuildInfo = TargetMapBuildData.BuildDataAsset->BuildInfo;
+
+			MapShowInfo = TargetMapBuildData.ShowDataAsset->MapShowInfo;
 			ShowDirector->MapShowInfo = TargetMapBuildData.ShowDataAsset->MapShowInfo;
 		}
 	}
@@ -79,6 +95,12 @@ void ACookieLandMapBuildActor::CreateEnvironment()
 	// 加载地形数据
 	ReloadMapBuildInfo();
 
+}
+
+void ACookieLandMapBuildActor::DestryEnvironment()
+{
+	// 销毁地块
+	DeleteAllPiece();
 }
 
 void ACookieLandMapBuildActor::CreateCube(const FCookieLandLocation CubeLoaction)
@@ -162,7 +184,7 @@ void ACookieLandMapBuildActor::UpdateAllPieceInstanceLocation()
 		UCookieLandPiece* Piece = Pieces[Index];
 		if (ACookieLandPieceActor* ActorInstance = Piece->GetPieceAction())
 		{
-			FVector Location = UCookieLandMapBuildLibrary::CalculatePieceActorInstanceLocation(MapBuildInfo, Piece->GetPieceLocation(), Piece->GetPieceOrientation());
+			FVector Location = UCookieLandMapBuildLibrary::CalculatePieceActorInstanceLocation(MapActorGather->MapBuildInfo, Piece->GetPieceLocation(), Piece->GetPieceOrientation());
 			FTransform Transform = ActorInstance->GetActorTransform();
 			Transform.SetLocation(Location);
 			ActorInstance->SetActorTransform(Transform);
@@ -205,7 +227,7 @@ bool ACookieLandMapBuildActor::TryCreatePieceActorToPiece(const FCookieLandLocat
 		return true;
 	}
 
-	ACookieLandPieceActor* ActorInstance = UCookieLandMapBuildLibrary::CreatePieceActorInstanceByBuildInfo(this, MapBuildInfo, Piece->GetBuildInfo());
+	ACookieLandPieceActor* ActorInstance = UCookieLandMapBuildLibrary::CreatePieceActorInstanceByBuildInfo(this, MapActorGather->MapBuildInfo, Piece->GetBuildInfo());
 	if (ActorInstance)
 	{
 		ActorInstance->Init(Piece);
