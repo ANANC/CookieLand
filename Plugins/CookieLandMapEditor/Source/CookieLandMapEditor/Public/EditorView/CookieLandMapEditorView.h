@@ -13,6 +13,8 @@ class ACookieLandMapBuildActor;
 class UCookieLandPiece;
 class UCookieLandMapBuilder;
 class UCookieLandMapActorGather;
+class UCookieLandPerceptualObject;
+struct FCookieLandPieceBuildInfo;
 
 UENUM(BlueprintType)
 enum class ECookieLandMapEditorContentTyle : uint8
@@ -59,8 +61,24 @@ public:
 	ECookieLandPieceOrientation SelectOrientation;
 
 	TSharedPtr<SVerticalBox> SelectContextVerticalBox;
+
+	FCookieLandPieceBuildInfo SelectPieceBuildInfo;
 };
 
+
+UCLASS()
+class UCookieLandMapEditor_PerceptualObject : public UObject
+{
+	GENERATED_BODY()
+
+public:
+	FName MainPerceptualObjectType = "Default";
+	int MainPerceptualObjectId = -1;
+
+	UPROPERTY()
+	UCookieLandPerceptualObject* MainPerceptualObjectEditor;
+	TSharedPtr<SVerticalBox> MainPerceptualObjectVerticalBox;
+};
 
 UCLASS()
 class UCookieLandMapEditorView : public UObject
@@ -81,6 +99,9 @@ public:
 
 	UPROPERTY()
 	UCookieLandMapEditor_SelectMapCube* SelectMapCube;
+
+	UPROPERTY()
+	UCookieLandMapEditor_PerceptualObject* PerceptualObject;
 
 	ECookieLandMapEditorContentTyle MapEditorContentTyle;
 	TSharedPtr<SVerticalBox> ContentViewVerticalBox;
@@ -123,6 +144,12 @@ protected:
 	// 渲染 编辑器操作页
 	TSharedPtr<SVerticalBox> Draw_ViewControlContext();
 
+	// 渲染 地图构造页-感知者
+	TSharedPtr<SVerticalBox> Draw_PerceptualObjectContent();
+
+	// 更新 地图构造页-感知者-主感知者
+	void DrawUpdateMainPerceptualObject();
+
 protected:
 	// 是否地图坐标信息上有立方体信息
 	bool HasMapBuildDataByLocation(FCookieLandLocation PieceLocation);
@@ -133,6 +160,8 @@ protected:
 	// 获取地块
 	UCookieLandPiece* GetPiece(FCookieLandLocation PieceLocation, ECookieLandPieceOrientation PieceOrientation);
 
+	// 创建主感知者
+	void CreateMainPerceptualObject();
 protected:
 
 	// 棋子点击回调
@@ -159,14 +188,20 @@ protected:
 	// 删除全部地块点击回调
 	void DeleteAllPieceButtonClickCallback();
 
-	// 更新强制连接
+	// 更新强制连接回调
 	void UpdateForceLineNumberButtonClickCallback();
 
-	// 删除强制连接
+	// 删除强制连接回调
 	void DeleteForceLinkButtonClickCallback();
 
 	// PieceBuildInfo属性修改回调
 	void PieceBuildInfoOnFinishedChangingPropertiesCallback(const FPropertyChangedEvent& PropertyChangedEvent);
+
+	// MainPerceptualObjectType参数修改回调
+	void MainPerceptualObjectTypeChangeCallback(const FText& InNewText, ETextCommit::Type InTextCommit);
+
+	// MainPerceptualObject属性修改回调
+	void MainPerceptualObjectOnFinishedChangingPropertiesCallback(const FPropertyChangedEvent& PropertyChangedEvent);
 
 protected:
 

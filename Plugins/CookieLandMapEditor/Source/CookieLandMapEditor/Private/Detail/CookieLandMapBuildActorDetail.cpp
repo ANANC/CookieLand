@@ -98,7 +98,7 @@ FReply FCookieLandMapBuildActorDetail::OpenMapBuilderEditorViewButtonClick()
 {
 #if WITH_EDITOR
 	
-	UCookieLandMapSubsystem* MapSubsystem = UCookieLandMapBuildLibrary::GetMapSubsystem(ModifierInstance);
+	UCookieLandMapSubsystem* MapSubsystem = UCookieLandMapBuildLibrary::GetMapSubsystem();
 	MapSubsystem->RegisterMapBuildActor(ModifierInstance);
 	MapSubsystem->EnterMap(ModifierInstance->MapName);
 

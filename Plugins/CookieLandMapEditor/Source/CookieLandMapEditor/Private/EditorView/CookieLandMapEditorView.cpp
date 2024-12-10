@@ -8,6 +8,7 @@
 #include "CookieLand/Map/Public/CookieLandMapBuilder.h"
 #include "CookieLand/Map/Public/CookieLandMapActorGather.h"
 #include "CookieLand/Map/Public/CookieLandMapSubsystem.h"
+#include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Layout/SBorder.h"
 #include "Widgets/Input/SButton.h"
@@ -16,6 +17,9 @@
 #include "Widgets/Text/STextBlock.h"
 #include "PropertyCustomizationHelpers.h"
 #include "FileHelpers.h"
+#include "UObject/NoExportTypes.h"
+#include "IStructureDetailsView.h"
+#include "CookieLandMapEditor/Public/EditorView/CookieLandMapEditorStyle.h"
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -29,6 +33,9 @@ void UCookieLandMapEditorView::Init()
 	MapEditorContentTyle = ECookieLandMapEditorContentTyle::MapBuildView;
 	Checkerboard = NewObject<UCookieLandMapEditor_Checkerboard>();
 	SelectMapCube = NewObject<UCookieLandMapEditor_SelectMapCube>();
+	PerceptualObject = NewObject<UCookieLandMapEditor_PerceptualObject>();
+
+	PerceptualObject->MainPerceptualObjectEditor = NewObject<UCookieLandPerceptualObject>();
 
 	Checkerboard->SelectColor = FAppStyle::Get().GetSlateColor("Colors.AccentFolder");
 	Checkerboard->BgHasDataColor = FAppStyle::Get().GetSlateColor("Colors.SelectInactive");
@@ -36,6 +43,10 @@ void UCookieLandMapEditorView::Init()
 
 	UCookieLandMapSubsystem* MapSubsystem = UCookieLandMapBuildLibrary::GetMapSubsystem();
 	MapBuildActor = MapSubsystem->GetMainMapBuildActor();
+
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
+	PerceptualObjectSubsystem->ClearPerceptualObjects();
+	CreateMainPerceptualObject();
 }
 
 TSharedRef<SDockTab> UCookieLandMapEditorView::Draw()
@@ -153,6 +164,15 @@ TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_MpaBuildView()
 			]
 		]
 
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		[
+			SNew(SBorder)
+			.Padding(FMargin(4.0f))
+			[
+				Draw_PerceptualObjectContent().ToSharedRef()
+			]
+		]
 	];
 
 	DrawUpdateSelectContext();
@@ -318,49 +338,47 @@ TSharedPtr<SHorizontalBox> UCookieLandMapEditorView::Draw_ChessPieceContent(FCoo
 {
 	TSharedPtr<SHorizontalBox> HBox = SNew(SHorizontalBox);
 
-	/*if (pieceConfigData)
+	if (MapBuildActor)
 	{
-		FName iconName;
-		if (GlobalWidgetInfo->GetIsFinishPiece(pieceConfigData->Id))
+		UCookieLandPiece* Piece = GetPiece(PieceLocation, SelectMapCube->SelectOrientation);
+		if (Piece)
 		{
-			iconName = "Icons.advanced";
-		}
-		else if (GlobalWidgetInfo->GetIsStartPiece(pieceConfigData->Id))
-		{
-			iconName = "Icons.animation";
-		}
-		else if (GlobalWidgetInfo->GetEnableMove(pieceConfigData, EPieceDirection::Up))
-		{
-			iconName = "Icons.arrow-up";
-		}
-		else if (GlobalWidgetInfo->GetEnableMove(pieceConfigData, EPieceDirection::Down))
-		{
-			iconName = "Icons.arrow-down";
-		}
+			FName iconName;
+			if (UCookieLandMapBuildLibrary::GetEnableMoveUpByMyself(Piece->GetBaseAction()))
+			{
+				iconName = "Icons.arrow-up";
+			}
+			else if (UCookieLandMapBuildLibrary::GetEnableMoveDownByMyself(Piece->GetBaseAction()))
+			{
+				iconName = "Icons.arrow-down";
+			}
 
-		if (!iconName.IsNone())
-		{
-			HBox->AddSlot()
+			if (!iconName.IsNone())
+			{
+				HBox->AddSlot()
 				.AutoWidth()
 				.VAlign(VAlign_Center)
 				[
 					SNew(SImage)
-						.ColorAndOpacity(FSlateColor::UseForeground())
-						.Image(FLandEditorToolStyle::Get().GetBrush(iconName))
+					.ColorAndOpacity(FSlateColor::UseForeground())
+					.Image(FCookieLandMapEditorStyle::Get().GetBrush(iconName))
 				];
-		}
+			}
 
-		if (!pieceConfigData->BaseInfo->Distance.IsUnLimit)
-		{
-			HBox->AddSlot()
-				.AutoWidth()
-				.VAlign(VAlign_Center)
-				[
-					SNew(STextBlock)
-						.Text(FText::FromString(FString::FromInt(pieceConfigData->BaseInfo->Distance.LimitDistance)))
-				];
+			/*
+			if (!pieceConfigData->BaseInfo->Distance.IsUnLimit)
+			{
+				HBox->AddSlot()
+					.AutoWidth()
+					.VAlign(VAlign_Center)
+					[
+						SNew(STextBlock)
+							.Text(FText::FromString(FString::FromInt(pieceConfigData->BaseInfo->Distance.LimitDistance)))
+					];
+			}
+			*/
 		}
-	}*/
+	}
 
 	return HBox;
 }
@@ -591,44 +609,38 @@ void UCookieLandMapEditorView::DrawUpdateSelectPieceContext()
 		.AutoHeight()
 		[
 			SNew(SButton)
-			.Text(FText::FromString("Delete Piece"))
-			.OnClicked_Lambda([this]() {
+				.Text(FText::FromString("Delete Piece"))
+				.OnClicked_Lambda([this]() {
 				DeletePieceButtonClickCallback();
 				return FReply::Handled();
-				})
+					})
 		];
+
+		FPropertyEditorModule& PropertyEditorModule = FModuleManager::Get().LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+
+		FStructureDetailsViewArgs StructureViewArgs;
+		StructureViewArgs.bShowObjects = true;
+		StructureViewArgs.bShowAssets = true;
+		StructureViewArgs.bShowClasses = true;
+		StructureViewArgs.bShowInterfaces = true;
+
+		FDetailsViewArgs ViewArgs;
+
+		SelectMapCube->SelectPieceBuildInfo = Piece->GetBuildInfo();
+
+		TSharedPtr < TStructOnScope<FCookieLandPieceBuildInfo>> StructOnScopePtr = MakeShared<TStructOnScope<FCookieLandPieceBuildInfo>>();
+		StructOnScopePtr->InitializeAs<FCookieLandPieceBuildInfo>(SelectMapCube->SelectPieceBuildInfo);
+
+		TSharedRef<class IStructureDetailsView> DetailsView = PropertyEditorModule.CreateStructureDetailView(ViewArgs, StructureViewArgs, TSharedPtr<FStructOnScope>());
+		DetailsView->GetOnFinishedChangingPropertiesDelegate().AddUObject(this, &UCookieLandMapEditorView::PieceBuildInfoOnFinishedChangingPropertiesCallback);
+		DetailsView->SetStructureData(StructOnScopePtr);
 
 		PieceContextVerticalBox->AddSlot()
 		.AutoHeight()
 		[
-			SNew(SHorizontalBox)
-
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(STextBlock)
-				.Text(FText::FromString("ActorType:"))
-			]
-
-			+ SHorizontalBox::Slot()
-			.AutoWidth()
-			[
-				SNew(SObjectPropertyEntryBox)
-				.ObjectPath_Lambda([this, Piece]()
-					{
-						if (Piece->GetBuildInfo().PieceActorType)
-						{
-							return  Piece->GetBuildInfo().PieceActorType->GetPathName();
-						}
-						return FString();
-					})
-				.AllowedClass(ACookieLandPieceActor::StaticClass())
-				.NewAssetFactories(TArray<UFactory*>())
-				.OnObjectChanged_Lambda([this](const FAssetData& AssetData){
-					PieceActorTypeChangeCallback(AssetData);
-					})
-			]
+			DetailsView->GetWidget().ToSharedRef()
 		];
+
 	}
 }
 
@@ -666,6 +678,54 @@ void UCookieLandMapEditorView::PieceActorTypeChangeCallback(const FAssetData& As
 	{
 		MapBuildActor->ChangePieceActorType(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation, LoadedClass);
 	}
+}
+
+void UCookieLandMapEditorView::PieceBuildInfoOnFinishedChangingPropertiesCallback(const FPropertyChangedEvent& PropertyChangedEvent)
+{
+	UCookieLandPiece* Piece = GetPiece(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation);
+	if (!Piece)
+	{
+		return;
+	}
+
+	FCookieLandPieceBuildInfo PieceBuildInfo = Piece->GetBuildInfo();
+
+	FProperty* MemberProperty = PropertyChangedEvent.MemberProperty;
+	FString MemberPropertyName = MemberProperty->GetName();
+
+	if (MemberPropertyName == GET_MEMBER_NAME_CHECKED(FCookieLandPieceBuildInfo, PieceActorType))
+	{
+		MapBuildActor->ChangePieceActorType(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation, SelectMapCube->SelectPieceBuildInfo.PieceActorType);
+	}
+
+	if (MemberPropertyName == GET_MEMBER_NAME_CHECKED(FCookieLandPieceBuildInfo, BaseAction))
+	{
+		FProperty* Property = PropertyChangedEvent.Property;
+		FString PropertyName = Property->GetName();
+		if (PropertyName == GET_MEMBER_NAME_CHECKED(FCookieLandPieceBaseAction, EnableOrientations))
+		{
+
+			PieceBuildInfo.BaseAction.EnableOrientations.Empty();
+			for (ECookieLandPieceOrientation Orientation : SelectMapCube->SelectPieceBuildInfo.BaseAction.EnableOrientations)
+			{
+				PieceBuildInfo.BaseAction.EnableOrientations.AddUnique(Orientation);
+			}
+
+			DrawUpdateChessPiece(SelectMapCube->SelectLocation);
+		}
+
+		if (PropertyName == GET_MEMBER_NAME_CHECKED(FCookieLandPieceBaseAction, ImpedeOrientations))
+		{
+			PieceBuildInfo.BaseAction.ImpedeOrientations.Empty();
+			for (ECookieLandPieceOrientation Orientation : SelectMapCube->SelectPieceBuildInfo.BaseAction.ImpedeOrientations)
+			{
+				PieceBuildInfo.BaseAction.ImpedeOrientations.AddUnique(Orientation);
+			}
+
+			DrawUpdateChessPiece(SelectMapCube->SelectLocation);
+		}
+	}
+
 }
 
 TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_ForceLinkContext()
@@ -997,6 +1057,115 @@ void UCookieLandMapEditorView::DeleteAllPieceButtonClickCallback()
 	{
 		MapBuildActor->DeleteAllPiece();
 		DrawUpdateContentViewVerticalBox();
+	}
+}
+
+TSharedPtr<SVerticalBox> UCookieLandMapEditorView::Draw_PerceptualObjectContent()
+{
+	TSharedPtr<SVerticalBox> PerceptualObjectContentVerticalBox = SNew(SVerticalBox);
+
+	PerceptualObjectContentVerticalBox->AddSlot()
+	.Padding(0, 4, 0, 0)
+	.AutoHeight()
+	[
+		SNew(SHorizontalBox)
+
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		[
+			SNew(STextBlock)
+			.Text(FText::FromString("Main PerceptualObject:"))
+		]
+
+		+ SHorizontalBox::Slot()
+		.AutoWidth()
+		[
+			SNew(SEditableTextBox)
+			.Text(FText::FromName(PerceptualObject->MainPerceptualObjectType))
+			.OnTextCommitted_UObject(this, &UCookieLandMapEditorView::MainPerceptualObjectTypeChangeCallback)
+		]
+	];
+
+	PerceptualObject->MainPerceptualObjectVerticalBox = SNew(SVerticalBox);
+	PerceptualObjectContentVerticalBox->AddSlot()
+	.Padding(0, 4, 0, 0)
+	.AutoHeight()
+	[
+		PerceptualObject->MainPerceptualObjectVerticalBox.ToSharedRef()
+	];
+	DrawUpdateMainPerceptualObject();
+
+	return PerceptualObjectContentVerticalBox;
+}
+
+void UCookieLandMapEditorView::MainPerceptualObjectTypeChangeCallback(const FText& InNewText, ETextCommit::Type InTextCommit)
+{
+	if (InNewText.IsEmpty())
+	{
+		return;
+	}
+
+	FName NewMainPerceptualObjectType = FName(InNewText.ToString());
+	PerceptualObject->MainPerceptualObjectType = NewMainPerceptualObjectType;
+
+	CreateMainPerceptualObject();
+}
+
+void UCookieLandMapEditorView::CreateMainPerceptualObject()
+{
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
+	const UCookieLandPerceptualObject* MainPerceptualObject = PerceptualObjectSubsystem->GetMainPerceptualObject();
+	if (MainPerceptualObject && MainPerceptualObject->PerceptualObjectType == PerceptualObject->MainPerceptualObjectType)
+	{
+		return;
+	}
+
+	if (MainPerceptualObject)
+	{
+		PerceptualObjectSubsystem->RemovePerceptualObject(PerceptualObject->MainPerceptualObjectId);
+	}
+	PerceptualObject->MainPerceptualObjectId = PerceptualObjectSubsystem->AddPerceptualObject(true, PerceptualObject->MainPerceptualObjectType, true);
+}
+
+
+void UCookieLandMapEditorView::DrawUpdateMainPerceptualObject()
+{
+	PerceptualObject->MainPerceptualObjectVerticalBox->ClearChildren();
+
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
+	const UCookieLandPerceptualObject* MainPerceptualObject = PerceptualObjectSubsystem->GetMainPerceptualObject();
+	if (MainPerceptualObject)
+	{
+		FPropertyEditorModule& PropertyEditorModule = FModuleManager::Get().LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+
+		FDetailsViewArgs ViewArgs;
+		ViewArgs.bAllowSearch = false;
+
+		PerceptualObject->MainPerceptualObjectEditor->Copy(MainPerceptualObject);
+
+		TSharedRef<class IDetailsView> DetailsView = PropertyEditorModule.CreateDetailView(ViewArgs);
+		DetailsView->SetObject(PerceptualObject->MainPerceptualObjectEditor);
+		DetailsView->OnFinishedChangingProperties().AddUObject(this, &UCookieLandMapEditorView::MainPerceptualObjectOnFinishedChangingPropertiesCallback);
+
+		PerceptualObject->MainPerceptualObjectVerticalBox->AddSlot()
+		.AutoHeight()
+		[
+			DetailsView
+		];
+	}
+}
+
+void UCookieLandMapEditorView::MainPerceptualObjectOnFinishedChangingPropertiesCallback(const FPropertyChangedEvent& PropertyChangedEvent)
+{
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
+
+	FProperty* MemberProperty = PropertyChangedEvent.MemberProperty;
+	FString MemberPropertyName = MemberProperty->GetName();
+
+	if (MemberPropertyName == GET_MEMBER_NAME_CHECKED(UCookieLandPerceptualObject, PieceLocation))
+	{
+		FCookieLandLocation PieceLocation(PerceptualObject->MainPerceptualObjectEditor->PieceLocation);
+		PerceptualObjectSubsystem->UpdatePerceptualObjectLocation(PerceptualObject->MainPerceptualObjectEditor->Id, PieceLocation);
 	}
 }
 

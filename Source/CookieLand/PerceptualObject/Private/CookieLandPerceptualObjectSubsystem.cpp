@@ -30,6 +30,24 @@ void UCookieLandPerceptualObjectSubsystem::RemovePerceptualObject(int Id)
 	UpdatePassivePerceptualObjectLocators();
 }
 
+void UCookieLandPerceptualObjectSubsystem::ClearPerceptualObjects()
+{
+	MainPerceptualObject = nullptr;
+	PerceptualObjects.Empty();
+	UpdatePassivePerceptualObjectLocators();
+}
+
+void UCookieLandPerceptualObjectSubsystem::UpdatePerceptualObjectLocation(int Id, FCookieLandLocation PieceLocation)
+{
+	UCookieLandPerceptualObject* PerceptualObject = FindPerceptualObject(Id);
+	if (!PerceptualObject)
+	{
+		return;
+	}
+
+	UpdatePerceptualObjectLocator(Id, FCookieLandPieceLocator(PieceLocation, PerceptualObject->PieceOrientation));
+}
+
 void UCookieLandPerceptualObjectSubsystem::UpdatePerceptualObjectLocator(int Id, FCookieLandPieceLocator PieceLocator)
 {
 	UCookieLandPerceptualObject* PerceptualObject = FindPerceptualObject(Id);
@@ -39,6 +57,10 @@ void UCookieLandPerceptualObjectSubsystem::UpdatePerceptualObjectLocator(int Id,
 	}
 
 	FCookieLandPieceLocator OldPieceLocator = FCookieLandPieceLocator(PerceptualObject->PieceLocation, PerceptualObject->PieceOrientation);
+	if (OldPieceLocator == PieceLocator)
+	{
+		return;
+	}
 
 	PerceptualObject->PieceLocation = PieceLocator.PieceLocation;
 	PerceptualObject->PieceOrientation = PieceLocator.PieceOrientation;

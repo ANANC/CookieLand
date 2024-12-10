@@ -8,7 +8,7 @@
 #include "CookieLandPerceptualObjectSubsystem.generated.h"
 
 UCLASS()
-class UCookieLandPerceptualObject : public UObject
+class COOKIELAND_API UCookieLandPerceptualObject : public UObject
 {
 	GENERATED_BODY()
 
@@ -27,6 +27,16 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	ECookieLandPieceOrientation PieceOrientation;
+
+public:
+	void Copy(const UCookieLandPerceptualObject* Source)
+	{
+		Id = Source->Id;
+		PerceptualObjectType = Source->PerceptualObjectType;
+		bEnablePerceptual = Source->bEnablePerceptual;
+		PieceLocation = Source->PieceLocation;
+		PieceOrientation = Source->PieceOrientation;
+	}
 };
 
 
@@ -63,6 +73,12 @@ public:
 
 	// 移除感知对象
 	void RemovePerceptualObject(int Id);
+
+	// 清理全部感知对象
+	void ClearPerceptualObjects();
+
+	// 更新感知对象位置
+	void UpdatePerceptualObjectLocation(int Id, FCookieLandLocation PieceLocation);
 
 	// 更新感知对象坐标
 	void UpdatePerceptualObjectLocator(int Id,FCookieLandPieceLocator PieceLocator);
