@@ -28,14 +28,24 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	ECookieLandPieceOrientation PieceOrientation;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FCookieLandPerceptualObjectPerceptionInfo PerceptionInfo;
+
 public:
 	void Copy(const UCookieLandPerceptualObject* Source)
 	{
+		if (!Source) { return; }
 		Id = Source->Id;
 		PerceptualObjectType = Source->PerceptualObjectType;
 		bEnablePerceptual = Source->bEnablePerceptual;
 		PieceLocation = Source->PieceLocation;
 		PieceOrientation = Source->PieceOrientation;
+		PerceptionInfo = Source->PerceptionInfo;
+	}
+
+	FCookieLandPieceLocator GetLocator() const
+	{
+		return FCookieLandPieceLocator(PieceLocation, PieceOrientation);
 	}
 };
 
@@ -60,7 +70,13 @@ protected:
 	UCookieLandPerceptualObject* MainPerceptualObject = nullptr;
 
 	UPROPERTY()
-	TArray<FCookieLandPieceLocator> PassivePerceptualObjectLocators;
+	TArray<FCookieLandPieceLocator> PassivePerceptualObjectLocators;//【无视坐标】全部能感知的感知者坐标
+
+	UPROPERTY()
+	TArray<int> PerceptualingPerceptualObjectIds;//【基于坐标】全部能感知的感知者Id
+
+	UPROPERTY()
+	TArray<FCookieLandPieceLocator> PerceptualingPerceptualObjectLocators;//【基于坐标】全部能感知的感知者坐标
 
 	int AutoId = 0;
 
@@ -73,9 +89,6 @@ public:
 
 	// 移除感知对象
 	void RemovePerceptualObject(int Id);
-
-	// 清理全部感知对象
-	void ClearPerceptualObjects();
 
 	// 更新感知对象位置
 	void UpdatePerceptualObjectLocation(int Id, FCookieLandLocation PieceLocation);
@@ -98,6 +111,16 @@ public:
 	// 获取地图视角类型
 	ECookieLandMapAngleViewType GetMapAngleViewType();
 
+	// 获取能否感知到坐标（基于主感知者）
+	bool GetMainPerceptualObjectEnablePassiveByLocator(const FCookieLandPerceptualObjectPerceptionInfo& PerceptualObjectPerceptionInfo, FCookieLandPieceLocator PieceLocator);
+
+	// 获取能否感知到坐标
+	bool GetEnablePassiveByLocator(
+		const FCookieLandPerceptualObjectPerceptionInfo& CenterPerceptionInfo,
+		const FCookieLandPerceptualObjectPerceptionInfo& PerceptualObjectPerceptionInfo,
+		FCookieLandPieceLocator CenterLocator,
+		FCookieLandPieceLocator PerceptualObjectLocator);
+
 protected:
 	// 创建感知对象
 	UCookieLandPerceptualObject* CreatePerceptualObject();
@@ -107,4 +130,7 @@ protected:
 
 	// 更新被动感知对象坐标信息（除主对象和不可感知对象外）
 	void UpdatePassivePerceptualObjectLocators();
+
+	// 从表里获取感知信息
+	bool GetPerceptionInfoFromTable(FName PerceptualObjectType, FCookieLandPerceptualObjectPerceptionInfo& PerceptionInfo);
 };

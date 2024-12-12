@@ -396,3 +396,16 @@ bool UCookieLandMapBuildLibrary::GetEnableMoveDownByMyself(const FCookieLandPiec
 	return false;
 }
 
+bool UCookieLandMapBuildLibrary::GetPerceptionInfoDataTable(FName PerceptualObjectType, FCookieLandPerceptualObjectPerceptionDataTableRow& OutPerceptionInfoDataTableRow)
+{
+	UDataTable* PerceptualObjectPerceptionDataTable = UCookieLandGlobal::Get().GetGameData().PerceptualObjectPerceptionDataTable;
+	ensure(PerceptualObjectPerceptionDataTable);
+
+	FCookieLandPerceptualObjectPerceptionDataTableRow* Row = PerceptualObjectPerceptionDataTable->FindRow<FCookieLandPerceptualObjectPerceptionDataTableRow>(PerceptualObjectType, TEXT("FCookieLandPerceptualObjectPerceptionDataTableRow"));
+	if (Row)
+	{
+		OutPerceptionInfoDataTableRow = *Row;
+		return true;
+	}
+	return false;
+}

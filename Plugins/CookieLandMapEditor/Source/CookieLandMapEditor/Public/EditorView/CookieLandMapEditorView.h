@@ -14,7 +14,6 @@ class UCookieLandPiece;
 class UCookieLandMapBuilder;
 class UCookieLandMapActorGather;
 class UCookieLandPerceptualObject;
-struct FCookieLandPieceBuildInfo;
 
 UENUM(BlueprintType)
 enum class ECookieLandMapEditorContentTyle : uint8
@@ -38,15 +37,13 @@ public:
 	FSlateColor BgHasDataColor;
 	FSlateColor BgEmptyColor;
 
-	int size_x = 25;
-	int size_y = 25;
+	int size_x = 26;
+	int size_y = 26;
 
-	TMap< FVector, TSharedPtr<SBorder>> Location2Border;
-	TMap< ECookieLandPieceOrientation, TSharedPtr<SBorder>>Orientation2Border;
+	TMap< FVector, TSharedPtr<SVerticalBox>> Location2VerticalBox;
+	TMap< ECookieLandPieceOrientation, TSharedPtr<SVerticalBox>>Orientation2VerticalBox;
 
-	TSharedPtr<SVerticalBox> SelectPieceContextVerticalBox;
 
-	FText ForceLineNumberText;
 };
 
 
@@ -61,8 +58,11 @@ public:
 	ECookieLandPieceOrientation SelectOrientation;
 
 	TSharedPtr<SVerticalBox> SelectContextVerticalBox;
+	TSharedPtr<SVerticalBox> SelectPieceContextVerticalBox;
 
-	FCookieLandPieceBuildInfo SelectPieceBuildInfo;
+	FText ForceLineNumberText;
+
+	TSharedPtr < TStructOnScope<FCookieLandPieceBuildInfo>> SelectPieceBuildInfoParameterValue;
 };
 
 
@@ -72,13 +72,14 @@ class UCookieLandMapEditor_PerceptualObject : public UObject
 	GENERATED_BODY()
 
 public:
-	FName MainPerceptualObjectType = "Default";
-	int MainPerceptualObjectId = -1;
+	TSharedPtr<SVerticalBox> MainPerceptualObjectVerticalBox;
 
 	UPROPERTY()
 	UCookieLandPerceptualObject* MainPerceptualObjectEditor;
-	TSharedPtr<SVerticalBox> MainPerceptualObjectVerticalBox;
+
+	FName MainPerceptualObjectType = "Default";
 };
+
 
 UCLASS()
 class UCookieLandMapEditorView : public UObject
@@ -126,6 +127,9 @@ protected:
 	// 渲染 地图构建页-棋盘-棋子 内容页
 	TSharedPtr<SHorizontalBox> Draw_ChessPieceContent(FCookieLandLocation PieceLocation);
 
+	// 渲染 编辑器操作页
+	TSharedPtr<SVerticalBox> Draw_ViewControlContext();
+
 	// 更新 地图构建页-选中详情
 	void DrawUpdateSelectContext();
 
@@ -138,16 +142,13 @@ protected:
 	// 更新 地图构建页-选中详情-棋子
 	void DrawUpdateSelectPieceContext();
 
-	// 渲染 地图构造页-选中详情-强制连接
+	// 渲染 地图构建页-选中详情-强制连接
 	TSharedPtr<SVerticalBox> Draw_ForceLinkContext();
 
-	// 渲染 编辑器操作页
-	TSharedPtr<SVerticalBox> Draw_ViewControlContext();
-
-	// 渲染 地图构造页-感知者
-	TSharedPtr<SVerticalBox> Draw_PerceptualObjectContent();
-
-	// 更新 地图构造页-感知者-主感知者
+	// 渲染 地图构建页-感知者
+	TSharedPtr<SVerticalBox> Draw_PerceptualObjectContext();
+	
+	// 更新 地图构建页-感知者-主感知
 	void DrawUpdateMainPerceptualObject();
 
 protected:
@@ -160,8 +161,6 @@ protected:
 	// 获取地块
 	UCookieLandPiece* GetPiece(FCookieLandLocation PieceLocation, ECookieLandPieceOrientation PieceOrientation);
 
-	// 创建主感知者
-	void CreateMainPerceptualObject();
 protected:
 
 	// 棋子点击回调
@@ -175,6 +174,12 @@ protected:
 
 	// 删除地块回调
 	void DeletePieceButtonClickCallback();
+
+	// 设置为初始位置点击回调
+	void SetToInitialLocationButtonClickCallback();
+
+	// 设置MainPerceptualObject站立在该地块点击回调
+	void SetMainPerceptualObjectStandHereButtonClickCallback();
 
 	// 地块实例类型改变回调
 	void PieceActorTypeChangeCallback(const FAssetData& AssetData);
@@ -197,11 +202,11 @@ protected:
 	// PieceBuildInfo属性修改回调
 	void PieceBuildInfoOnFinishedChangingPropertiesCallback(const FPropertyChangedEvent& PropertyChangedEvent);
 
-	// MainPerceptualObjectType参数修改回调
-	void MainPerceptualObjectTypeChangeCallback(const FText& InNewText, ETextCommit::Type InTextCommit);
-
 	// MainPerceptualObject属性修改回调
-	void MainPerceptualObjectOnFinishedChangingPropertiesCallback(const FPropertyChangedEvent& PropertyChangedEvent);
+	void MainPerceptualObjectEditorChangePropertiesCallback(const FPropertyChangedEvent& PropertyChangedEvent);
+
+	// 创建MainPerceptualObject点击回调
+	void CreateMainPerceptualObjectButtonClickCallback();
 
 protected:
 

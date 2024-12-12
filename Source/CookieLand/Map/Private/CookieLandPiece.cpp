@@ -68,6 +68,11 @@ void UCookieLandPiece::SetPieceActorType(TSubclassOf< ACookieLandPieceActor> Pie
 	BuildInfo.PieceActorType = PieceActorType;
 }
 
+void UCookieLandPiece::SetBaseAction(FCookieLandPieceBaseAction InBaseAction)
+{
+	BaseAction = InBaseAction;
+}
+
 ACookieLandPieceActor* UCookieLandPiece::GetPieceAction()
 {
 	return PieceActor;

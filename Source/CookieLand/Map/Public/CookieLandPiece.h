@@ -81,6 +81,9 @@ public:
 	// 设置实例类型
 	void SetPieceActorType(TSubclassOf< ACookieLandPieceActor> PieceActorType);
 
+	// 设置基础行为
+	void SetBaseAction(FCookieLandPieceBaseAction InBaseAction);
+
 	// 获取实例
 	ACookieLandPieceActor* GetPieceAction();
 

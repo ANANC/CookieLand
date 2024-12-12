@@ -254,6 +254,17 @@ public:
 
 		return RelativeOrientationAndDistances;
 	}
+
+	TMap<ECookieLandPieceOrientation, int> GetRelativeDistances(FCookieLandLocation Location) const
+	{
+		TMap<ECookieLandPieceOrientation, int> RelativeDistancess;
+
+		RelativeDistancess.Add(ECookieLandPieceOrientation::Left, abs(X - Location.X));
+		RelativeDistancess.Add(ECookieLandPieceOrientation::Forward, abs(Y - Location.Y));
+		RelativeDistancess.Add(ECookieLandPieceOrientation::Up, abs(Floor - Location.Floor));
+
+		return RelativeDistancess;
+	}
 };
 
 
@@ -317,13 +328,14 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "基础行为"))
 	FCookieLandPieceBaseAction BaseAction;
+
 public:
 	FCookieLandPieceBuildInfo(){}
 	FCookieLandPieceBuildInfo(FCookieLandLocation InPieceLocation, ECookieLandPieceOrientation InPieceOrientation) { PieceLocation = InPieceLocation; PieceOrientation = InPieceOrientation; }
 };
 
 UCLASS(Abstract, Blueprintable, EditInlineNew)
-class UCookieLandBaseConfigInfo : public UObject
+class COOKIELAND_API UCookieLandBaseConfigInfo : public UObject
 {
 	GENERATED_BODY()
 
@@ -389,7 +401,7 @@ public:
 
 
 UCLASS(Blueprintable, EditInlineNew)
-class UCookieLandVectorConfigInfo :public UCookieLandBaseConfigInfo
+class COOKIELAND_API UCookieLandVectorConfigInfo :public UCookieLandBaseConfigInfo
 {
 	GENERATED_BODY()
 
@@ -537,22 +549,34 @@ struct FCookieLandPerceptualObjectPerceptionInfo
 
 public:
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "感知范围"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【感知者】感知其他感知者范围"))
 	int PerceptionRange = 5;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "被感知范围"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【感知者】被其他感知者感知范围"))
 	int PassivePerceptionRange = 5;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "能否在感知到其他感知者时，感知到周围地形"))
-	bool bEnableSenseMapWhenPerception = true;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【感知者】能否感知其他层级的感知者"))
+	bool bEnablePerceiveOtherFloor = true;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "地形感知范围"), meta = (EditCondition = "bEnableSenseMapWhenPerception"))
-	int SenseMapRange = 2;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【感知者】能否感知其他方向的感知者"))
+	bool bEnablePerceiveOtherOrientation = false;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "能否在异域时，感知到其他感知者"))
-	bool bEnablePerceptionWhereInForeignMap = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【地形】能否在感知到其他感知者时，感知到周围地形"))
+	bool bEnableSenseMapWhenPerceive = true;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "能否在异域感知到其他感知者时，显示地块信息"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【地形】地形感知范围"), meta = (EditCondition = "bEnableSenseMapWhenPerceive"))
+	int SenseMapRoundRange = 2;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【地形】能否在感知到其他感知者时，感知到其他层级"), meta = (EditCondition = "bEnableSenseMapWhenPerceive"))
+	bool bEnableSenseOtherFloorWhenPerceive = true;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【地形】地形感知层数范围"), meta = (EditCondition = "bEnableSenseMapWhenPerceive"))
+	int SenseMapFloorRange = 1;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【感知者】能否在异域时，感知到其他感知者"))
+	bool bEnablePerceiveWhereInForeignMap = false;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【地形】能否在异域感知到其他感知者时，显示地块信息"))
 	bool bEnableSenseDetailWhereInForeignMap = false;
 };
 

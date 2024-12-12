@@ -40,9 +40,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Perceptual, meta = (DisplayName = "方向"))
 	ECookieLandPieceOrientation PieceOrientation;
 
-	UPROPERTY(VisibleAnywhere, Category = Perceptual, meta = (DisplayName = "感知信息"))
-	FCookieLandPerceptualObjectPerceptionInfo PerceptionInfo;
-
 public:	
 	// Called every frame
 	//virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

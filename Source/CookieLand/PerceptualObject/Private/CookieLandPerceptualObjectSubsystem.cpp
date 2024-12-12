@@ -1,13 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
+#include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
 
+#define Max(a, b) ((a) > (b) ? (a) : (b))
 
 int UCookieLandPerceptualObjectSubsystem::AddPerceptualObject(bool bMainPerceptualObject, FName InPerceptualObjectType, bool bInEnablePerceptual)
 {
 	UCookieLandPerceptualObject* PerceptualObject = CreatePerceptualObject();
 	PerceptualObject->PerceptualObjectType = InPerceptualObjectType;
 	PerceptualObject->bEnablePerceptual = bInEnablePerceptual;
+
+	GetPerceptionInfoFromTable(InPerceptualObjectType, PerceptualObject->PerceptionInfo);
 
 	if (bMainPerceptualObject)
 	{
@@ -27,13 +31,6 @@ void UCookieLandPerceptualObjectSubsystem::RemovePerceptualObject(int Id)
 
 	PerceptualObjects.Remove(PerceptualObject);
 
-	UpdatePassivePerceptualObjectLocators();
-}
-
-void UCookieLandPerceptualObjectSubsystem::ClearPerceptualObjects()
-{
-	MainPerceptualObject = nullptr;
-	PerceptualObjects.Empty();
 	UpdatePassivePerceptualObjectLocators();
 }
 
@@ -57,10 +54,6 @@ void UCookieLandPerceptualObjectSubsystem::UpdatePerceptualObjectLocator(int Id,
 	}
 
 	FCookieLandPieceLocator OldPieceLocator = FCookieLandPieceLocator(PerceptualObject->PieceLocation, PerceptualObject->PieceOrientation);
-	if (OldPieceLocator == PieceLocator)
-	{
-		return;
-	}
 
 	PerceptualObject->PieceLocation = PieceLocator.PieceLocation;
 	PerceptualObject->PieceOrientation = PieceLocator.PieceOrientation;
@@ -139,13 +132,87 @@ ECookieLandMapAngleViewType UCookieLandPerceptualObjectSubsystem::GetMapAngleVie
 void UCookieLandPerceptualObjectSubsystem::UpdatePassivePerceptualObjectLocators()
 {
 	PassivePerceptualObjectLocators.Empty();
+	PerceptualingPerceptualObjectLocators.Empty();
+	PerceptualingPerceptualObjectIds.Empty();
+
+	if (!MainPerceptualObject)
+	{
+		return;
+	}
+
+	FCookieLandPieceLocator MainPerceptualObjectLocator = MainPerceptualObject->GetLocator();
 
 	for (int Index = 0; Index < PerceptualObjects.Num(); ++Index)
 	{
 		UCookieLandPerceptualObject* PerceptualObject = PerceptualObjects[Index];
 		if (PerceptualObject->bEnablePerceptual && PerceptualObject->Id!= MainPerceptualObject->Id)
 		{
-			PassivePerceptualObjectLocators.Add(FCookieLandPieceLocator(PerceptualObject->PieceLocation, PerceptualObject->PieceOrientation));
+			FCookieLandPieceLocator PerceptualObjectLocator = PerceptualObject->GetLocator();
+
+			PassivePerceptualObjectLocators.Add(PerceptualObjectLocator);
+
+			if (GetEnablePassiveByLocator(MainPerceptualObject->PerceptionInfo, PerceptualObject->PerceptionInfo, MainPerceptualObjectLocator, PerceptualObjectLocator))
+			{
+				PerceptualingPerceptualObjectIds.Add(PerceptualObject->Id);
+				PerceptualingPerceptualObjectLocators.Add(PerceptualObjectLocator);
+			}
 		}
 	}
+}
+
+bool UCookieLandPerceptualObjectSubsystem::GetMainPerceptualObjectEnablePassiveByLocator(const FCookieLandPerceptualObjectPerceptionInfo& PerceptualObjectPerceptionInfo, FCookieLandPieceLocator PieceLocator)
+{
+	if (!MainPerceptualObject)
+	{
+		return false;
+	}
+	
+	bool bEnable = GetEnablePassiveByLocator(MainPerceptualObject->PerceptionInfo,PerceptualObjectPerceptionInfo,MainPerceptualObject->GetLocator(), PieceLocator);
+	return bEnable;
+}
+
+bool UCookieLandPerceptualObjectSubsystem::GetEnablePassiveByLocator(
+	const FCookieLandPerceptualObjectPerceptionInfo& CenterPerceptionInfo,
+	const FCookieLandPerceptualObjectPerceptionInfo& PerceptualObjectPerceptionInfo,
+	FCookieLandPieceLocator CenterLocator,
+	FCookieLandPieceLocator PerceptualObjectLocator)
+{
+	TMap<ECookieLandPieceOrientation, int> RelativeDistances = CenterLocator.PieceLocation.GetRelativeDistances(PerceptualObjectLocator.PieceLocation);
+
+	// 不能感知其他方向
+	if (!CenterPerceptionInfo.bEnablePerceiveOtherOrientation)
+	{
+		if (CenterLocator.PieceOrientation != PerceptualObjectLocator.PieceOrientation)
+		{
+			return false;
+		}
+	}
+
+	// 不能感知其他层
+	if (!CenterPerceptionInfo.bEnablePerceiveOtherFloor && RelativeDistances[ECookieLandPieceOrientation::Left] > 0)
+	{
+		return false;
+	}
+
+	// 感知和被感知 取最大值
+	int MaxPerceptionRange = Max(CenterPerceptionInfo.PerceptionRange, PerceptualObjectPerceptionInfo.PassivePerceptionRange);
+
+	// 周围的感知范围
+	if (RelativeDistances[ECookieLandPieceOrientation::Left] > MaxPerceptionRange || RelativeDistances[ECookieLandPieceOrientation::Forward] > MaxPerceptionRange)
+	{
+		return false;
+	}
+
+	// todo:异域感知
+
+}
+
+bool UCookieLandPerceptualObjectSubsystem::GetPerceptionInfoFromTable(FName PerceptualObjectType, FCookieLandPerceptualObjectPerceptionInfo& PerceptionInfo)
+{
+	FCookieLandPerceptualObjectPerceptionDataTableRow OutPerceptionInfoDataTableRow;
+	if (UCookieLandMapBuildLibrary::GetPerceptionInfoDataTable(PerceptualObjectType, OutPerceptionInfoDataTableRow))
+	{
+		PerceptionInfo = OutPerceptionInfoDataTableRow.PerceptionInfo;
+	}
+	return false;
 }

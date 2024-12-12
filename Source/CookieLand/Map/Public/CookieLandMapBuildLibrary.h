@@ -80,4 +80,8 @@ public:
 	// 获取自身能否往上移动
 	static bool GetEnableMoveDownByMyself(const FCookieLandPieceBaseAction& BaseAction);
 
+	// 从感知者表中读取感知者数据
+	UFUNCTION(BlueprintPure)
+	static bool GetPerceptionInfoDataTable(FName PerceptualObjectType, FCookieLandPerceptualObjectPerceptionDataTableRow& OutPerceptionInfoDataTableRow);
+
 };
