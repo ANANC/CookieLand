@@ -62,6 +62,21 @@ void UCookieLandPerceptualObjectComponent::Move(ECookieLandPieceOrientation Move
 	//todo:要先拿到当前的map，然后判断能否移动，能移动再设置坐标
 }
 
+const FCookieLandPerceptualObjectPerceptionInfo& UCookieLandPerceptualObjectComponent::GetPerceptionInfo()
+{
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
+	if (PerceptualObjectSubsystem)
+	{
+		const UCookieLandPerceptualObject* UCookieLandPerceptualObject = PerceptualObjectSubsystem->GetPerceptualObject(PerceptualObjectId);
+		if (UCookieLandPerceptualObject)
+		{
+			return UCookieLandPerceptualObject->PerceptionInfo;
+		}
+	}
+	FCookieLandPerceptualObjectPerceptionInfo PerceptionInfo;
+	return PerceptionInfo;
+}
+
 void UCookieLandPerceptualObjectComponent::SetLocation(FCookieLandLocation InMapCubeLocation)
 {
 	SetLocator(FCookieLandPieceLocator(InMapCubeLocation, PieceOrientation));

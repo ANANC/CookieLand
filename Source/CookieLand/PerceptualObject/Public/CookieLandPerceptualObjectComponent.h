@@ -53,6 +53,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Move(ECookieLandPieceOrientation MoveOrientation,int Distance = 1);
 
+	// 获取感知信息
+	UFUNCTION(BlueprintCallable)
+	const FCookieLandPerceptualObjectPerceptionInfo& GetPerceptionInfo();
+
 protected:
 
 	// 设置移动目标位置

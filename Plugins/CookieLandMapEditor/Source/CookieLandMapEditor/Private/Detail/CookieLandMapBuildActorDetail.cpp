@@ -10,6 +10,8 @@
 #include "Widgets/Input/SButton.h"
 #include "CookieLand/Map/Public/CookieLandMapSubsystem.h"
 #include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
+#include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
+#include "CookieLand/Map/Public/CookieLandMapBuilder.h"
 
 #define LOCTEXT_NAMESPACE "CookieLandMapBuildActorDetail"  
 
@@ -85,7 +87,6 @@ FReply FCookieLandMapBuildActorDetail::ReloadMapBuildInfoButtonClick()
 
 FReply FCookieLandMapBuildActorDetail::CreateEnvironmentButtonClick()
 {
-	
 	if (ModifierInstance)
 	{
 		ModifierInstance->CreateEnvironment();
@@ -97,13 +98,18 @@ FReply FCookieLandMapBuildActorDetail::CreateEnvironmentButtonClick()
 FReply FCookieLandMapBuildActorDetail::OpenMapBuilderEditorViewButtonClick()
 {
 #if WITH_EDITOR
-	
-	UCookieLandMapSubsystem* MapSubsystem = UCookieLandMapBuildLibrary::GetMapSubsystem();
-	MapSubsystem->RegisterMapBuildActor(ModifierInstance);
-	MapSubsystem->EnterMap(ModifierInstance->MapName);
+	if (ModifierInstance)
+	{
+		UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
+		PerceptualObjectSubsystem->PerceptualObjectFindForceLinkInfoEvent.BindUObject(ModifierInstance->GetMapBuilder(), &UCookieLandMapBuilder::ExecutePerceptualObjectFindForceLinkInfoEventCallback);
 
-	FName TabName("CookieLandMapEditor");
-	FGlobalTabmanager::Get()->TryInvokeTab(TabName);
+		UCookieLandMapSubsystem* MapSubsystem = UCookieLandMapBuildLibrary::GetMapSubsystem();
+		MapSubsystem->RegisterMapBuildActor(ModifierInstance);
+		MapSubsystem->EnterMap(ModifierInstance->MapName);
+
+		FName TabName("CookieLandMapEditor");
+		FGlobalTabmanager::Get()->TryInvokeTab(TabName);
+	}
 #endif
 
 	return FReply::Handled();

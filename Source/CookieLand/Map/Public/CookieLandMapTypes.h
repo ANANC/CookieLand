@@ -8,7 +8,7 @@
 
 class ACookieLandPieceActor;
 
-
+// 基础方向
 UENUM(BlueprintType)
 enum class ECookieLandPieceOrientation : uint8
 {
@@ -21,6 +21,7 @@ enum class ECookieLandPieceOrientation : uint8
 };
 
 
+// 基础坐标
 USTRUCT(BlueprintType)
 struct FCookieLandLocation 
 {
@@ -60,215 +61,35 @@ public:
 	}
 
 	// 大于
-	bool GetIsMaxByOrientation(ECookieLandPieceOrientation Orientation, const FCookieLandLocation& Other) const
-	{
-		switch (Orientation)
-		{
-		case ECookieLandPieceOrientation::Up:
-		case ECookieLandPieceOrientation::Down:
-			return Floor > Other.Floor;
-			break;
-		case ECookieLandPieceOrientation::Left:
-		case ECookieLandPieceOrientation::Right:
-			return X > Other.X;
-			break;
-		case ECookieLandPieceOrientation::Forward:
-		case ECookieLandPieceOrientation::Backward:
-			return Y > Other.Y;
-			break;
-		};
-		return false;
-	}
+	bool GetIsMaxByOrientation(ECookieLandPieceOrientation Orientation, const FCookieLandLocation& Other) const;
 
 	// 大于等于
-	bool GetIsMaxEqualByOrientation(ECookieLandPieceOrientation Orientation, const FCookieLandLocation& Other) const
-	{
-		switch (Orientation)
-		{
-		case ECookieLandPieceOrientation::Up:
-		case ECookieLandPieceOrientation::Down:
-			return Floor >= Other.Floor;
-			break;
-		case ECookieLandPieceOrientation::Left:
-		case ECookieLandPieceOrientation::Right:
-			return X >= Other.X;
-			break;
-		case ECookieLandPieceOrientation::Forward:
-		case ECookieLandPieceOrientation::Backward:
-			return Y >= Other.Y;
-			break;
-		};
-		return false;
-	}
+	bool GetIsMaxEqualByOrientation(ECookieLandPieceOrientation Orientation, const FCookieLandLocation& Other) const;
 
 	// 小于
-	bool GetIsMinByOrientation(ECookieLandPieceOrientation Orientation, const FCookieLandLocation& Other) const
-	{
-		switch (Orientation)
-		{
-		case ECookieLandPieceOrientation::Up:
-		case ECookieLandPieceOrientation::Down:
-			return Floor < Other.Floor;
-			break;
-		case ECookieLandPieceOrientation::Left:
-		case ECookieLandPieceOrientation::Right:
-			return X < Other.X;
-			break;
-		case ECookieLandPieceOrientation::Forward:
-		case ECookieLandPieceOrientation::Backward:
-			return Y < Other.Y;
-			break;
-		};
-		return false;
-	}
+	bool GetIsMinByOrientation(ECookieLandPieceOrientation Orientation, const FCookieLandLocation& Other) const;
 
 	// 小于等于
-	bool GetIsMinEqualByOrientation(ECookieLandPieceOrientation Orientation, const FCookieLandLocation& Other) const
-	{
-		switch (Orientation)
-		{
-		case ECookieLandPieceOrientation::Up:
-		case ECookieLandPieceOrientation::Down:
-			return Floor <= Other.Floor;
-			break;
-		case ECookieLandPieceOrientation::Left:
-		case ECookieLandPieceOrientation::Right:
-			return X <= Other.X;
-			break;
-		case ECookieLandPieceOrientation::Forward:
-		case ECookieLandPieceOrientation::Backward:
-			return Y <= Other.Y;
-			break;
-		};
-		return false;
-	}
+	bool GetIsMinEqualByOrientation(ECookieLandPieceOrientation Orientation, const FCookieLandLocation& Other) const;
 
-	void AddDistanceByThreeDirection(ECookieLandPieceOrientation Orientation, int32 Distance)
-	{
-		switch (Orientation)
-		{
-		case ECookieLandPieceOrientation::Up:
-		case ECookieLandPieceOrientation::Down:
-			Floor += Distance;
-			break;
-		case ECookieLandPieceOrientation::Left:
-		case ECookieLandPieceOrientation::Right:
-			X += Distance;
-			break;
-		case ECookieLandPieceOrientation::Forward:
-		case ECookieLandPieceOrientation::Backward:
-			Y += Distance;
-			break;
-		};
-	}
-	void AddDistanceBySixDirection(ECookieLandPieceOrientation Orientation, int32 Distance)
-	{
-		switch (Orientation)
-		{
-		case ECookieLandPieceOrientation::Up:
-			Floor += Distance;
-			break;
-		case ECookieLandPieceOrientation::Down:
-			Floor -= Distance;
-			break;
-		case ECookieLandPieceOrientation::Left:
-			X += Distance;
-			break;
-		case ECookieLandPieceOrientation::Right:
-			X -= Distance;
-			break;
-		case ECookieLandPieceOrientation::Forward:
-			Y += Distance;
-			break;
-		case ECookieLandPieceOrientation::Backward:
-			Y -= Distance;
-			break;
-		};
-	}
+	// 基于三方向添加距离
+	void AddDistanceByThreeDirection(ECookieLandPieceOrientation Orientation, int32 Distance);
 
-	TArray<ECookieLandPieceOrientation> GetRelativeOrientations(FCookieLandLocation Location) const
-	{
-		TArray<ECookieLandPieceOrientation> RelativeOrientations;
+	// 基于六方向添加距离
+	void AddDistanceBySixDirection(ECookieLandPieceOrientation Orientation, int32 Distance);
 
-		if (Location.X > X)
-		{
-			RelativeOrientations.Add(ECookieLandPieceOrientation::Right);
-		}
-		else if (Location.X < X)
-		{
-			RelativeOrientations.Add(ECookieLandPieceOrientation::Left);
-		}
+	// 获取相对方向
+	TArray<ECookieLandPieceOrientation> GetRelativeOrientations(FCookieLandLocation Location) const;
 
-		if (Location.Y > Y)
-		{
-			RelativeOrientations.Add(ECookieLandPieceOrientation::Forward);
-		}
-		else if (Location.Y < Y)
-		{
-			RelativeOrientations.Add(ECookieLandPieceOrientation::Backward);
-		}
+	// 获取相对方向的距离
+	TMap<ECookieLandPieceOrientation, int> GetRelativeOrientationAndDistances(FCookieLandLocation Location) const;
 
-		if (Location.Floor > Floor)
-		{
-			RelativeOrientations.Add(ECookieLandPieceOrientation::Up);
-		}
-		else if (Location.Floor < Floor)
-		{
-			RelativeOrientations.Add(ECookieLandPieceOrientation::Down);
-		}
-
-		return RelativeOrientations;
-	}
-
-
-	TMap<ECookieLandPieceOrientation,int> GetRelativeOrientationAndDistances(FCookieLandLocation Location) const
-	{
-		TMap<ECookieLandPieceOrientation, int> RelativeOrientationAndDistances;
-
-		if (Location.X > X)
-		{
-			RelativeOrientationAndDistances.Add(ECookieLandPieceOrientation::Right, Location.X - X);
-		}
-		else if (Location.X < X)
-		{
-			RelativeOrientationAndDistances.Add(ECookieLandPieceOrientation::Left, X - Location.X);
-		}
-
-		if (Location.Y > Y)
-		{
-			RelativeOrientationAndDistances.Add(ECookieLandPieceOrientation::Forward, Location.Y - Y);
-		}
-		else if (Location.Y < Y)
-		{
-			RelativeOrientationAndDistances.Add(ECookieLandPieceOrientation::Backward, Y - Location.Y);
-		}
-
-		if (Location.Floor > Floor)
-		{
-			RelativeOrientationAndDistances.Add(ECookieLandPieceOrientation::Up, Location.Floor - Floor);
-		}
-		else if (Location.Floor < Floor)
-		{
-			RelativeOrientationAndDistances.Add(ECookieLandPieceOrientation::Down, Floor - Location.Floor);
-		}
-
-		return RelativeOrientationAndDistances;
-	}
-
-	TMap<ECookieLandPieceOrientation, int> GetRelativeDistances(FCookieLandLocation Location) const
-	{
-		TMap<ECookieLandPieceOrientation, int> RelativeDistancess;
-
-		RelativeDistancess.Add(ECookieLandPieceOrientation::Left, abs(X - Location.X));
-		RelativeDistancess.Add(ECookieLandPieceOrientation::Forward, abs(Y - Location.Y));
-		RelativeDistancess.Add(ECookieLandPieceOrientation::Up, abs(Floor - Location.Floor));
-
-		return RelativeDistancess;
-	}
+	// 获取相对方向的绝对距离
+	TMap<ECookieLandPieceOrientation, int> GetAbsRelativeDistances(FCookieLandLocation Location) const;
 };
 
 
-
+// 基础位置
 USTRUCT(BlueprintType)
 struct FCookieLandPieceLocator
 {
@@ -292,7 +113,7 @@ public:
 };
 
 
-// todo 基础移动行为
+// 基础移动行为
 USTRUCT(BlueprintType)
 struct FCookieLandPieceBaseAction
 {
@@ -308,6 +129,7 @@ public:
 
 // todo 地块行为
 
+// 地块构建信息
 USTRUCT(BlueprintType)
 struct FCookieLandPieceBuildInfo
 {
@@ -334,6 +156,8 @@ public:
 	FCookieLandPieceBuildInfo(FCookieLandLocation InPieceLocation, ECookieLandPieceOrientation InPieceOrientation) { PieceLocation = InPieceLocation; PieceOrientation = InPieceOrientation; }
 };
 
+
+// 基础配置信息类
 UCLASS(Abstract, Blueprintable, EditInlineNew)
 class COOKIELAND_API UCookieLandBaseConfigInfo : public UObject
 {
@@ -348,6 +172,7 @@ public:
 };
 
 
+// 配置信息-地块类型
 UCLASS(Blueprintable,EditInlineNew)
 class UCookieLandPieceActorTypeConfigInfo :public UCookieLandBaseConfigInfo
 {
@@ -374,6 +199,7 @@ public:
 	}
 };
 
+// 配置信息-地块配置
 UCLASS(Blueprintable, EditInlineNew)
 class  UCookieLandPieceBuildInfoConfigInfo :public UCookieLandBaseConfigInfo
 {
@@ -399,7 +225,7 @@ public:
 	}
 };
 
-
+// 配置信息-向量
 UCLASS(Blueprintable, EditInlineNew)
 class COOKIELAND_API UCookieLandVectorConfigInfo :public UCookieLandBaseConfigInfo
 {
@@ -426,6 +252,7 @@ public:
 };
 
 
+// 地形构建信息
 USTRUCT(BlueprintType)
 struct FCookieLandMapBuildInfo
 {
@@ -455,6 +282,7 @@ public:
 };
 
 
+// 地块构建集合DA
 UCLASS(BlueprintType)
 class UCookieLandMapPiecesDataAsset : public UDataAsset
 {
@@ -464,6 +292,7 @@ public:
 	TArray<FCookieLandPieceBuildInfo> PieceBuildInfos;
 };
 
+// 地形构建DA
 UCLASS(BlueprintType)
 class UCookieLandMapBuildDataAsset : public UDataAsset
 {
@@ -473,6 +302,7 @@ public:
 	FCookieLandMapBuildInfo BuildInfo;
 };
 
+// 地形显示类型
 UENUM(BlueprintType)
 enum class ECookieLandMapShowType : uint8
 {
@@ -480,7 +310,7 @@ enum class ECookieLandMapShowType : uint8
 	ThreeDimensions,
 };
 
-
+// 地形显示类型
 USTRUCT(BlueprintType)
 struct FCookieLandMapShowInfo
 {
@@ -515,6 +345,7 @@ public:
 	bool bDisplayDetailInSideWhenCubeOcclusionDisplay = false;
 };
 
+// 地形显示DA
 UCLASS(BlueprintType)
 class UCookieLandMapShowDataAsset : public UDataAsset
 {
@@ -524,7 +355,7 @@ public:
 	FCookieLandMapShowInfo MapShowInfo;
 };
 
-
+// 地图构建配置表
 USTRUCT(BlueprintType)
 struct FCookieLandMapBuildDataTableRow : public FTableRowBase
 {
@@ -541,7 +372,39 @@ public:
 	TObjectPtr<UCookieLandMapPiecesDataAsset> PiecesDataAsset = nullptr;
 };
 
+// 感知者感知地形配置信息
+USTRUCT(BlueprintType)
+struct FCookieLandPerceptualObjectSenseMapInfo
+{
+	GENERATED_USTRUCT_BODY()
 
+public:
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "能否感知"))
+	bool bEnablePerceive = true;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "地形感知范围"), meta = (EditCondition = "bEnablePerceive"))
+	int SenseMapRoundRange = 2;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "能否在感知到其他层级"), meta = (EditCondition = "bEnablePerceive"))
+	bool bEnableSenseOtherFloor = true;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "地形感知层数范围"), meta = (EditCondition = "bEnablePerceive && bEnableSenseOtherFloor"))
+	int SenseMapFloorRange = 1;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "能否显示地块信息"))
+	bool bEnableSenseDetail = false;
+
+public:
+	FCookieLandPerceptualObjectSenseMapInfo() {}
+
+	FCookieLandPerceptualObjectSenseMapInfo(bool bInEnablePerceive) :bEnablePerceive(bInEnablePerceive) {}
+
+	FCookieLandPerceptualObjectSenseMapInfo(bool bInEnablePerceive, int InSenseMapRoundRange, bool bInEnableSenseOtherFloor, int InSenseMapFloorRange, bool bInEnableSenseDetail) :
+		bEnablePerceive(bInEnablePerceive), SenseMapRoundRange(InSenseMapRoundRange), bEnableSenseOtherFloor(bInEnableSenseOtherFloor), SenseMapFloorRange(InSenseMapFloorRange), bEnableSenseDetail(bInEnableSenseDetail)
+	{}
+};
+
+// 感知者感知配置信息
 USTRUCT(BlueprintType)
 struct FCookieLandPerceptualObjectPerceptionInfo
 {
@@ -561,25 +424,23 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【感知者】能否感知其他方向的感知者"))
 	bool bEnablePerceiveOtherOrientation = false;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【地形】能否在感知到其他感知者时，感知到周围地形"))
-	bool bEnableSenseMapWhenPerceive = true;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【地形】地形感知范围"), meta = (EditCondition = "bEnableSenseMapWhenPerceive"))
-	int SenseMapRoundRange = 2;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【地形】能否在感知到其他感知者时，感知到其他层级"), meta = (EditCondition = "bEnableSenseMapWhenPerceive"))
-	bool bEnableSenseOtherFloorWhenPerceive = true;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【地形】地形感知层数范围"), meta = (EditCondition = "bEnableSenseMapWhenPerceive"))
-	int SenseMapFloorRange = 1;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【地形】感知周围地形配置"))
+	FCookieLandPerceptualObjectSenseMapInfo SenseMapRound;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【感知者】能否在异域时，感知到其他感知者"))
 	bool bEnablePerceiveWhereInForeignMap = false;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【地形】能否在异域感知到其他感知者时，显示地块信息"))
-	bool bEnableSenseDetailWhereInForeignMap = false;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "【地形】感知异域地形配置"))
+	FCookieLandPerceptualObjectSenseMapInfo SenseForeignMap;
+
+public:
+	FCookieLandPerceptualObjectPerceptionInfo()
+	{
+		SenseForeignMap.bEnablePerceive = false;
+	}
 };
 
+// 感知者配置表
 USTRUCT(BlueprintType)
 struct FCookieLandPerceptualObjectPerceptionDataTableRow : public FTableRowBase
 {
@@ -591,6 +452,7 @@ public:
 
 };
 
+// 地图可视方向类型
 UENUM(BlueprintType)
 enum class ECookieLandMapAngleViewType : uint8
 {
@@ -598,4 +460,54 @@ enum class ECookieLandMapAngleViewType : uint8
 	ForwardAndLeft,
 	BackwardAndLeft,
 	BackwardAndRight,
+};
+
+
+// 方向连接信息
+USTRUCT(BlueprintType)
+struct FCookieLandOrientationLinkInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	// 范围[右，上，前]
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FCookieLandLocation Max_PieceLocation;
+
+	// 范围[左，下，后]
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	FCookieLandLocation Min_PieceLocation;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	ECookieLandPieceOrientation Orientation;
+
+protected:
+	bool bValid = false;
+
+	// 距离 没有/只有一个=0
+	int Distance = 0;
+
+public:
+	bool GetIsValid() const { return bValid; }
+	int GetDistance() const { return Distance; }
+	void SetData(ECookieLandPieceOrientation InOrientation, FCookieLandLocation InMax, FCookieLandLocation InMin);
+	void SetMax(FCookieLandLocation InMax);
+	void SetMin(FCookieLandLocation InMin);
+	void AddLocation(FCookieLandLocation Location);
+	void ClearData();
+
+	// 是否在范围内[Min,Max]
+	bool GetIsInSide(FCookieLandLocation Location);
+protected:
+	void UpdateDistance();
+
+public:
+	bool operator==(const FCookieLandOrientationLinkInfo& Other) const
+	{
+		if (!GetIsValid() && !Other.GetIsValid())
+		{
+			return true;
+		}
+		return GetIsValid() && Other.GetIsValid() && Max_PieceLocation == Other.Max_PieceLocation && Min_PieceLocation == Other.Min_PieceLocation && Orientation == Other.Orientation;
+	}
 };

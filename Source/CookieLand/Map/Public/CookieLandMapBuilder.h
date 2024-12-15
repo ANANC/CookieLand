@@ -31,50 +31,6 @@ public:
 };
 
 
-USTRUCT(BlueprintType)
-struct FCookieLandOrientationLinkInfo
-{
-	GENERATED_USTRUCT_BODY()
-
-public:
-	// 范围[右，上，前]
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FCookieLandLocation Max_PieceLocation;
-
-	// 范围[左，下，后]
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FCookieLandLocation Min_PieceLocation;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	ECookieLandPieceOrientation Orientation;
-
-protected:
-	bool bValid = false;
-
-	// 距离 没有/只有一个=0
-	int Distance = 0;
-
-public:
-	bool GetIsValid() const { return bValid; }
-	int GetDistance() const { return Distance; }
-	void SetData(ECookieLandPieceOrientation InOrientation,FCookieLandLocation InMax, FCookieLandLocation InMin);
-	void SetMax(FCookieLandLocation InMax);
-	void SetMin(FCookieLandLocation InMin);
-	void AddLocation(FCookieLandLocation Location);
-	void ClearData();
-
-	// 是否在范围内[Min,Max]
-	bool GetIsInSide(FCookieLandLocation Location);
-protected:
-	void UpdateDistance();
-
-public:
-	bool operator==(const FCookieLandOrientationLinkInfo& Other) const
-	{
-		return GetIsValid() && Other.GetIsValid() && Max_PieceLocation == Other.Max_PieceLocation && Min_PieceLocation == Other.Min_PieceLocation && Orientation == Other.Orientation;
-	}
-};
-
 UCLASS()
 class UCookieLandMapRangeInfo : public UObject
 {
@@ -180,4 +136,9 @@ protected:
 	// 更新地图范围
 	void UpdateMapRange(bool bIsAdd, const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation);
 
+public:
+
+	// 执行感知者请求强制连接信息
+	UFUNCTION()
+	FCookieLandOrientationLinkInfo ExecutePerceptualObjectFindForceLinkInfoEventCallback(FCookieLandPieceLocator Locator);
 };

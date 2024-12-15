@@ -50,8 +50,16 @@ bool UCookieLandMapShowDirector::GetEnableDisplay(const FCookieLandLocation MapC
 		return false;
 	}
 
-	// 主角色当前站立的必然显示
+	// 优先度：主角>感知者>地形
+
+	// 主角色当前站立，必然显示
 	if (MainLocator.PieceLocation == MapCubeLocation)
+	{
+		return true;
+	}
+
+	// 处于感知者能感知的地块，必然显示
+	if (PerceptualObjectSubsystem->GetMainPerceptualObjectEnablePerceiveLocator(FCookieLandPieceLocator(MapCubeLocation, PieceOrientation)))
 	{
 		return true;
 	}
@@ -83,7 +91,7 @@ bool UCookieLandMapShowDirector::GetEnableDisplay(const FCookieLandLocation MapC
 	 
 	// 立方体遮蔽
 	TMap<ECookieLandPieceOrientation, int> RelativeOrientationAndDistances = MapCubeLocation.GetRelativeOrientationAndDistances(MainLocator.PieceLocation);
-	for(TMap<ECookieLandPieceOrientation, int>::TIterator iter = RelativeOrientationAndDistances.CreateIterator();iter;++iter)
+	for (TMap<ECookieLandPieceOrientation, int>::TIterator iter = RelativeOrientationAndDistances.CreateIterator(); iter; ++iter)
 	{
 		ECookieLandPieceOrientation RelativeOrientation = iter.Key();
 		int Distance = iter.Value();

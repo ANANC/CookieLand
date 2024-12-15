@@ -478,77 +478,6 @@ bool UCookieLandMapRangeInfo::GetIsConformanceRange(const FCookieLandLocation Ma
 	return false;
 }
 
-void FCookieLandOrientationLinkInfo::SetData(ECookieLandPieceOrientation InOrientation, FCookieLandLocation InMax, FCookieLandLocation InMin)
-{
-	bValid = true;
-	Max_PieceLocation = InMax;
-	Min_PieceLocation = InMin;
-	Orientation = InOrientation;	
-	UpdateDistance();
-}
-
-void FCookieLandOrientationLinkInfo::SetMax(FCookieLandLocation InMax)
-{
-	Max_PieceLocation = InMax;
-	UpdateDistance();
-}
-
-void FCookieLandOrientationLinkInfo::SetMin(FCookieLandLocation InMin)
-{
-	Min_PieceLocation = InMin;
-	UpdateDistance();
-}
-
-void FCookieLandOrientationLinkInfo::AddLocation(FCookieLandLocation Location)
-{
-	if (Location.GetIsMinByOrientation(Orientation, Min_PieceLocation))
-	{
-		SetMin(Location);
-	}
-	else if (Location.GetIsMaxByOrientation(Orientation, Max_PieceLocation))
-	{
-		SetMax(Location);
-	}
-}
-
-void FCookieLandOrientationLinkInfo::UpdateDistance()
-{
-	Distance = 0;
-
-	switch (Orientation)
-	{
-	case ECookieLandPieceOrientation::Up:
-	case ECookieLandPieceOrientation::Down:
-		Distance = Max_PieceLocation.Floor - Min_PieceLocation.Floor;
-		break;
-	case ECookieLandPieceOrientation::Left:
-	case ECookieLandPieceOrientation::Right:
-		Distance = Max_PieceLocation.X - Min_PieceLocation.X;
-		break;
-	case ECookieLandPieceOrientation::Forward:
-	case ECookieLandPieceOrientation::Backward:
-		Distance = Max_PieceLocation.Y - Min_PieceLocation.Y;
-		break;
-	};
-}
-
-void FCookieLandOrientationLinkInfo::ClearData()
-{
-	Max_PieceLocation = FCookieLandLocation();
-	Min_PieceLocation = FCookieLandLocation();
-	Distance = 0;
-	bValid = false;
-}
-
-bool FCookieLandOrientationLinkInfo::GetIsInSide(FCookieLandLocation Location)
-{
-	if (Location.GetIsMaxEqualByOrientation(Orientation, Min_PieceLocation) && Location.GetIsMinEqualByOrientation(Orientation, Max_PieceLocation))
-	{
-		return true;
-	}
-	return false;
-}
-
 void UCookieLandMapRangeInfo::AddPiece(const FCookieLandLocation PieceLocation)
 {
 	PieceLocastions.Add(PieceLocation);
@@ -612,4 +541,12 @@ void UCookieLandMapBuilder::UpdateMapRange(bool bIsAdd, const FCookieLandLocatio
 		PieceDeleteForceLine(PieceLocation, PieceOrientation);
 		MapRangeInfo->RemovePiece(PieceLocation);
 	}
+}
+
+FCookieLandOrientationLinkInfo UCookieLandMapBuilder::ExecutePerceptualObjectFindForceLinkInfoEventCallback(FCookieLandPieceLocator Locator)
+{
+	FCookieLandOrientationLinkInfo ForeceLineInfo;
+	GetForceLineInfo(Locator.PieceLocation, Locator.PieceOrientation, ForeceLineInfo);
+
+	return ForeceLineInfo;
 }

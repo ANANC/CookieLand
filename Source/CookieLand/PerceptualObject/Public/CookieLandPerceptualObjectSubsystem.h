@@ -51,6 +51,8 @@ public:
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FPerceptualObjectLocatorChangeEvent, int, Id, FCookieLandPieceLocator, OldLocator, FCookieLandPieceLocator, NewLocator);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPerceptualObjectPerceptionInfoUpateEvent, int, Id);
+DECLARE_DELEGATE_RetVal_OneParam(FCookieLandOrientationLinkInfo, FPerceptualObjectFindLinkInfoEvent, FCookieLandPieceLocator, Locator);
 
 UCLASS()
 class COOKIELAND_API UCookieLandPerceptualObjectSubsystem : public UObject
@@ -60,7 +62,9 @@ class COOKIELAND_API UCookieLandPerceptualObjectSubsystem : public UObject
 public:
 	FPerceptualObjectLocatorChangeEvent MainPerceptualObjectLocatorChangeEvent;
 	FPerceptualObjectLocatorChangeEvent PerceptualObjectLocatorChangeEvent;
+	FPerceptualObjectPerceptionInfoUpateEvent PerceptualObjectPerceptionInfoUpateEvent; // todo:UCookieLandMapShowDirector需要监听通知PieceActor更新
 
+	FPerceptualObjectFindLinkInfoEvent PerceptualObjectFindForceLinkInfoEvent;
 protected:
 
 	UPROPERTY()
@@ -99,8 +103,14 @@ public:
 	// 更新感知对象能否被感知
 	void UpdatePerceptualObjectEnablePerceptual(int Id, bool bInEnablePerceptual);
 
+	// 更新感知对象的感知信息
+	void UpdatePerceptualObjectPerceptionInfo(int Id, FCookieLandPerceptualObjectPerceptionInfo InPerceptionInfo);
+
 	// 获取主感知对象
 	const UCookieLandPerceptualObject* GetMainPerceptualObject();
+
+	// 获取感知对象
+	const UCookieLandPerceptualObject* GetPerceptualObject(int Id);
 
 	// 获取主感知对象的坐标信息
 	bool GetMainCurrentLocator(FCookieLandPieceLocator& MainLocator);
@@ -111,15 +121,21 @@ public:
 	// 获取地图视角类型
 	ECookieLandMapAngleViewType GetMapAngleViewType();
 
-	// 获取能否感知到坐标（基于主感知者）
-	bool GetMainPerceptualObjectEnablePassiveByLocator(const FCookieLandPerceptualObjectPerceptionInfo& PerceptualObjectPerceptionInfo, FCookieLandPieceLocator PieceLocator);
+	// 主感知者获取能否感知到感知者
+	bool GetMainPerceptualObjectEnablePerceivePassiveePerceptualObject(const UCookieLandPerceptualObject* PerceptualObject);
 
-	// 获取能否感知到坐标
-	bool GetEnablePassiveByLocator(
+	// 获取能否感知到感知者
+	bool GetEnablePerceivePassivePerceptualObject(
 		const FCookieLandPerceptualObjectPerceptionInfo& CenterPerceptionInfo,
 		const FCookieLandPerceptualObjectPerceptionInfo& PerceptualObjectPerceptionInfo,
 		FCookieLandPieceLocator CenterLocator,
 		FCookieLandPieceLocator PerceptualObjectLocator);
+
+	// 主感知者获取能否感知到坐标
+	bool GetMainPerceptualObjectEnablePerceiveLocator(FCookieLandPieceLocator PerceptualObjectLocator);
+	
+	// 获取能否感知到坐标
+	bool GetEnablePerceiveLocator(const FCookieLandPerceptualObjectPerceptionInfo& CenterPerceptionInfo, FCookieLandPieceLocator CenterLocator, FCookieLandPieceLocator PerceptualObjectLocator);
 
 protected:
 	// 创建感知对象

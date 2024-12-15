@@ -80,6 +80,21 @@ void UCookieLandPerceptualObjectSubsystem::UpdatePerceptualObjectEnablePerceptua
 	UpdatePassivePerceptualObjectLocators();
 }
 
+void UCookieLandPerceptualObjectSubsystem::UpdatePerceptualObjectPerceptionInfo(int Id, FCookieLandPerceptualObjectPerceptionInfo InPerceptionInfo)
+{
+	UCookieLandPerceptualObject* PerceptualObject = FindPerceptualObject(Id);
+	if (!PerceptualObject)
+	{
+		return;
+	}
+
+	PerceptualObject->PerceptionInfo = InPerceptionInfo;
+
+	UpdatePassivePerceptualObjectLocators();
+
+	PerceptualObjectPerceptionInfoUpateEvent.Broadcast(PerceptualObject->Id);
+}
+
 UCookieLandPerceptualObject* UCookieLandPerceptualObjectSubsystem::CreatePerceptualObject()
 {
 	UCookieLandPerceptualObject* PerceptualObject = NewObject<UCookieLandPerceptualObject>();
@@ -109,6 +124,10 @@ const UCookieLandPerceptualObject* UCookieLandPerceptualObjectSubsystem::GetMain
 	return MainPerceptualObject;
 }
 
+const UCookieLandPerceptualObject* UCookieLandPerceptualObjectSubsystem::GetPerceptualObject(int Id)
+{
+	return FindPerceptualObject(Id);
+}
 
 bool UCookieLandPerceptualObjectSubsystem::GetMainCurrentLocator(FCookieLandPieceLocator& MainLocator)
 {
@@ -151,7 +170,7 @@ void UCookieLandPerceptualObjectSubsystem::UpdatePassivePerceptualObjectLocators
 
 			PassivePerceptualObjectLocators.Add(PerceptualObjectLocator);
 
-			if (GetEnablePassiveByLocator(MainPerceptualObject->PerceptionInfo, PerceptualObject->PerceptionInfo, MainPerceptualObjectLocator, PerceptualObjectLocator))
+			if (GetMainPerceptualObjectEnablePerceivePassiveePerceptualObject(PerceptualObject))
 			{
 				PerceptualingPerceptualObjectIds.Add(PerceptualObject->Id);
 				PerceptualingPerceptualObjectLocators.Add(PerceptualObjectLocator);
@@ -160,24 +179,24 @@ void UCookieLandPerceptualObjectSubsystem::UpdatePassivePerceptualObjectLocators
 	}
 }
 
-bool UCookieLandPerceptualObjectSubsystem::GetMainPerceptualObjectEnablePassiveByLocator(const FCookieLandPerceptualObjectPerceptionInfo& PerceptualObjectPerceptionInfo, FCookieLandPieceLocator PieceLocator)
+bool UCookieLandPerceptualObjectSubsystem::GetMainPerceptualObjectEnablePerceivePassiveePerceptualObject(const UCookieLandPerceptualObject* PerceptualObject)
 {
 	if (!MainPerceptualObject)
 	{
 		return false;
 	}
 	
-	bool bEnable = GetEnablePassiveByLocator(MainPerceptualObject->PerceptionInfo,PerceptualObjectPerceptionInfo,MainPerceptualObject->GetLocator(), PieceLocator);
+	bool bEnable = GetEnablePerceivePassivePerceptualObject(MainPerceptualObject->PerceptionInfo, PerceptualObject->PerceptionInfo,MainPerceptualObject->GetLocator(), PerceptualObject->GetLocator());
 	return bEnable;
 }
 
-bool UCookieLandPerceptualObjectSubsystem::GetEnablePassiveByLocator(
+bool UCookieLandPerceptualObjectSubsystem::GetEnablePerceivePassivePerceptualObject(
 	const FCookieLandPerceptualObjectPerceptionInfo& CenterPerceptionInfo,
 	const FCookieLandPerceptualObjectPerceptionInfo& PerceptualObjectPerceptionInfo,
 	FCookieLandPieceLocator CenterLocator,
 	FCookieLandPieceLocator PerceptualObjectLocator)
 {
-	TMap<ECookieLandPieceOrientation, int> RelativeDistances = CenterLocator.PieceLocation.GetRelativeDistances(PerceptualObjectLocator.PieceLocation);
+	TMap<ECookieLandPieceOrientation, int> RelativeDistances = CenterLocator.PieceLocation.GetAbsRelativeDistances(PerceptualObjectLocator.PieceLocation);
 
 	// 不能感知其他方向
 	if (!CenterPerceptionInfo.bEnablePerceiveOtherOrientation)
@@ -203,8 +222,100 @@ bool UCookieLandPerceptualObjectSubsystem::GetEnablePassiveByLocator(
 		return false;
 	}
 
-	// todo:异域感知
+	// 异域感知
+	if (PerceptualObjectFindForceLinkInfoEvent.IsBound())
+	{
+		FCookieLandOrientationLinkInfo CenterForceLinkInfo = PerceptualObjectFindForceLinkInfoEvent.Execute(CenterLocator);
+		FCookieLandOrientationLinkInfo PerceptualObjectForceLinkInfo = PerceptualObjectFindForceLinkInfoEvent.Execute(PerceptualObjectLocator);
 
+		// 不同异域
+		if (CenterForceLinkInfo != PerceptualObjectForceLinkInfo)
+		{	
+			if (!CenterPerceptionInfo.bEnablePerceiveWhereInForeignMap)
+			{
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool UCookieLandPerceptualObjectSubsystem::GetMainPerceptualObjectEnablePerceiveLocator(FCookieLandPieceLocator PerceptualObjectLocator)
+{
+	if (!MainPerceptualObject)
+	{
+		return false;
+	}
+
+	bool bEnable = GetEnablePerceiveLocator(MainPerceptualObject->PerceptionInfo, MainPerceptualObject->GetLocator(), PerceptualObjectLocator);
+	return bEnable;
+}
+
+bool UCookieLandPerceptualObjectSubsystem::GetEnablePerceiveLocator(const FCookieLandPerceptualObjectPerceptionInfo& CenterPerceptionInfo, FCookieLandPieceLocator CenterLocator, FCookieLandPieceLocator PerceptualObjectLocator)
+{
+	for (int Index = 0; Index < PerceptualingPerceptualObjectIds.Num(); ++Index)
+	{
+		int PerceptualingPerceptualObjectId = PerceptualingPerceptualObjectIds[Index];
+
+		UCookieLandPerceptualObject* PerceptualObject = FindPerceptualObject(PerceptualingPerceptualObjectId);
+		if (!PerceptualObject)
+		{
+			continue;
+		}
+
+		FCookieLandPerceptualObjectSenseMapInfo SenseForeignMap = CenterPerceptionInfo.SenseForeignMap;
+		FCookieLandPerceptualObjectSenseMapInfo SenseMapRound = CenterPerceptionInfo.SenseMapRound;
+
+		bool bCheck = SenseForeignMap.bEnablePerceive || SenseMapRound.bEnablePerceive;
+		bool bEnableSenseOtherFloor = SenseForeignMap.bEnableSenseOtherFloor || SenseMapRound.bEnableSenseOtherFloor;
+
+		if (!SenseForeignMap.bEnablePerceive)
+		{
+			FCookieLandOrientationLinkInfo CenterForceLinkInfo = PerceptualObjectFindForceLinkInfoEvent.Execute(CenterLocator);
+			FCookieLandOrientationLinkInfo PerceptualObjectForceLinkInfo = PerceptualObjectFindForceLinkInfoEvent.Execute(PerceptualObjectLocator);
+
+			// 不同异域
+			if (CenterForceLinkInfo != PerceptualObjectForceLinkInfo)
+			{
+				bCheck = false;
+			}
+		}
+
+		if (!bCheck)
+		{
+			continue;
+		}
+
+		// 层级
+		if (bEnableSenseOtherFloor)
+		{
+			// 超出层级
+			if (abs(PerceptualObjectLocator.PieceLocation.Floor - CenterLocator.PieceLocation.Floor) > SenseMapRound.SenseMapFloorRange)
+			{
+				continue;
+			}
+		}
+		else
+		{
+			// 非同层
+			if (PerceptualObjectLocator.PieceLocation.Floor != CenterLocator.PieceLocation.Floor)
+			{
+				continue;
+			}
+		}
+
+		// 超出周边
+		if (abs(PerceptualObjectLocator.PieceLocation.X - CenterLocator.PieceLocation.X) > SenseMapRound.SenseMapRoundRange ||
+			(abs(PerceptualObjectLocator.PieceLocation.Y - CenterLocator.PieceLocation.Y) > SenseMapRound.SenseMapRoundRange))
+		{
+			continue;
+		}
+
+		return true;
+	}
+
+	return false;
 }
 
 bool UCookieLandPerceptualObjectSubsystem::GetPerceptionInfoFromTable(FName PerceptualObjectType, FCookieLandPerceptualObjectPerceptionInfo& PerceptionInfo)
