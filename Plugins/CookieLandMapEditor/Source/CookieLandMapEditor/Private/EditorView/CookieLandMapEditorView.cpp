@@ -884,6 +884,19 @@ void UCookieLandMapEditorView::PieceBuildInfoOnFinishedChangingPropertiesCallbac
 		Piece->SetBaseAction(PieceBuildInfoEditor.BaseAction);
 		DrawUpdateChessPiece(SelectMapCube->SelectLocation);
 	}
+	if (MemberPropertyName == GET_MEMBER_NAME_CHECKED(FCookieLandPieceBuildInfo, PieceActionDatas))
+	{
+		Piece->ClearPieceActions();
+
+		for (int Index = 0; Index < PieceBuildInfoEditor.PieceActionDatas.Num(); ++Index)
+		{
+			UCookieLandBasePieceActionData* PieceActionData = PieceBuildInfoEditor.PieceActionDatas[Index];
+			if (PieceActionData) 
+			{
+				Piece->AddPieceAction(PieceActionData);
+			}
+		}
+	}
 
 }
 

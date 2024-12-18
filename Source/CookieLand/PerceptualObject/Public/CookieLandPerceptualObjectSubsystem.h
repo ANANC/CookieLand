@@ -52,7 +52,7 @@ public:
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FPerceptualObjectLocatorChangeEvent, int, Id, FCookieLandPieceLocator, OldLocator, FCookieLandPieceLocator, NewLocator);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FPerceptualObjectPerceptionInfoUpateEvent, int, Id);
-DECLARE_DELEGATE_RetVal_OneParam(FCookieLandOrientationLinkInfo, FPerceptualObjectFindLinkInfoEvent, FCookieLandPieceLocator, Locator);
+DECLARE_DELEGATE_RetVal_OneParam(FCookieLandOrientationLinkInfo, FPerceptualObjectFindLinkInfoEvent, FCookieLandPieceLocator);
 
 UCLASS()
 class COOKIELAND_API UCookieLandPerceptualObjectSubsystem : public UObject
@@ -60,11 +60,12 @@ class COOKIELAND_API UCookieLandPerceptualObjectSubsystem : public UObject
 	GENERATED_BODY()
 
 public:
-	FPerceptualObjectLocatorChangeEvent MainPerceptualObjectLocatorChangeEvent;
-	FPerceptualObjectLocatorChangeEvent PerceptualObjectLocatorChangeEvent;
-	FPerceptualObjectPerceptionInfoUpateEvent PerceptualObjectPerceptionInfoUpateEvent; // todo:UCookieLandMapShowDirector需要监听通知PieceActor更新
+	FPerceptualObjectLocatorChangeEvent MainPerceptualObjectLocatorChangeEvent; // 主感知对象的坐标更新
+	FPerceptualObjectLocatorChangeEvent PerceptualObjectLocatorChangeEvent; // 感知对象的坐标更新
 
-	FPerceptualObjectFindLinkInfoEvent PerceptualObjectFindForceLinkInfoEvent;
+	FPerceptualObjectPerceptionInfoUpateEvent PerceptualObjectPerceptionInfoUpateEvent; // 感知对象的感知信息更新
+
+	FPerceptualObjectFindLinkInfoEvent PerceptualObjectFindForceLinkInfoEvent; // 获取感知对象所在的强制连接信息
 protected:
 
 	UPROPERTY()

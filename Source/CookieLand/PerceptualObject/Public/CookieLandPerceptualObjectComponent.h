@@ -49,19 +49,18 @@ public:
 		
 	void UnInit();
 
-	// 移动方向
-	UFUNCTION(BlueprintCallable)
-	void Move(ECookieLandPieceOrientation MoveOrientation,int Distance = 1);
+	// 获取Id
+	int GetPerceptualObjectId() const;
 
 	// 获取感知信息
 	UFUNCTION(BlueprintCallable)
-	const FCookieLandPerceptualObjectPerceptionInfo& GetPerceptionInfo();
-
-protected:
+	const FCookieLandPerceptualObjectPerceptionInfo GetPerceptionInfo() const;
 
 	// 设置移动目标位置
+	UFUNCTION(BlueprintCallable)
 	void SetLocation(FCookieLandLocation InMapCubeLocation);
 
 	// 设置移动目标坐标
+	UFUNCTION(BlueprintCallable)
 	void SetLocator(FCookieLandPieceLocator InLocator);
 };

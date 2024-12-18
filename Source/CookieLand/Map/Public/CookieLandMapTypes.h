@@ -7,6 +7,7 @@
 #include "CookieLandMapTypes.generated.h"
 
 class ACookieLandPieceActor;
+class UCookieLandBasePieceActionData;
 
 // 基础方向
 UENUM(BlueprintType)
@@ -23,7 +24,7 @@ enum class ECookieLandPieceOrientation : uint8
 
 // 基础坐标
 USTRUCT(BlueprintType)
-struct FCookieLandLocation 
+struct COOKIELAND_API FCookieLandLocation
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -91,7 +92,7 @@ public:
 
 // 基础位置
 USTRUCT(BlueprintType)
-struct FCookieLandPieceLocator
+struct COOKIELAND_API FCookieLandPieceLocator
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -113,7 +114,7 @@ public:
 };
 
 
-// 基础移动行为
+// 基础行为
 USTRUCT(BlueprintType)
 struct FCookieLandPieceBaseAction
 {
@@ -126,8 +127,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "阻碍方向"))
 	TArray<ECookieLandPieceOrientation> ImpedeOrientations;
 };
-
-// todo 地块行为
 
 // 地块构建信息
 USTRUCT(BlueprintType)
@@ -150,6 +149,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "基础行为"))
 	FCookieLandPieceBaseAction BaseAction;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere,Instanced, meta = (DisplayName = "行为数据"))
+	TArray< UCookieLandBasePieceActionData*>  PieceActionDatas;
 
 public:
 	FCookieLandPieceBuildInfo(){}

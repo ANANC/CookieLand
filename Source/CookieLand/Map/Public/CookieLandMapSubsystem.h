@@ -36,7 +36,7 @@ public:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void EnterMap(FName MapName);
+	void EnterMap(FName MapName, bool bDestroyLastMap);
 
 	UFUNCTION(BlueprintPure)
 	ACookieLandMapBuildActor* GetMainMapBuildActor();

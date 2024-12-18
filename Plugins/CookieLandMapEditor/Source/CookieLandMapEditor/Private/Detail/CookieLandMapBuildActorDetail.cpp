@@ -105,7 +105,8 @@ FReply FCookieLandMapBuildActorDetail::OpenMapBuilderEditorViewButtonClick()
 
 		UCookieLandMapSubsystem* MapSubsystem = UCookieLandMapBuildLibrary::GetMapSubsystem();
 		MapSubsystem->RegisterMapBuildActor(ModifierInstance);
-		MapSubsystem->EnterMap(ModifierInstance->MapName);
+
+		ModifierInstance->EnterThisMap(true);
 
 		FName TabName("CookieLandMapEditor");
 		FGlobalTabmanager::Get()->TryInvokeTab(TabName);

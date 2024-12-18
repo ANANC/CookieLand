@@ -22,7 +22,7 @@ void UCookieLandMapSubsystem::UnRegisterMapBuildActor(ACookieLandMapBuildActor* 
 	MapBuildActors.Remove(InMapBuildActor);
 }
 
-void UCookieLandMapSubsystem::EnterMap(FName MapName)
+void UCookieLandMapSubsystem::EnterMap(FName MapName,bool bDestroyLastMap)
 {
 	if (MainMapBuildActor)
 	{
@@ -31,7 +31,7 @@ void UCookieLandMapSubsystem::EnterMap(FName MapName)
 			return;
 		}
 
-		MainMapBuildActor->DestryEnvironment();
+		MainMapBuildActor->ExistThisMap(bDestroyLastMap);
 	}
 
 	ACookieLandMapBuildActor* MapBuildActor = FindMapBuildActor(MapName);

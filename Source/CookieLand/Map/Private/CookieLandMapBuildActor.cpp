@@ -8,6 +8,7 @@
 #include "CookieLand/Map/Public/CookieLandMapActorGather.h"
 #include "CookieLand/Map/Public/CookieLandMapShowDirector.h"
 #include "CookieLand/Map/Public/CookieLandMapSubsystem.h"
+#include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
 
 // Sets default values
 ACookieLandMapBuildActor::ACookieLandMapBuildActor()
@@ -95,6 +96,29 @@ void ACookieLandMapBuildActor::CreateEnvironment()
 	// 加载地形数据
 	ReloadMapBuildInfo();
 
+}
+
+void ACookieLandMapBuildActor::EnterThisMap(bool bDestroyLastMap)
+{
+	UCookieLandMapSubsystem* MapSubsystem = UCookieLandMapBuildLibrary::GetMapSubsystem();
+
+	MapSubsystem->EnterMap(MapName, bDestroyLastMap);
+
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
+	PerceptualObjectSubsystem->PerceptualObjectLocatorChangeEvent.AddDynamic(ShowDirector, &UCookieLandMapShowDirector::ReceivePerceptualObjectLocatorChangeEventCallback);
+	PerceptualObjectSubsystem->PerceptualObjectFindForceLinkInfoEvent.BindUObject(MapBuilder ,&UCookieLandMapBuilder::ExecutePerceptualObjectFindForceLinkInfoEventCallback);
+}
+
+void ACookieLandMapBuildActor::ExistThisMap(bool bNeedDestroy)
+{
+	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
+	PerceptualObjectSubsystem->PerceptualObjectLocatorChangeEvent.RemoveDynamic(ShowDirector, &UCookieLandMapShowDirector::ReceivePerceptualObjectLocatorChangeEventCallback);
+	PerceptualObjectSubsystem->PerceptualObjectFindForceLinkInfoEvent.Unbind();
+
+	if (bNeedDestroy)
+	{
+		DestryEnvironment();
+	}
 }
 
 void ACookieLandMapBuildActor::DestryEnvironment()

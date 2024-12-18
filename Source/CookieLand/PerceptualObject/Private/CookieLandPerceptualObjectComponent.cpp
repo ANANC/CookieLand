@@ -36,6 +36,7 @@ void UCookieLandPerceptualObjectComponent::BeginPlay()
 
 void UCookieLandPerceptualObjectComponent::Init(FCookieLandPieceLocator InitLocator)
 {
+	FCookieLandPerceptualObjectPerceptionInfo PerceptionInfo;
 	UCookieLandMapBuildLibrary::GetPerceptualObjectPerceptionInfoFromTable(PerceptualObjectType, PerceptionInfo);
 
 	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
@@ -57,12 +58,12 @@ void UCookieLandPerceptualObjectComponent::UnInit()
 	}
 }
 
-void UCookieLandPerceptualObjectComponent::Move(ECookieLandPieceOrientation MoveOrientation, int Distance)
+int UCookieLandPerceptualObjectComponent::GetPerceptualObjectId() const
 {
-	//todo:要先拿到当前的map，然后判断能否移动，能移动再设置坐标
+	return PerceptualObjectId;
 }
 
-const FCookieLandPerceptualObjectPerceptionInfo& UCookieLandPerceptualObjectComponent::GetPerceptionInfo()
+const FCookieLandPerceptualObjectPerceptionInfo UCookieLandPerceptualObjectComponent::GetPerceptionInfo() const
 {
 	UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
 	if (PerceptualObjectSubsystem)

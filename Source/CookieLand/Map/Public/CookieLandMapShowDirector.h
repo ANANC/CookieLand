@@ -43,7 +43,6 @@ public:
 	// 获取能否显示【根据显示类型】
 	bool GetEnableDisplaySwitchMapShowType(FCookieLandPieceLocator MainLocator, const ECookieLandPieceOrientation PieceOrientation);
 
-protected:
 	// 监听感知者移动回调
 	UFUNCTION()
 	void ReceivePerceptualObjectLocatorChangeEventCallback(int Id, FCookieLandPieceLocator OldLocator, FCookieLandPieceLocator NewLocator);

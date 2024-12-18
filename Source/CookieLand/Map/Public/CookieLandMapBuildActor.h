@@ -64,6 +64,12 @@ public:
 	// 创建环境
 	void CreateEnvironment();
 
+	// 进入该地图，成为主地图
+	void EnterThisMap(bool bDestroyLastMap);
+
+	// 离开该地图
+	void ExistThisMap(bool bNeedDestroy);
+
 	// 销毁场景
 	void DestryEnvironment();
 
