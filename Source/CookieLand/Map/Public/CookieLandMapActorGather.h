@@ -48,7 +48,7 @@ public:
 	bool GetIsPieceExistByLocation(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);
 
 	// 创建地块
-	bool AddPiece(const FCookieLandPieceBuildInfo PieceBuildInfo);
+	UCookieLandPiece* AddPiece(const FCookieLandPieceBuildInfo PieceBuildInfo);
 
 	// 移除地块
 	bool RemovePiece(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);

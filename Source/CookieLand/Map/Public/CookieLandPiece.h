@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "CookieLandMapTypes.h"
+#include "GameplayTagContainer.h"
 #include "CookieLandPiece.generated.h"
 
 class UCookieLandPiece;
@@ -13,6 +14,7 @@ class UBoxComponent;
 class UPrimitiveComponent;
 class UCookieLandPerceptualObjectComponent;
 class UCookieLandBasePieceAction;
+class ACookieLandMapBuildActor;
 
 UCLASS(Blueprintable,BlueprintType)
 class COOKIELAND_API ACookieLandPieceActor : public AActor
@@ -98,16 +100,26 @@ protected:
 protected:
 	bool bInit = false;
 
+	UPROPERTY()
+	TObjectPtr< ACookieLandMapBuildActor> MapBuildActor;
+
 	UPROPERTY(VisibleAnywhere)
 	TArray< UCookieLandBasePieceAction*> PieceActions;
 
 	int AutoPieceActionId = 0;
 
-	TArray<FGameplayTag> ActivingTags;
+	UPROPERTY(VisibleAnywhere)
+	FGameplayTagContainer ActivingTagContainer;
 
 public:
 	virtual void Init(FCookieLandPieceBuildInfo InBuildInfo);
 	virtual void UnInit();
+
+	// 设置地图构建实例
+	void SetMapBuildActor(ACookieLandMapBuildActor* InMapBuildActor);
+
+	// 获取地图构建实例
+	ACookieLandMapBuildActor* GetMapBuildActor();
 
 	// 设置实例
 	virtual void SetPieceActor(ACookieLandPieceActor* Instance);
@@ -121,11 +133,14 @@ public:
 	// 获取实例
 	ACookieLandPieceActor* GetPieceAction();
 
-	// 获取坐标
+	// 获取位置
 	FCookieLandLocation GetPieceLocation();
 
 	// 获取方位
 	ECookieLandPieceOrientation GetPieceOrientation();
+
+	// 获取坐标
+	FCookieLandPieceLocator GetPieceLocator();
 
 	// 获取基础行为
 	FCookieLandPieceBaseAction GetBaseAction();
@@ -150,6 +165,15 @@ public:
 
 	// 根据类型获取地块行为
 	const UCookieLandBasePieceAction* GetConstPieceActionById(int InId);
+
+	// 添加激活的GameplayTag
+	void AddActiveGameplayTag(FGameplayTag InGameplayTag);
+
+	// 移除激活的GameplayTag
+	void RemoveActiveGameplayTag(FGameplayTag InGameplayTag);
+
+	// 获取是否有激活的GameplayTag
+	bool HasActiveGameplayTag(FGameplayTag InGameplayTag);
 
 protected:
 	// 根据类型获取地块行为

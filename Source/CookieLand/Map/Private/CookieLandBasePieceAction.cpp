@@ -7,8 +7,10 @@ void UCookieLandBasePieceAction::Init(int InId, UCookieLandPiece* InPiece, UCook
 {
 	Id = InId;
 	Piece = InPiece;
-	Data = InData;
+	BaseData = InData;
 }
+
+void UCookieLandBasePieceAction::SetData(UCookieLandBasePieceActionData* InData){}
 
 void UCookieLandBasePieceAction::UnInit()
 {

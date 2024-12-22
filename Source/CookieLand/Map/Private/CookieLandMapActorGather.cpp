@@ -23,11 +23,11 @@ bool UCookieLandMapActorGather::GetIsPieceExistByLocation(const FCookieLandLocat
 	return false;
 }
 
-bool UCookieLandMapActorGather::AddPiece(const FCookieLandPieceBuildInfo PieceBuildInfo)
+UCookieLandPiece* UCookieLandMapActorGather::AddPiece(const FCookieLandPieceBuildInfo PieceBuildInfo)
 {
 	if (GetIsPieceExistByLocation(PieceBuildInfo.PieceLocation, PieceBuildInfo.PieceOrientation))
 	{
-		return false;
+		return nullptr;
 	}
 
 	UCookieLandPiece* Piece = CreatePieceToMapCubeInfo(PieceBuildInfo.PieceLocation, PieceBuildInfo.PieceOrientation);
@@ -35,7 +35,7 @@ bool UCookieLandMapActorGather::AddPiece(const FCookieLandPieceBuildInfo PieceBu
 
 	Piece->Init(PieceBuildInfo);
 
-	return true;
+	return Piece;
 }
 
 bool UCookieLandMapActorGather::RemovePiece(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)

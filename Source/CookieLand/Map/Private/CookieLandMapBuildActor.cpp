@@ -134,11 +134,7 @@ void ACookieLandMapBuildActor::CreateCube(const FCookieLandLocation CubeLoaction
 	for (int Index = 0; Index < PieceBuildInfos.Num(); ++Index)
 	{
 		FCookieLandPieceBuildInfo PieceBuildInfo = PieceBuildInfos[Index];
-
-		if (MapBuilder->OccupyPieceByLocation(PieceBuildInfo.PieceLocation, PieceBuildInfo.PieceOrientation))
-		{
-			MapActorGather->AddPiece(PieceBuildInfo);
-		}
+		CreatePiece(PieceBuildInfo.PieceLocation, PieceBuildInfo.PieceOrientation);
 	}
 }
 
@@ -147,7 +143,14 @@ void ACookieLandMapBuildActor::CreatePiece(const FCookieLandLocation PieceLocati
 	if (MapBuilder->OccupyPieceByLocation(PieceLocation, PieceOrientation))
 	{
 		FCookieLandPieceBuildInfo PieceBuildInfo = UCookieLandMapBuildLibrary::CratePieceBuildInfo(PieceLocation, PieceOrientation);
-		MapActorGather->AddPiece(PieceBuildInfo);
+		UCookieLandPiece* Piece = MapActorGather->AddPiece(PieceBuildInfo);
+		if (!Piece)
+		{
+			MapBuilder->ReleasePieceByLocation(PieceBuildInfo.PieceLocation, PieceBuildInfo.PieceOrientation);
+			return;
+		}
+
+		Piece->SetMapBuildActor(this);
 
 		if (PieceBuildInfo.bAutoCreateActorInstance)
 		{
@@ -164,10 +167,7 @@ void ACookieLandMapBuildActor::DeleteCube(const FCookieLandLocation CubeLoaction
 	{
 		FCookieLandPieceBuildInfo PieceBuildInfo = PieceBuildInfos[Index];
 
-		if (MapBuilder->ReleasePieceByLocation(PieceBuildInfo.PieceLocation, PieceBuildInfo.PieceOrientation))
-		{
-			MapActorGather->RemovePiece(PieceBuildInfo.PieceLocation, PieceBuildInfo.PieceOrientation);
-		}
+		DeletePiece(PieceBuildInfo.PieceLocation, PieceBuildInfo.PieceOrientation);
 	}
 }
 

@@ -204,6 +204,12 @@ TArray<int> UCookieLandMapBuilder::GetAllOccupyFloor()
 	return OccupyFloors;
 }
 
+bool UCookieLandMapBuilder::GetNearestPieceLocator(const FCookieLandPieceLocator SourceLocator, ECookieLandPieceOrientation Orientation, FCookieLandPieceLocator& OutNearestLocator)
+{
+	// todo:应该用Orientation计算方向，使用占领进行计算去获取。
+}
+
+
 UCookieLandMapCubeInfo* UCookieLandMapBuilder::CreateOrGetMapCubeInfo(const FCookieLandLocation MapCubeLocation)
 {
 	UCookieLandMapCubeInfo* MapCubeInfo = GetMapCubeInfo(MapCubeLocation);

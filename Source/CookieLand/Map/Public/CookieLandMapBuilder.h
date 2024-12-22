@@ -101,6 +101,8 @@ public:
 	// 获取全部占领的层
 	TArray<int> GetAllOccupyFloor();
 
+	// 获取最近的地块坐标
+	bool GetNearestPieceLocator(const FCookieLandPieceLocator SourceLocator,ECookieLandPieceOrientation Orientation, FCookieLandPieceLocator& OutNearestLocator);
 public:
 
 	// 地块强制连接

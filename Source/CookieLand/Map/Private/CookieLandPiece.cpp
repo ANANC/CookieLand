@@ -125,6 +125,22 @@ void UCookieLandPiece::UnInit()
 		PieceActor->Destroy();
 	}
 	PieceActor = nullptr;
+
+	MapBuildActor = nullptr;
+}
+
+void UCookieLandPiece::SetMapBuildActor(ACookieLandMapBuildActor* InMapBuildActor)
+{
+	MapBuildActor = InMapBuildActor;
+}
+
+ACookieLandMapBuildActor* UCookieLandPiece::GetMapBuildActor()
+{
+	if (MapBuildActor) 
+	{
+		return MapBuildActor.Get();
+	}
+	return nullptr;
 }
 
 void UCookieLandPiece::SetPieceActor(ACookieLandPieceActor* Instance)
@@ -155,6 +171,11 @@ FCookieLandLocation UCookieLandPiece::GetPieceLocation()
 ECookieLandPieceOrientation UCookieLandPiece::GetPieceOrientation()
 {
 	return PieceOrientation;
+}
+
+FCookieLandPieceLocator UCookieLandPiece::GetPieceLocator()
+{
+	return FCookieLandPieceLocator(PieceLocation, PieceOrientation);
 }
 
 FCookieLandPieceBaseAction UCookieLandPiece::GetBaseAction()
@@ -285,6 +306,21 @@ UCookieLandBasePieceAction* UCookieLandPiece::GetPieceActionById(int InId)
 		}
 	}
 	return nullptr;
+}
+
+void UCookieLandPiece::AddActiveGameplayTag(FGameplayTag InGameplayTag)
+{
+	ActivingTagContainer.AddTag(InGameplayTag);
+}
+
+void UCookieLandPiece::RemoveActiveGameplayTag(FGameplayTag InGameplayTag)
+{
+	ActivingTagContainer.RemoveTag(InGameplayTag);
+}
+
+bool UCookieLandPiece::HasActiveGameplayTag(FGameplayTag InGameplayTag)
+{
+	return ActivingTagContainer.HasTag(InGameplayTag);
 }
 
 #pragma endregion

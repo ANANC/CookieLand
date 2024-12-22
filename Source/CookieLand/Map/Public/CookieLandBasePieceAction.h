@@ -36,7 +36,7 @@ protected:
 	int Id = -1;
 
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	UCookieLandBasePieceActionData* Data = nullptr;
+	UCookieLandBasePieceActionData* BaseData = nullptr;
 
 	UPROPERTY()
 	TObjectPtr< UCookieLandPiece> Piece;
@@ -53,4 +53,7 @@ public:
 	UCookieLandPiece* GetPiece();
 
 	const UCookieLandBasePieceActionData* GetData() const;
+
+protected:
+	virtual void SetData(UCookieLandBasePieceActionData* InData);
 };
