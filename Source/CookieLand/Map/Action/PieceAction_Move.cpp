@@ -3,6 +3,8 @@
 
 #include "CookieLand/Map/Action/PieceAction_Move.h"
 #include "CookieLand/Map/Public/CookieLandPiece.h"
+#include "CookieLand/Map/Public/CookieLandMapBuildActor.h"
+#include "CookieLand/Map/Public/CookieLandMapBuilder.h"
 
 #pragma region UPieceActionData_Move
 
@@ -31,16 +33,56 @@ void UPieceAction_Move::Active()
 {
 	StartLocator = Piece->GetPieceLocator();
 	EndLocator = GetMoveTarget();
+
+	if (StartLocator == EndLocator)
+	{
+		return;
+	}
+
+
 }
 
 FCookieLandPieceLocator UPieceAction_Move::GetMoveTarget()
 {
+	FCookieLandPieceLocator Locator = StartLocator;
 	if (Data->MoveType == EPieceActionMoveType::NextPiece)
 	{
-		Piece->get
+		UCookieLandMapBuilder* MapBuilder = GetMapBuilder();
+		if (MapBuilder)
+		{
+			FCookieLandPieceLocator NearestLocator;
+			if (MapBuilder->GetNearestPieceLocator(StartLocator, Data->MoveOrientation, Locator))
+			{
+				Locator = NearestLocator;
+			}
+		}
 	}
 	else if (Data->MoveType == EPieceActionMoveType::Fixed)
 	{
-
+		Locator.PieceLocation.AddDistanceBySixDirection(Data->MoveOrientation, Data->FixedDistance);
+		if (!Data->bIngoreObstacle)
+		{
+			UCookieLandMapBuilder* MapBuilder = GetMapBuilder();
+			if (MapBuilder)
+			{
+				FCookieLandPieceLocator NearestLocator;
+				if (MapBuilder->GetNearestPieceLocator(StartLocator, Data->MoveOrientation, NearestLocator))
+				{
+					if (NearestLocator != Locator)
+					{
+						TMap<ECookieLandPieceOrientation, int> RelativeOrientationAndDistances = StartLocator.PieceLocation.GetRelativeOrientationAndDistances(NearestLocator.PieceLocation);
+						if (RelativeOrientationAndDistances.Contains(Data->MoveOrientation))
+						{
+							float Distance = RelativeOrientationAndDistances[Data->MoveOrientation];
+							if (Distance < Data->FixedDistance)
+							{
+								Locator = NearestLocator;
+							}
+						}
+					}
+				}
+			}
+		}
 	}
+	return Locator;
 }

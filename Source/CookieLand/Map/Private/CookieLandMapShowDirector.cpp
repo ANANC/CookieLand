@@ -33,7 +33,7 @@ bool UCookieLandMapShowDirector::GetEnableDisplay(const FCookieLandLocation MapC
 	}
 	
 	//todo:后续要考虑即便当前不存在地块，但是基于立方体的表现需要显示
-	if (!BuildActor->GetMapBuilder()->GetIsPieceOccupyByLocation(MapCubeLocation, PieceOrientation))
+	if (!BuildActor->GetMapBuilder()->GetIsPieceOccupyByLocator(MapCubeLocation, PieceOrientation))
 	{
 		return false;
 	}

@@ -50,7 +50,8 @@ public:
 	TArray< FCookieLandOrientationLinkInfo> ForceLineInfos;
 
 public:
-	bool GetIsConformanceRange(const FCookieLandLocation MapCubeLocation);
+	void Init(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation);
+	bool GetIsConformanceRange(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);
 	void AddPiece(const FCookieLandLocation PieceLocation);
 	void RemovePiece(const FCookieLandLocation PieceLocation);
 };
@@ -68,8 +69,15 @@ protected:
 	UPROPERTY()
 	TMap<FVector, UCookieLandMapCubeInfo*> Location2MapCubeInfos;
 
+	// 基于自身坐标和方向的记录，Locator只会有一份记录
+	// 如[x:0,y:0,floor:0][上], 会被记录到[上][x:0,y:0]
 	UPROPERTY()
 	TArray< UCookieLandMapRangeInfo*> MapRangeInfos;
+
+	// 全方向记录，Locator会有多分记录
+	// 如[x:0,y:0,floor:0][上], 会被记录到[上][x:0,y:0],[前][x:0,floor:0],[左][y:0,floor:0]
+	UPROPERTY()
+	TArray< UCookieLandMapRangeInfo*> MapOmnibearingRangeInfos;
 
 public:
 	void Init();
@@ -84,7 +92,7 @@ public:
 	bool GetIsCubeOccupyByLocation(const FCookieLandLocation MapCubeLocation);
 
 	// 获取是否地块已经占领
-	bool GetIsPieceOccupyByLocation(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);
+	bool GetIsPieceOccupyByLocator(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);
 
 	// 占领地块
 	bool OccupyPieceByLocation(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation);
@@ -135,8 +143,14 @@ protected:
 	// 创建/获取地图范围
 	UCookieLandMapRangeInfo* CreateOrGetMapRangeInfo(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation);
 
+	// 创建/获取地图全范围
+	TArray<UCookieLandMapRangeInfo*> CreateOrGetMapOmnibearingRangeInfos(const FCookieLandLocation PieceLocation);
+
 	// 更新地图范围
 	void UpdateMapRange(bool bIsAdd, const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation);
+
+	// 地图范围尝试移除
+	void MapRangeInfoTryRemove(UCookieLandMapRangeInfo* MapRangeInfo, const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation);
 
 public:
 

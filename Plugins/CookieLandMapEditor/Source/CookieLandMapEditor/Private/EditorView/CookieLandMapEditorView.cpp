@@ -399,7 +399,7 @@ bool UCookieLandMapEditorView::HasPieceDataByLocation(FCookieLandLocation PieceL
 {
 	if (MapBuildActor)
 	{
-		return MapBuildActor->GetMapBuilder()->GetIsPieceOccupyByLocation(PieceLocation, PieceOrientation);
+		return MapBuildActor->GetMapBuilder()->GetIsPieceOccupyByLocator(PieceLocation, PieceOrientation);
 	}
 	return false;
 }

@@ -84,7 +84,7 @@ bool UCookieLandMapBuilder::GetIsCubeOccupyByLocation(const FCookieLandLocation 
 	return bOccupy;
 }
 
-bool UCookieLandMapBuilder::GetIsPieceOccupyByLocation(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)
+bool UCookieLandMapBuilder::GetIsPieceOccupyByLocator(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)
 {
 	bool bOccupy = false;
 	UCookieLandMapCubeInfo* MapCubeInfo = GetMapCubeInfo(MapCubeLocation);
@@ -102,7 +102,7 @@ bool UCookieLandMapBuilder::GetIsPieceOccupyByLocation(const FCookieLandLocation
 
 bool UCookieLandMapBuilder::OccupyPieceByLocation(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)
 {
-	if (GetIsPieceOccupyByLocation(MapCubeLocation, PieceOrientation))
+	if (GetIsPieceOccupyByLocator(MapCubeLocation, PieceOrientation))
 	{
 		return false;
 	}
@@ -117,7 +117,7 @@ bool UCookieLandMapBuilder::OccupyPieceByLocation(const FCookieLandLocation MapC
 
 bool UCookieLandMapBuilder::ReleasePieceByLocation(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)
 {
-	if (!GetIsPieceOccupyByLocation(MapCubeLocation, PieceOrientation))
+	if (!GetIsPieceOccupyByLocator(MapCubeLocation, PieceOrientation))
 	{
 		return false;
 	}
@@ -206,7 +206,54 @@ TArray<int> UCookieLandMapBuilder::GetAllOccupyFloor()
 
 bool UCookieLandMapBuilder::GetNearestPieceLocator(const FCookieLandPieceLocator SourceLocator, ECookieLandPieceOrientation Orientation, FCookieLandPieceLocator& OutNearestLocator)
 {
-	// todo:应该用Orientation计算方向，使用占领进行计算去获取。
+	UCookieLandMapRangeInfo* MapRangeInfo = nullptr;
+
+	TArray<UCookieLandMapRangeInfo*> OutMapOmnibearingRangeInfos = CreateOrGetMapOmnibearingRangeInfos(SourceLocator.PieceLocation);
+	for (int Index = 0; Index < OutMapOmnibearingRangeInfos.Num(); ++Index)
+	{
+		UCookieLandMapRangeInfo* OutMapOmnibearingRangeInfo = OutMapOmnibearingRangeInfos[Index];
+		if (!OutMapOmnibearingRangeInfo->GetIsConformanceRange(SourceLocator.PieceLocation, Orientation))
+		{
+			continue;
+		}
+
+		MapRangeInfo = OutMapOmnibearingRangeInfo;
+		break;
+	}
+
+	if (!MapRangeInfo)
+	{
+		return false;
+	}
+
+	FCookieLandPieceLocator* NearestLocator = nullptr;
+	int MinDistance = -1;
+	for (int Index = 0; Index < MapRangeInfo->PieceLocastions.Num(); ++Index)
+	{
+		FCookieLandPieceLocator Locator(MapRangeInfo->PieceLocastions[Index], SourceLocator.PieceOrientation);
+		if (!GetIsPieceOccupyByLocator(Locator.PieceLocation, Locator.PieceOrientation) || Locator == SourceLocator)
+		{
+			continue;
+		}
+
+		TMap<ECookieLandPieceOrientation, int> RelativeOrientationAndDistances = SourceLocator.PieceLocation.GetRelativeOrientationAndDistances(Locator.PieceLocation);
+		if (RelativeOrientationAndDistances.Contains(Orientation))
+		{
+			int Distance = RelativeOrientationAndDistances[Orientation];
+			if (MinDistance == -1 || MinDistance > Distance)
+			{
+				MinDistance = Distance;
+				NearestLocator = &Locator;
+			}
+		}
+	}
+
+	if (NearestLocator)
+	{
+		OutNearestLocator = *NearestLocator;
+		return true;
+	}
+	return false;
 }
 
 
@@ -240,7 +287,7 @@ UCookieLandMapCubeInfo* UCookieLandMapBuilder::GetMapCubeInfo(const FCookieLandL
 
 bool UCookieLandMapBuilder::PieceForceLine(const FCookieLandLocation RequsetPieceLocation, const FCookieLandLocation TryLinePieceLocation, const ECookieLandPieceOrientation PieceOrientation)
 {
-	if (!GetIsPieceOccupyByLocation(RequsetPieceLocation, PieceOrientation) || !GetIsPieceOccupyByLocation(TryLinePieceLocation, PieceOrientation) || TryLinePieceLocation == RequsetPieceLocation)
+	if (!GetIsPieceOccupyByLocator(RequsetPieceLocation, PieceOrientation) || !GetIsPieceOccupyByLocator(TryLinePieceLocation, PieceOrientation) || TryLinePieceLocation == RequsetPieceLocation)
 	{
 		return false;
 	}
@@ -248,7 +295,7 @@ bool UCookieLandMapBuilder::PieceForceLine(const FCookieLandLocation RequsetPiec
 	UCookieLandMapRangeInfo* MapRangeInfo = CreateOrGetMapRangeInfo(RequsetPieceLocation, PieceOrientation);
 
 	// 同方向的才能执行连接
-	if (!MapRangeInfo->GetIsConformanceRange(TryLinePieceLocation))
+	if (!MapRangeInfo->GetIsConformanceRange(TryLinePieceLocation, PieceOrientation))
 	{
 		return false;
 	}
@@ -345,7 +392,7 @@ bool UCookieLandMapBuilder::PieceForceLine(const FCookieLandLocation RequsetPiec
 
 bool UCookieLandMapBuilder::PieceDeleteForceLine(const FCookieLandLocation RequsetPieceLocation, const ECookieLandPieceOrientation PieceOrientation)
 {
-	if (!GetIsPieceOccupyByLocation(RequsetPieceLocation, PieceOrientation))
+	if (!GetIsPieceOccupyByLocator(RequsetPieceLocation, PieceOrientation))
 	{
 		return false;
 	}
@@ -454,9 +501,34 @@ bool UCookieLandMapBuilder::GetNearestForceLineInfo(const ECookieLandPieceOrient
 	return false;
 }
 
-bool UCookieLandMapRangeInfo::GetIsConformanceRange(const FCookieLandLocation MapCubeLocation)
+void UCookieLandMapRangeInfo::Init(const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation)
 {
-	switch(Orientation)
+	switch (PieceOrientation)
+	{
+	case ECookieLandPieceOrientation::Up:
+	case ECookieLandPieceOrientation::Down:
+		Orientation = ECookieLandPieceOrientation::Up;
+		Location.X = PieceLocation.X;
+		Location.Y = PieceLocation.Y;
+		break;
+	case ECookieLandPieceOrientation::Left:
+	case ECookieLandPieceOrientation::Right:
+		Orientation = ECookieLandPieceOrientation::Left;
+		Location.Y = PieceLocation.Y;
+		Location.Floor = PieceLocation.Floor;
+		break;
+	case ECookieLandPieceOrientation::Forward:
+	case ECookieLandPieceOrientation::Backward:
+		Orientation = ECookieLandPieceOrientation::Forward;
+		Location.X = PieceLocation.X;
+		Location.Floor = PieceLocation.Floor;
+		break;
+	};
+}
+
+bool UCookieLandMapRangeInfo::GetIsConformanceRange(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)
+{
+	switch(PieceOrientation)
 	{
 	case ECookieLandPieceOrientation::Up:
 	case ECookieLandPieceOrientation::Down:
@@ -486,7 +558,7 @@ bool UCookieLandMapRangeInfo::GetIsConformanceRange(const FCookieLandLocation Ma
 
 void UCookieLandMapRangeInfo::AddPiece(const FCookieLandLocation PieceLocation)
 {
-	PieceLocastions.Add(PieceLocation);
+	PieceLocastions.AddUnique(PieceLocation);
 }
 
 void UCookieLandMapRangeInfo::RemovePiece(const FCookieLandLocation PieceLocation)
@@ -499,34 +571,14 @@ UCookieLandMapRangeInfo* UCookieLandMapBuilder::CreateOrGetMapRangeInfo(const FC
 	for (int Index = 0; Index < MapRangeInfos.Num(); ++Index)
 	{
 		UCookieLandMapRangeInfo* MapRangeInfo = MapRangeInfos[Index];
-		if (MapRangeInfo->GetIsConformanceRange(PieceLocation))
+		if (MapRangeInfo->GetIsConformanceRange(PieceLocation, PieceOrientation))
 		{
 			return MapRangeInfo;
 		}
 	}
 
 	UCookieLandMapRangeInfo* MapRangeInfo = NewObject<UCookieLandMapRangeInfo>();
-	switch (PieceOrientation)
-	{
-	case ECookieLandPieceOrientation::Up:
-	case ECookieLandPieceOrientation::Down:
-		MapRangeInfo->Orientation = ECookieLandPieceOrientation::Up;
-		MapRangeInfo->Location.X = PieceLocation.X;
-		MapRangeInfo->Location.Y = PieceLocation.Y;
-		break;
-	case ECookieLandPieceOrientation::Left:
-	case ECookieLandPieceOrientation::Right:
-		MapRangeInfo->Orientation = ECookieLandPieceOrientation::Left;
-		MapRangeInfo->Location.Y = PieceLocation.Y;
-		MapRangeInfo->Location.Floor = PieceLocation.Floor;
-		break;
-	case ECookieLandPieceOrientation::Forward:
-	case ECookieLandPieceOrientation::Backward:
-		MapRangeInfo->Orientation = ECookieLandPieceOrientation::Forward;
-		MapRangeInfo->Location.X = PieceLocation.X;
-		MapRangeInfo->Location.Floor = PieceLocation.Floor;
-		break;
-	};
+	MapRangeInfo->Init(PieceLocation, PieceOrientation);
 
 	MapRangeInfos.Add(MapRangeInfo);
 
@@ -543,10 +595,110 @@ void UCookieLandMapBuilder::UpdateMapRange(bool bIsAdd, const FCookieLandLocatio
 	}
 	else
 	{
-		// 地块被移除时，自动移除强制绑定
-		PieceDeleteForceLine(PieceLocation, PieceOrientation);
+		MapRangeInfoTryRemove(MapRangeInfo, PieceLocation, PieceOrientation);
+	}
+
+	TArray<UCookieLandMapRangeInfo*> OutMapOmnibearingRangeInfos = CreateOrGetMapOmnibearingRangeInfos(PieceLocation);
+	for (int Index = 0; Index < OutMapOmnibearingRangeInfos.Num(); ++Index)
+	{
+		UCookieLandMapRangeInfo* OutMapOmnibearingRangeInfo = OutMapOmnibearingRangeInfos[Index];
+		if (bIsAdd)
+		{
+			OutMapOmnibearingRangeInfo->AddPiece(PieceLocation);
+		}
+		else
+		{
+			MapRangeInfoTryRemove(OutMapOmnibearingRangeInfo, PieceLocation, PieceOrientation);
+		}
+	}
+}
+
+void UCookieLandMapBuilder::MapRangeInfoTryRemove(UCookieLandMapRangeInfo* MapRangeInfo, const FCookieLandLocation PieceLocation, const ECookieLandPieceOrientation PieceOrientation)
+{
+	TArray< ECookieLandPieceOrientation> Orientations;
+	switch (PieceOrientation)
+	{
+	case ECookieLandPieceOrientation::Up:
+	case ECookieLandPieceOrientation::Down:
+		Orientations.Add(ECookieLandPieceOrientation::Up);
+		Orientations.Add(ECookieLandPieceOrientation::Down);
+		break;
+	case ECookieLandPieceOrientation::Left:
+	case ECookieLandPieceOrientation::Right:
+		Orientations.Add(ECookieLandPieceOrientation::Left);
+		Orientations.Add(ECookieLandPieceOrientation::Right);
+		break;
+	case ECookieLandPieceOrientation::Forward:
+	case ECookieLandPieceOrientation::Backward:
+		Orientations.Add(ECookieLandPieceOrientation::Forward);
+		Orientations.Add(ECookieLandPieceOrientation::Backward);
+		break;
+	};
+
+	// 地块被移除时，自动移除强制绑定
+	PieceDeleteForceLine(PieceLocation, PieceOrientation);
+
+	bool bForceRemove = true;
+	for (int Index = 0; Index < Orientations.Num(); ++Index)
+	{
+		// 因为存储时是不分双方向，所以移除时需要双方向判断确认
+		ECookieLandPieceOrientation Orientation = Orientations[Index];
+		if (GetIsPieceOccupyByLocator(PieceLocation, Orientation))
+		{
+			bForceRemove = false;
+		}
+	}
+
+	if (bForceRemove)
+	{
 		MapRangeInfo->RemovePiece(PieceLocation);
 	}
+}
+
+TArray<UCookieLandMapRangeInfo*> UCookieLandMapBuilder::CreateOrGetMapOmnibearingRangeInfos(const FCookieLandLocation PieceLocation)
+{
+	TArray<UCookieLandMapRangeInfo*> OutMapOmnibearingRangeInfos;
+
+	TArray< ECookieLandPieceOrientation> Orientations = { ECookieLandPieceOrientation::Up,ECookieLandPieceOrientation::Left,ECookieLandPieceOrientation::Forward };
+
+	TArray<FCookieLandPieceLocator> Locators;
+	for (int Index = 0; Index < Orientations.Num(); ++Index)
+	{
+		ECookieLandPieceOrientation Orientation = Orientations[Index];
+		Locators.Add(FCookieLandPieceLocator(PieceLocation, Orientation));
+	}
+
+	for (int Index = 0; Index < MapOmnibearingRangeInfos.Num(); ++Index)
+	{
+		UCookieLandMapRangeInfo* MapRangeInfo = MapOmnibearingRangeInfos[Index];
+		for (int J = 0; J < Locators.Num(); ++J) 
+		{
+			FCookieLandPieceLocator Locator = Locators[J];
+			if (MapRangeInfo->GetIsConformanceRange(Locator.PieceLocation, Locator.PieceOrientation))
+			{
+				OutMapOmnibearingRangeInfos.Add(MapRangeInfo);
+				Locators.RemoveAt(J);
+				break;
+			}
+		}
+		if (Locators.Num() == 0)
+		{
+			break;
+		}
+	}
+
+	for (int J = 0; J < Locators.Num(); ++J)
+	{
+		FCookieLandPieceLocator Locator = Locators[J];
+
+		UCookieLandMapRangeInfo* MapRangeInfo = NewObject<UCookieLandMapRangeInfo>();
+		MapRangeInfo->Init(Locator.PieceLocation, Locator.PieceOrientation);
+
+		MapOmnibearingRangeInfos.Add(MapRangeInfo);
+		OutMapOmnibearingRangeInfos.Add(MapRangeInfo);
+	}
+
+	return OutMapOmnibearingRangeInfos;
 }
 
 FCookieLandOrientationLinkInfo UCookieLandMapBuilder::ExecutePerceptualObjectFindForceLinkInfoEventCallback(FCookieLandPieceLocator Locator)
