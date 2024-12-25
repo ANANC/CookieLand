@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CookieLand/Global/Public/CookieLandGlobal.h"
-#include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
-#include "CookieLand/Map/Public/CookieLandMapSubsystem.h"
+#include "CookieLandGlobal.h"
+#include "CookieLand/PerceptualObject/CookieLandPerceptualObjectSubsystem.h"
+#include "CookieLand/Map/CookieLandMapSubsystem.h"
 
 DEFINE_LOG_CATEGORY(LogCookieLandGlobal);
 

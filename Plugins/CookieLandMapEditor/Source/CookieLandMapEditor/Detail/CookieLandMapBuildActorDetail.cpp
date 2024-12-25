@@ -1,17 +1,17 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Detail/CookieLandMapBuildActorDetail.h"
+#include "CookieLandMapBuildActorDetail.h"
 #include "DetailLayoutBuilder.h"
 #include "DetailCategoryBuilder.h"
 #include "DetailWidgetRow.h"
-#include "CookieLand/Map/Public/CookieLandMapBuildActor.h"
+#include "CookieLand/Map/CookieLandMapBuildActor.h"
 #include "Widgets/SBoxPanel.h"
 #include "Widgets/Input/SButton.h"
-#include "CookieLand/Map/Public/CookieLandMapSubsystem.h"
-#include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
-#include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
-#include "CookieLand/Map/Public/CookieLandMapBuilder.h"
+#include "CookieLand/Map/CookieLandMapSubsystem.h"
+#include "CookieLand/Map/CookieLandMapBuildLibrary.h"
+#include "CookieLand/PerceptualObject/CookieLandPerceptualObjectSubsystem.h"
+#include "CookieLand/Map/CookieLandMapBuilder.h"
 
 #define LOCTEXT_NAMESPACE "CookieLandMapBuildActorDetail"  
 

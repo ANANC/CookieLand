@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
-#include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
+#include "CookieLandPerceptualObjectSubsystem.h"
+#include "CookieLandMapBuildLibrary.h"
 
 #define Max(a, b) ((a) > (b) ? (a) : (b))
 

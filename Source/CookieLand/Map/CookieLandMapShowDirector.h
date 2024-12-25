@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "CookieLand/Map/Public/CookieLandMapTypes.h"
-#include "Runtime/Core/Public/Delegates/DelegateCombinations.h"
+#include "CookieLandMapTypes.h"
+#include "Delegates/DelegateCombinations.h"
 #include "CookieLandMapShowDirector.generated.h"
 
 class ACookieLandMapBuildActor;

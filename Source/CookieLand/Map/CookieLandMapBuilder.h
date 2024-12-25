@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "CookieLand/Map/Public/CookieLandMapTypes.h"
+#include "CookieLandMapTypes.h"
 #include "CookieLandMapBuilder.generated.h"
 
 UCLASS()

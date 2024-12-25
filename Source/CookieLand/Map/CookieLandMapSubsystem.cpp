@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CookieLand/Map/Public/CookieLandMapSubsystem.h"
-#include "CookieLand/Map/Public/CookieLandMapBuildActor.h"
+#include "CookieLandMapSubsystem.h"
+#include "CookieLandMapBuildActor.h"
 
 void UCookieLandMapSubsystem::RegisterMapBuildActor(ACookieLandMapBuildActor* InMapBuildActor)
 {

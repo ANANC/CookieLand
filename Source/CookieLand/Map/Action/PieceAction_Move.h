@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CookieLand/Map/Public/CookieLandBasePieceAction.h"
-#include "CookieLand/Map/Public/CookieLandMapTypes.h"
+#include "CookieLandBasePieceAction.h"
+#include "CookieLandMapTypes.h"
 #include "PieceAction_Move.generated.h"
 
 UENUM(BlueprintType)

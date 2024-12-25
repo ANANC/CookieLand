@@ -2,12 +2,12 @@
 
 
 #include "CookieLandMapShowDirector.h"
-#include "CookieLand/Map/Public/CookieLandMapBuildActor.h"
-#include "CookieLand/Map/Public/CookieLandMapBuilder.h"
-#include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
-#include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
-#include "CookieLand/Map/Public/CookieLandMapActorGather.h"
-#include "CookieLand/Map/Public/CookieLandPiece.h"
+#include "CookieLand/Map/CookieLandMapBuildActor.h"
+#include "CookieLand/Map/CookieLandMapBuilder.h"
+#include "CookieLand/Map/CookieLandMapBuildLibrary.h"
+#include "CookieLand/PerceptualObject/CookieLandPerceptualObjectSubsystem.h"
+#include "CookieLand/Map/CookieLandMapActorGather.h"
+#include "CookieLand/Map/CookieLandPiece.h"
 
 
 void UCookieLandMapShowDirector::SetBuildActor(ACookieLandMapBuildActor* InBuildActor)

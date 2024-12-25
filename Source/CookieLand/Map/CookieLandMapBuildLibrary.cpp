@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
-#include "CookieLand/Global/Public/CookieLandGlobal.h"
-#include "CookieLand/Map/Public/CookieLandPiece.h"
-#include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
-#include "CookieLand/Map/Public/CookieLandMapSubsystem.h"
+#include "CookieLandMapBuildLibrary.h"
+#include "CookieLand/Global/CookieLandGlobal.h"
+#include "CookieLandPiece.h"
+#include "CookieLand/PerceptualObject/CookieLandPerceptualObjectSubsystem.h"
+#include "CookieLandMapSubsystem.h"
 
 UCookieLandPerceptualObjectSubsystem* UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem()
 {

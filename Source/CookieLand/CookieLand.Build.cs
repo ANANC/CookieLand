@@ -13,14 +13,14 @@ public class CookieLand : ModuleRules
 
         // 指定公共头文件目录
         PublicIncludePaths.AddRange(new string[] {
-                 "CookieLand/Map/Public",
-                 "CookieLand/Global/Public",
+                 "CookieLand/Map",
+                 "CookieLand/Global",
              });
 
         // 指定私有头文件目录
         PrivateIncludePaths.AddRange(new string[] {
-                 "CookieLand/Map/Private",
-                 "CookieLand/Global/Private",
+                 "CookieLand/Map",
+                 "CookieLand/Global",
              });
     }
 }

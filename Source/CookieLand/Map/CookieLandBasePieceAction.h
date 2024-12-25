@@ -71,5 +71,5 @@ protected:
 
 public:
 
-	void AddTask()
+	void AddTask();
 };

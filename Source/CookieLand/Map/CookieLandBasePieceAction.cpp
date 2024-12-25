@@ -1,10 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CookieLand/Map/Public/CookieLandBasePieceAction.h"
-#include "CookieLand/Map/Public/CookieLandPiece.h"
-#include "CookieLand/Map/Public/CookieLandMapBuildActor.h"
-#include "CookieLand/Map/Public/CookieLandMapBuilder.h"
+#include "CookieLandBasePieceAction.h"
+#include "CookieLandPiece.h"
+#include "CookieLandMapBuildActor.h"
+#include "CookieLandMapBuilder.h"
 
 void UCookieLandBasePieceAction::Init(int InId, UCookieLandPiece* InPiece, UCookieLandBasePieceActionData* InData)
 {

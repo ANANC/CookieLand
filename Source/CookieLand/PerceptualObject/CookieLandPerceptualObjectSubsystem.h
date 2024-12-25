@@ -3,8 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CookieLand/Map/Public/CookieLandMapTypes.h"
-#include "Runtime/Core/Public/Delegates/DelegateCombinations.h"
+#include "CookieLand/Map/CookieLandMapTypes.h"
+#include "Delegates/DelegateCombinations.h"
 #include "CookieLandPerceptualObjectSubsystem.generated.h"
 
 UCLASS()

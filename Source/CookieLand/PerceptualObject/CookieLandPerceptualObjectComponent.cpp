@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectComponent.h"
-#include "CookieLand/PerceptualObject/Public/CookieLandPerceptualObjectSubsystem.h"
-#include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
+#include "CookieLandPerceptualObjectComponent.h"
+#include "CookieLandPerceptualObjectSubsystem.h"
+#include "CookieLand/Map/CookieLandMapBuildLibrary.h"
 
 // Sets default values for this component's properties
 UCookieLandPerceptualObjectComponent::UCookieLandPerceptualObjectComponent()

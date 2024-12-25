@@ -1,9 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CookieLand/Map/Public/CookieLandMapActorGather.h"
-#include "CookieLand/Map/Public/CookieLandPiece.h"
-#include "CookieLand/Map/Public/CookieLandMapBuildLibrary.h"
+#include "CookieLandMapActorGather.h"
+#include "CookieLandPiece.h"
+#include "CookieLandMapBuildLibrary.h"
 
 bool UCookieLandMapActorGather::GetIsPieceExistByLocation(const FCookieLandLocation MapCubeLocation, const ECookieLandPieceOrientation PieceOrientation)
 {

@@ -1,6 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "CookieLandMapEditor/Public/EditorView/CookieLandMapEditorCommands.h"
+#include "CookieLandMapEditor/EditorView/CookieLandMapEditorCommands.h"
 
 #define LOCTEXT_NAMESPACE "FCookieLandMapEditorModule"
 

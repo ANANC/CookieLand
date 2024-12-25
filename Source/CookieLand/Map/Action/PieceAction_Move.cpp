@@ -2,9 +2,9 @@
 
 
 #include "CookieLand/Map/Action/PieceAction_Move.h"
-#include "CookieLand/Map/Public/CookieLandPiece.h"
-#include "CookieLand/Map/Public/CookieLandMapBuildActor.h"
-#include "CookieLand/Map/Public/CookieLandMapBuilder.h"
+#include "CookieLand/Map/CookieLandPiece.h"
+#include "CookieLand/Map/CookieLandMapBuildActor.h"
+#include "CookieLand/Map/CookieLandMapBuilder.h"
 
 #pragma region UPieceActionData_Move
 

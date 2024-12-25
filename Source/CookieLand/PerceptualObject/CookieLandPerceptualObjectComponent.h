@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "CookieLand/Map/Public/CookieLandMapTypes.h"
+#include "CookieLandMapTypes.h"
 #include "CookieLandPerceptualObjectComponent.generated.h"
 
 

@@ -1,16 +1,16 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "CookieLandMapEditor/Public/CookieLandMapEditorModule.h"
-#include "CookieLandMapEditor/Public/EditorView/CookieLandMapEditorStyle.h"
-#include "CookieLandMapEditor/Public/EditorView/CookieLandMapEditorCommands.h"
+#include "CookieLandMapEditor/CookieLandMapEditorModule.h"
+#include "CookieLandMapEditor/EditorView/CookieLandMapEditorStyle.h"
+#include "CookieLandMapEditor/EditorView/CookieLandMapEditorCommands.h"
 #include "LevelEditor.h"
 #include "Widgets/Docking/SDockTab.h"
 #include "Widgets/Layout/SBox.h"
 #include "Widgets/Text/STextBlock.h"
 #include "ToolMenus.h"
-#include "CookieLand/Map/Public/CookieLandMapBuildActor.h"
+#include "CookieLand/Map/CookieLandMapBuildActor.h"
 #include "Detail/CookieLandMapBuildActorDetail.h"
-#include "CookieLandMapEditor/Public/EditorView/CookieLandMapEditorView.h"
+#include "CookieLandMapEditor/EditorView/CookieLandMapEditorView.h"
 
 static const FName CookieLandMapEditorTabName("CookieLandMapEditor");
 
