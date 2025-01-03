@@ -4,9 +4,11 @@
 #include "CookieLandPiece.h"
 #include "CookieLandMapBuildLibrary.h"
 #include "Components/BoxComponent.h"
+#include "Components/TimelineComponent.h"
 #include "CookieLandMapShowDirector.h"
 #include "CookieLand/PerceptualObject/CookieLandPerceptualObjectComponent.h"
 #include "CookieLandBasePieceAction.h"
+#include "CookieLandBaseCueActor.h"
 
 #pragma region ACookieLandPieceActor
 
@@ -14,6 +16,7 @@ ACookieLandPieceActor::ACookieLandPieceActor(const FObjectInitializer& Initializ
 	Super(Initializer)
 {
 	EnterBox = CreateDefaultSubobject<UBoxComponent>(TEXT("EnterBox"));
+	TimelineComponent = CreateDefaultSubobject<UTimelineComponent>(TEXT("TimelineComponent"));
 
 	FScriptDelegate OnComponentBeginOverlapDelegate;
 	OnComponentBeginOverlapDelegate.BindUFunction(this, FName("ReceiveEnterBoxOnComponentBeginOverlapCallback"));
@@ -146,6 +149,11 @@ ACookieLandMapBuildActor* UCookieLandPiece::GetMapBuildActor()
 void UCookieLandPiece::SetPieceActor(ACookieLandPieceActor* Instance)
 {
 	PieceActor = Instance;
+}
+
+ACookieLandPieceActor* UCookieLandPiece::GetPieceActor()
+{
+	return PieceActor;
 }
 
 void UCookieLandPiece::SetPieceActorType(TSubclassOf< ACookieLandPieceActor> PieceActorType)
@@ -322,5 +330,6 @@ bool UCookieLandPiece::HasActiveGameplayTag(FGameplayTag InGameplayTag)
 {
 	return ActivingTagContainer.HasTag(InGameplayTag);
 }
+
 
 #pragma endregion

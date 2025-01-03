@@ -409,3 +409,24 @@ bool UCookieLandMapBuildLibrary::GetPerceptionInfoDataTable(FName PerceptualObje
 	}
 	return false;
 }
+
+ECookieLandPieceOrientation UCookieLandMapBuildLibrary::GetOppositeOrientation(const ECookieLandPieceOrientation& SourceOrientation)
+{
+	switch (SourceOrientation)
+	{
+	case ECookieLandPieceOrientation::Up:
+		return ECookieLandPieceOrientation::Down;
+	case ECookieLandPieceOrientation::Down:
+		return ECookieLandPieceOrientation::Up;
+	case ECookieLandPieceOrientation::Left:
+		return ECookieLandPieceOrientation::Right;
+	case ECookieLandPieceOrientation::Right:
+		return ECookieLandPieceOrientation::Left;
+	case ECookieLandPieceOrientation::Forward:
+		return ECookieLandPieceOrientation::Backward;
+	case ECookieLandPieceOrientation::Backward:
+		return ECookieLandPieceOrientation::Forward;
+	default:
+		return ECookieLandPieceOrientation::Up;
+	}
+}

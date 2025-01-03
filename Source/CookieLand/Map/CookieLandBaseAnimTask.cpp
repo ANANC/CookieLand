@@ -3,6 +3,9 @@
 
 #include "CookieLand/Map/CookieLandBaseAnimTask.h"
 #include "CookieLandBasePieceAction.h"
+#include "CookieLand/Map/CookieLandPiece.h"
+#include "CookieLand/Map/CookieLandMapBuildActor.h"
+#include "CookieLand/Map/CookieLandMapActorGather.h"
 
 void UCookieLandBaseAnimTask::Init(int InId, UCookieLandBasePieceAction* InAction)
 {
@@ -16,12 +19,48 @@ void UCookieLandBaseAnimTask::Init(int InId, UCookieLandBasePieceAction* InActio
 
 void UCookieLandBaseAnimTask::Active()
 {
+	bIsActive = true;
 
+	if (!GetPiece())
+	{
+		Finish();
+		return;
+	}
+
+	if (ActiveEvent.IsBound())
+	{
+		ActiveEvent.Broadcast();
+	}
 }
 
 void UCookieLandBaseAnimTask::Finish()
 {
+	if (FinishEvent.IsBound())
+	{
+		FinishEvent.Broadcast();
+	}
 
+	if (Action)
+	{
+		Action->RemoveTaskById(Id);
+	}
+
+	bIsFinish = true;
+}
+
+void UCookieLandBaseAnimTask::UnInit()
+{
+	Action = nullptr;
+	Piece = nullptr;
+}
+
+UCookieLandBaseAnimTask* UCookieLandBaseAnimTask::CreateAnimTask(UCookieLandBasePieceAction* ThisAction, TSubclassOf< UCookieLandBaseAnimTask> TaskType)
+{
+	UCookieLandBaseAnimTask* NewTask = NewObject<UCookieLandBaseAnimTask>(ThisAction, TaskType);
+
+	ThisAction->AddTask(NewTask);
+
+	return NewTask;
 }
 
 int UCookieLandBaseAnimTask::GetId()
@@ -31,10 +70,25 @@ int UCookieLandBaseAnimTask::GetId()
 
 UCookieLandBasePieceAction* UCookieLandBaseAnimTask::GetAction()
 {
-	return Action;
+	return Action.Get();
 }
 
 UCookieLandPiece* UCookieLandBaseAnimTask::GetPiece()
 {
-	return Piece;
+	return Piece.Get();
+}
+
+ACookieLandPieceActor* UCookieLandBaseAnimTask::GetPieceActor()
+{
+	if (Piece)
+	{
+		return Piece->GetPieceActor();
+	}
+
+	return nullptr;
+}
+
+bool UCookieLandBaseAnimTask::GetIsActiving()
+{
+	return bIsActive && !bIsFinish;
 }

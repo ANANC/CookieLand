@@ -64,7 +64,10 @@ void UCookieLandPerceptualObjectSubsystem::UpdatePerceptualObjectLocator(int Id,
 	{
 		MainPerceptualObjectLocatorChangeEvent.Broadcast(PerceptualObject->Id, OldPieceLocator, PieceLocator);
 	}
-	PerceptualObjectLocatorChangeEvent.Broadcast(PerceptualObject->Id, OldPieceLocator, PieceLocator);
+	if (PerceptualObject->bPerpetuating) 
+	{
+		PerceptualObjectLocatorChangeEvent.Broadcast(PerceptualObject->Id, OldPieceLocator, PieceLocator);
+	}
 }
 
 void UCookieLandPerceptualObjectSubsystem::UpdatePerceptualObjectEnablePerceptual(int Id, bool bInEnablePerceptual)
@@ -129,6 +132,22 @@ const UCookieLandPerceptualObject* UCookieLandPerceptualObjectSubsystem::GetPerc
 	return FindPerceptualObject(Id);
 }
 
+bool UCookieLandPerceptualObjectSubsystem::HasPerceptualObjectStandByTargetLocation(FCookieLandPieceLocator Locator)
+{
+	for (int Index = 0; Index < PerceptualObjects.Num(); ++Index)
+	{
+		UCookieLandPerceptualObject* PerceptualObject = PerceptualObjects[Index];
+		if (PerceptualObject->bPerpetuating)
+		{
+			if (PerceptualObject->PieceLocation == Locator.PieceLocation && PerceptualObject->PieceOrientation == Locator.PieceOrientation)
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 bool UCookieLandPerceptualObjectSubsystem::GetMainCurrentLocator(FCookieLandPieceLocator& MainLocator)
 {
 	if (MainPerceptualObject)
@@ -164,6 +183,9 @@ void UCookieLandPerceptualObjectSubsystem::UpdatePassivePerceptualObjectLocators
 	for (int Index = 0; Index < PerceptualObjects.Num(); ++Index)
 	{
 		UCookieLandPerceptualObject* PerceptualObject = PerceptualObjects[Index];
+
+		PerceptualObject->bPerpetuating = false;
+
 		if (PerceptualObject->bEnablePerceptual && PerceptualObject->Id!= MainPerceptualObject->Id)
 		{
 			FCookieLandPieceLocator PerceptualObjectLocator = PerceptualObject->GetLocator();
@@ -174,6 +196,7 @@ void UCookieLandPerceptualObjectSubsystem::UpdatePassivePerceptualObjectLocators
 			{
 				PerceptualingPerceptualObjectIds.Add(PerceptualObject->Id);
 				PerceptualingPerceptualObjectLocators.Add(PerceptualObjectLocator);
+				PerceptualObject->bPerpetuating = true;
 			}
 		}
 	}

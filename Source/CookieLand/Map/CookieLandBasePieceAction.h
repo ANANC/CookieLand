@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "CookieLandActionTypes.h"
 #include "CookieLandBasePieceAction.generated.h"
 
 
@@ -12,22 +13,8 @@ class UCookieLandPiece;
 class ACookieLandMapBuildActor;
 class UCookieLandMapBuilder;
 class UCookieLandBaseAnimTask;
+class ACookieLandBaseCueActor;
 
-UCLASS(Blueprintable, EditInlineNew)
-class COOKIELAND_API UCookieLandBasePieceActionData : public UObject
-{
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "事件类型"))
-	TSubclassOf< UCookieLandBasePieceAction> PieceActionClassType = nullptr;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "是否允许重复添加"))
-	bool bEnableRepetition = false;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "是否立即执行"))
-	bool bActiveImmediately = true;
-};
 
 UCLASS(Blueprintable,BlueprintType)
 class COOKIELAND_API UCookieLandBasePieceAction : public UObject
@@ -47,29 +34,70 @@ protected:
 	UPROPERTY()
 	TArray< TObjectPtr<UCookieLandBaseAnimTask>> Tasks;
 
+	UPROPERTY()
+	TArray< TObjectPtr<ACookieLandBaseCueActor>> CueActors;
+
 	int AutoTaskId = 0;
+
 public:
+	// 时机： Init -> Active -> Finish -> UnInit
+
+	// 初始化
 	virtual void Init(int InId, UCookieLandPiece* InPiece,UCookieLandBasePieceActionData* InData);
+	// 反初始化
 	virtual void UnInit();
 
+	// 激活
 	virtual void Active();
+	// 结束
 	virtual void Finish();
 
+	// -- base data --
 public:
 	int GetId() const;
 
 	UCookieLandPiece* GetPiece();
 
+	// 获取地图构建Actor
 	ACookieLandMapBuildActor* GetMapBuildActor();
 
 	UCookieLandMapBuilder* GetMapBuilder();
 
+	// 获取配置数据
 	const UCookieLandBasePieceActionData* GetData() const;
 
 protected:
+	// 设置配置数据
 	virtual void SetData(UCookieLandBasePieceActionData* InData);
 
-public:
 
-	void AddTask();
+	// -- Task --
+public:
+	// 添加Task
+	void AddTask(UCookieLandBaseAnimTask* InTask);
+
+	// 通过Id移除Task
+	void RemoveTaskById(int InTaskId);
+
+	// -- CueActor --
+public:
+	
+	// 创建CueActor 通过tag
+	static ACookieLandBaseCueActor* CreateCueActor(UCookieLandBasePieceAction* InPieceAction, FGameplayTag CueActorTag, UCookieLandBaseCueActorData* InBaseData = nullptr);
+
+	// 创建CueActor 通过具体参数
+	static ACookieLandBaseCueActor* CreateCueActor(UCookieLandBasePieceAction* InPieceAction,TSubclassOf< ACookieLandBaseCueActor> CueActorType, UCookieLandBaseCueActorData* InBaseData);
+
+	// 添加CueActor实例
+	void AddCueActor(ACookieLandBaseCueActor* InCueActor,UCookieLandBaseCueActorData* InCueActorData);
+
+	// 销毁CueActor
+	static ACookieLandBaseCueActor* DestroyCueActor(UCookieLandBasePieceAction* InPieceAction, ACookieLandBaseCueActor* InCueActor);
+
+	// 移除CueActor实例
+	void RemoveCueActor(ACookieLandBaseCueActor* InCueActor);
+
+protected:
+	// 获取CueActor数据
+	bool GetCueActorDataByTag(FGameplayTag CueActorTag, FCueActorData& OutCueActorData);
 };

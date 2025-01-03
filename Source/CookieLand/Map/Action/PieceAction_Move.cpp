@@ -5,41 +5,44 @@
 #include "CookieLand/Map/CookieLandPiece.h"
 #include "CookieLand/Map/CookieLandMapBuildActor.h"
 #include "CookieLand/Map/CookieLandMapBuilder.h"
+#include "CookieLand/Map/Task/AnimTask_Move.h"
+#include "CookieLand/Map/CookieLandMapBuildLibrary.h"
+#include "CookieLand/PerceptualObject/CookieLandPerceptualObjectSubsystem.h"
 
-#pragma region UPieceActionData_Move
-
-void UPieceActionData_Move::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
-{
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-	if (PropertyChangedEvent.MemberProperty)
-	{
-		const FName MemberPropertyName = PropertyChangedEvent.MemberProperty->GetFName();
-		if (MemberPropertyName == GET_MEMBER_NAME_CHECKED(UPieceActionData_Move, Trigger))
-		{
-			bActiveImmediately = Trigger == EPieceActionMoveTriggerType::Auto;
-		}
-	}
-}
-
-#pragma endregion
-
-
+#pragma region UPieceAction_Move
 void UPieceAction_Move::SetData(UCookieLandBasePieceActionData* InData)
 {
-	Data = Cast< UPieceActionData_Move>(InData);
+	Data = Cast<UPieceActionData_Move>(InData);
+	check(Data);
 }
 
 void UPieceAction_Move::Active()
 {
+	Super::Active();
+
+	MoveOrientation = Data->MoveOrientation;
+
 	StartLocator = Piece->GetPieceLocator();
 	EndLocator = GetMoveTarget();
 
 	if (StartLocator == EndLocator)
 	{
+		Finish();
 		return;
 	}
 
+	TryTrigger(Data->Trigger);
+}
 
+void UPieceAction_Move::Finish()
+{
+	if (MoveTask)
+	{
+		MoveTask->FinishEvent.RemoveDynamic(this, &UPieceAction_Move::MoveTaskFinishEventCallback);
+	}
+	DestroyCueActor(this,CueActor_Move);
+
+	Super::Finish();
 }
 
 FCookieLandPieceLocator UPieceAction_Move::GetMoveTarget()
@@ -51,7 +54,7 @@ FCookieLandPieceLocator UPieceAction_Move::GetMoveTarget()
 		if (MapBuilder)
 		{
 			FCookieLandPieceLocator NearestLocator;
-			if (MapBuilder->GetNearestPieceLocator(StartLocator, Data->MoveOrientation, Locator))
+			if (MapBuilder->GetNearestPieceLocator(StartLocator, MoveOrientation, Locator))
 			{
 				Locator = NearestLocator;
 			}
@@ -59,7 +62,7 @@ FCookieLandPieceLocator UPieceAction_Move::GetMoveTarget()
 	}
 	else if (Data->MoveType == EPieceActionMoveType::Fixed)
 	{
-		Locator.PieceLocation.AddDistanceBySixDirection(Data->MoveOrientation, Data->FixedDistance);
+		Locator.PieceLocation.AddDistanceBySixDirection(MoveOrientation, Data->FixedDistance);
 		if (!Data->bIngoreObstacle)
 		{
 			UCookieLandMapBuilder* MapBuilder = GetMapBuilder();
@@ -86,3 +89,81 @@ FCookieLandPieceLocator UPieceAction_Move::GetMoveTarget()
 	}
 	return Locator;
 }
+
+void UPieceAction_Move::TryTrigger(EPieceActionMoveTriggerType InTriggerType)
+{
+	if (InTriggerType == EPieceActionMoveTriggerType::Auto)
+	{
+		PlayMoveTask();
+	}
+	else
+	{
+		UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
+
+		if (PerceptualObjectSubsystem->HasPerceptualObjectStandByTargetLocation(StartLocator))
+		{
+			PlayMoveTask();
+		}
+		else
+		{
+			PerceptualObjectSubsystem->PerceptualObjectLocatorChangeEvent.AddDynamic(this, &UPieceAction_Move::ReceivePerceptualObjectLocatorChangeEventCallback);
+		}
+	}
+}
+
+void UPieceAction_Move::PlayMoveTask()
+{
+	MoveTask = UAnimTask_Move::CreateTask(this, StartLocator, EndLocator, Data->AnimTaskMoveData);
+	if (!MoveTask->GetIsActiving())
+	{
+		Finish();
+		return;
+	}
+
+	MoveTask->FinishEvent.AddDynamic(this, &UPieceAction_Move::MoveTaskFinishEventCallback);
+
+	DestroyCueActor(this, CueActor_Move);
+
+	UCookieLandCueData_Move* CueData = NewObject<UCookieLandCueData_Move>();
+	CueData->MoveOrientation = Data->MoveOrientation;
+	CueActor_Move = CreateCueActor(this, GET_GAMEPLAY_TAG("CueActor.Action.Move"), CueData);
+}
+
+void UPieceAction_Move::ReceivePerceptualObjectLocatorChangeEventCallback(int InId, FCookieLandPieceLocator OldLocator, FCookieLandPieceLocator NewLocator)
+{
+	if (NewLocator == StartLocator) 
+	{
+		UCookieLandPerceptualObjectSubsystem* PerceptualObjectSubsystem = UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem();
+		PerceptualObjectSubsystem->PerceptualObjectLocatorChangeEvent.RemoveDynamic(this, &UPieceAction_Move::ReceivePerceptualObjectLocatorChangeEventCallback);
+
+		PlayMoveTask();
+	}
+}
+
+void UPieceAction_Move::MoveTaskFinishEventCallback()
+{
+	Finish();
+}
+
+#pragma endregion
+
+#pragma region UPieceAction_MoveBackAndForth
+
+UPieceActionData_MoveBackAndForth* UPieceAction_MoveBackAndForth::GetMyData()
+{
+	return Cast<UPieceActionData_MoveBackAndForth>(BaseData);
+}
+
+void UPieceAction_MoveBackAndForth::MoveTaskFinishEventCallback()
+{
+	FCookieLandPieceLocator RecordStartLocator = StartLocator;
+	StartLocator = EndLocator;
+	EndLocator = StartLocator;
+
+	MoveOrientation = UCookieLandMapBuildLibrary::GetOppositeOrientation(MoveOrientation);
+
+	UPieceActionData_MoveBackAndForth* MyData = GetMyData();
+	TryTrigger(MyData->AgainTrigger);
+
+}
+#pragma endregion

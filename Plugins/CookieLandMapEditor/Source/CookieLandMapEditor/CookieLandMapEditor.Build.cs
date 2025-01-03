@@ -51,12 +51,12 @@ public class CookieLandMapEditor : ModuleRules
 
         // 指定公共头文件目录
         PublicIncludePaths.AddRange(new string[] {
-                 "CookieLandMapEditor/Source/CookieLandMapEditor/Public",
+                 "CookieLandMapEditor/Source/CookieLandMapEditor",
              });
 
         // 指定私有头文件目录
         PrivateIncludePaths.AddRange(new string[] {
-                 "CookieLandMapEditor/Source/CookieLandMapEditor/Private",
+                 "CookieLandMapEditor/Source/CookieLandMapEditor",
              });
 
         DynamicallyLoadedModuleNames.AddRange(

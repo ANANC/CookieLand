@@ -11,6 +11,7 @@
 class UCookieLandPiece;
 class UCookieLandMapShowDirector;
 class UBoxComponent;
+class UTimelineComponent;
 class UPrimitiveComponent;
 class UCookieLandPerceptualObjectComponent;
 class UCookieLandBasePieceAction;
@@ -25,6 +26,8 @@ protected:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, meta = (DisplayName = "进入地块检测"))
 	TObjectPtr<UBoxComponent> EnterBox;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "TimeLine"))
+	TObjectPtr<UTimelineComponent> TimelineComponent;
 protected:
 
 	bool bInit = false;
@@ -57,6 +60,9 @@ public:
 	void SetMapShowDirector(UCookieLandMapShowDirector* InMapShowDirector);
 
 	FCookieLandPieceLocator GetLocator() const;
+
+public:
+	UTimelineComponent* GetTimelineComponent() { return TimelineComponent.Get(); }
 public:
 	// 更新显示
 	virtual void UpdateDisplay(){}
@@ -121,11 +127,15 @@ public:
 	// 获取地图构建实例
 	ACookieLandMapBuildActor* GetMapBuildActor();
 
-	// 设置实例
+	// 设置实例Actor
 	virtual void SetPieceActor(ACookieLandPieceActor* Instance);
+
+	// 获取实例Actor
+	ACookieLandPieceActor* GetPieceActor();
 
 	// 设置实例类型
 	void SetPieceActorType(TSubclassOf< ACookieLandPieceActor> PieceActorType);
+
 
 	// 设置基础行为
 	void SetBaseAction(FCookieLandPieceBaseAction InBaseAction);
@@ -174,6 +184,12 @@ public:
 
 	// 获取是否有激活的GameplayTag
 	bool HasActiveGameplayTag(FGameplayTag InGameplayTag);
+
+	// 添加Cue
+	void AddCueActor(ACookieLandBaseCueActor* InCueActor);
+
+	// 移除Cue
+	void RemoveCueActor(ACookieLandBaseCueActor* InCueActor);
 
 protected:
 	// 根据类型获取地块行为

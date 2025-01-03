@@ -84,4 +84,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	static bool GetPerceptionInfoDataTable(FName PerceptualObjectType, FCookieLandPerceptualObjectPerceptionDataTableRow& OutPerceptionInfoDataTableRow);
 
+	// 获取相反的方向
+	UFUNCTION(BlueprintPure)
+	static ECookieLandPieceOrientation GetOppositeOrientation(const ECookieLandPieceOrientation& SourceOrientation);
 };

@@ -4,73 +4,71 @@
 
 #include "CoreMinimal.h"
 #include "CookieLandBasePieceAction.h"
-#include "CookieLandMapTypes.h"
 #include "PieceAction_Move.generated.h"
 
-UENUM(BlueprintType)
-enum class EPieceActionMoveTriggerType : uint8
-{
-	Auto,
-	Stand
-};
+class UAnimTask_Move;
 
-UENUM(BlueprintType)
-enum class EPieceActionMoveType : uint8
-{
-	NextPiece,
-	Fixed
-};
-
-UCLASS(Blueprintable, EditInlineNew)
-class COOKIELAND_API UPieceActionData_Move : public UCookieLandBasePieceActionData
-{
-	GENERATED_BODY()
-
-public:	
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "移动类型"))
-	EPieceActionMoveTriggerType Trigger = EPieceActionMoveTriggerType::Auto;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "移动类型"))
-	EPieceActionMoveType MoveType = EPieceActionMoveType::NextPiece;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "固定距离"), meta = (EditCondition = "MoveType == EPieceActionMoveType::Fixed"))
-	int FixedDistance = 0;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "移动方向"))
-	ECookieLandPieceOrientation MoveOrientation;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "是否无视障碍物"))
-	bool bIngoreObstacle = false;
-
-protected:
-#if WITH_EDITOR
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
-
-};
-
+// 基础行为：移动
 UCLASS()
 class COOKIELAND_API UPieceAction_Move : public UCookieLandBasePieceAction
 {
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UPieceActionData_Move* Data;
-
-protected:
 	virtual void SetData(UCookieLandBasePieceActionData* InData) override;
 
 public:
-
 	virtual void Active() override;
+	virtual void Finish() override;
 
+private:
+	UPROPERTY()
+	UPieceActionData_Move* Data = nullptr;//移动配置数据
+
+	UPROPERTY()
+	ACookieLandBaseCueActor* CueActor_Move = nullptr; //移动CueActor
 protected:
-
+	UPROPERTY()
 	FCookieLandPieceLocator StartLocator;
+	UPROPERTY()
 	FCookieLandPieceLocator EndLocator;
 
+	UPROPERTY()
+	ECookieLandPieceOrientation MoveOrientation;
+
+	UPROPERTY()
+	UAnimTask_Move* MoveTask = nullptr;//移动Task
+protected:
+	//获取移动目标点
+	FCookieLandPieceLocator GetMoveTarget();
+
+	// 尝试触发
+	void TryTrigger(EPieceActionMoveTriggerType InTriggerType);
+
+	// 执行任务
+	void PlayMoveTask();
+
+	//移动Task结束回调
+	UFUNCTION()
+	virtual void MoveTaskFinishEventCallback();
+
+	// 接收感知者位移
+	UFUNCTION()
+	virtual void ReceivePerceptualObjectLocatorChangeEventCallback(int InId, FCookieLandPieceLocator OldLocator, FCookieLandPieceLocator NewLocator);
+};
+
+
+// 基础行为：来回移动
+UCLASS()
+class COOKIELAND_API UPieceAction_MoveBackAndForth : public UPieceAction_Move
+{
+	GENERATED_BODY()
+
+protected:
+	UPieceActionData_MoveBackAndForth* GetMyData();
+
 protected:
 
-	FCookieLandPieceLocator GetMoveTarget();
+	//移动Task结束回调
+	virtual void MoveTaskFinishEventCallback() override;
 };

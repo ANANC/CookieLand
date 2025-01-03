@@ -13,12 +13,15 @@ class COOKIELAND_API UCookieLandPerceptualObject : public UObject
 	GENERATED_BODY()
 
 public:
+	// 感知者Id
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	int Id = -1;
 
+	// 感知者类型
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FName PerceptualObjectType = "";
 
+	// 能否被感知
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool bEnablePerceptual = true;
 
@@ -28,9 +31,13 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	ECookieLandPieceOrientation PieceOrientation;
 
+	// 感知配置信息
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FCookieLandPerceptualObjectPerceptionInfo PerceptionInfo;
 
+	// 是否在感知中
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	bool bPerpetuating = false;
 public:
 	void Copy(const UCookieLandPerceptualObject* Source)
 	{
@@ -41,6 +48,7 @@ public:
 		PieceLocation = Source->PieceLocation;
 		PieceOrientation = Source->PieceOrientation;
 		PerceptionInfo = Source->PerceptionInfo;
+		bPerpetuating = Source->bPerpetuating;
 	}
 
 	FCookieLandPieceLocator GetLocator() const
@@ -112,6 +120,9 @@ public:
 
 	// 获取感知对象
 	const UCookieLandPerceptualObject* GetPerceptualObject(int Id);
+
+	// 是否有感知者站着特定位置
+	bool HasPerceptualObjectStandByTargetLocation(FCookieLandPieceLocator Locator);
 
 	// 获取主感知对象的坐标信息
 	bool GetMainCurrentLocator(FCookieLandPieceLocator& MainLocator);
