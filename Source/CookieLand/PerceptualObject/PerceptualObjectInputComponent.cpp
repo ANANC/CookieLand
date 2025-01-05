@@ -76,5 +76,5 @@ void UPerceptualObjectInputComponent::MoveActionTriggerCallback(const FInputActi
 
 bool UPerceptualObjectInputComponent::GetNextPiece(ECookieLandPieceOrientation Orientation, FCookieLandLocation& OutLocation)
 {
-
+	return false;
 }

@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "EnhancedInput/Public/InputMappingContext.h"
+#include "InputMappingContext.h"
+#include "CookieLand/Map/CookieLandMapTypes.h"
 #include "PerceptualObjectInputComponent.generated.h"
 
 class UEnhancedInputComponent;
