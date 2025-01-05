@@ -6,6 +6,7 @@
 #include "CookieLandPiece.h"
 #include "CookieLand/PerceptualObject/CookieLandPerceptualObjectSubsystem.h"
 #include "CookieLandMapSubsystem.h"
+#include "Kismet/GameplayStatics.h"
 
 UCookieLandPerceptualObjectSubsystem* UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem()
 {
@@ -17,6 +18,17 @@ UCookieLandMapSubsystem* UCookieLandMapBuildLibrary::GetMapSubsystem()
 {
 	UCookieLandMapSubsystem* MapSubsystem = Cast< UCookieLandMapSubsystem>(UCookieLandGlobal::Get().FindSubsystem(UCookieLandMapSubsystem::StaticClass()));
 	return MapSubsystem;
+}
+
+UEnhancedInputLocalPlayerSubsystem* UCookieLandMapBuildLibrary::GetEnhancedInputLocalPlayerSubsystem(const UObject* WorldContextObject)
+{
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(WorldContextObject, 0);
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+	{
+		return Subsystem;
+	}
+
+	return nullptr;
 }
 
 bool UCookieLandMapBuildLibrary::GetSourceMapBuildDataTable(FName MapName, FCookieLandMapBuildDataTableRow& OutMapBuildDataTableRow)

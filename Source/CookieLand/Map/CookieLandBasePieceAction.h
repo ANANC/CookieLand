@@ -92,7 +92,7 @@ public:
 	void AddCueActor(ACookieLandBaseCueActor* InCueActor,UCookieLandBaseCueActorData* InCueActorData);
 
 	// 销毁CueActor
-	static ACookieLandBaseCueActor* DestroyCueActor(UCookieLandBasePieceAction* InPieceAction, ACookieLandBaseCueActor* InCueActor);
+	static void DestroyCueActor(UCookieLandBasePieceAction* InPieceAction, ACookieLandBaseCueActor* InCueActor);
 
 	// 移除CueActor实例
 	void RemoveCueActor(ACookieLandBaseCueActor* InCueActor);

@@ -185,12 +185,6 @@ public:
 	// 获取是否有激活的GameplayTag
 	bool HasActiveGameplayTag(FGameplayTag InGameplayTag);
 
-	// 添加Cue
-	void AddCueActor(ACookieLandBaseCueActor* InCueActor);
-
-	// 移除Cue
-	void RemoveCueActor(ACookieLandBaseCueActor* InCueActor);
-
 protected:
 	// 根据类型获取地块行为
 	 UCookieLandBasePieceAction* GetPieceActionByType(TSubclassOf<UCookieLandBasePieceAction> PieceActionClassType);

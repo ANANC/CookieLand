@@ -10,7 +10,7 @@
 class ACookieLandPieceActor;
 class UCookieLandPerceptualObjectSubsystem;
 class UCookieLandMapSubsystem;
-
+class UEnhancedInputLocalPlayerSubsystem;
 
 UCLASS()
 class COOKIELAND_API UCookieLandMapBuildLibrary : public UBlueprintFunctionLibrary
@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	static UCookieLandMapSubsystem* GetMapSubsystem();
 
+
+	UFUNCTION(BlueprintPure)
+	static UEnhancedInputLocalPlayerSubsystem* GetEnhancedInputLocalPlayerSubsystem(const UObject* WorldContextObject);
 public:
 
 	// 直接从地形表中读取地形原始数据

@@ -100,7 +100,7 @@ ACookieLandBaseCueActor* UCookieLandBasePieceAction::CreateCueActor(UCookieLandB
 {
 	if (!InPieceAction)
 	{
-		return;
+		return nullptr;
 	}
 
 	FCueActorData OutCueActorData;
@@ -146,7 +146,7 @@ void UCookieLandBasePieceAction::AddCueActor(ACookieLandBaseCueActor* InCueActor
 	InCueActor->Init(this, InCueActorData);
 }
 
-ACookieLandBaseCueActor* UCookieLandBasePieceAction::DestroyCueActor(UCookieLandBasePieceAction* InPieceAction, ACookieLandBaseCueActor* InCueActor)
+void UCookieLandBasePieceAction::DestroyCueActor(UCookieLandBasePieceAction* InPieceAction, ACookieLandBaseCueActor* InCueActor)
 {
 	if (!InPieceAction || !InCueActor)
 	{
