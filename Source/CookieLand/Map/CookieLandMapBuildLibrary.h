@@ -78,10 +78,10 @@ public:
 	static void GetRectPieceLocators(TArray< FCookieLandPieceLocator>& OutLocators, FCookieLandPieceLocator CenterLocator, int FloorDistance, bool bNeedOtherFloorLocator, int RoundDistance);
 
 	// 获取自身能否往上移动
-	static bool GetEnableMoveUpByMyself(const FCookieLandPieceBaseAction& BaseAction);
+	static bool GetEnableMoveUpByMyself(const FCookieLandPieceBaseAttribute& BaseAttribute);
 
 	// 获取自身能否往上移动
-	static bool GetEnableMoveDownByMyself(const FCookieLandPieceBaseAction& BaseAction);
+	static bool GetEnableMoveDownByMyself(const FCookieLandPieceBaseAttribute& BaseAttribute);
 
 	// 从感知者表中读取感知者数据
 	UFUNCTION(BlueprintPure)

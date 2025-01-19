@@ -114,7 +114,19 @@ void UCookieLandPiece::Init(FCookieLandPieceBuildInfo InBuildInfo)
 	BuildInfo = InBuildInfo;
 	PieceLocation = BuildInfo.PieceLocation;
 	PieceOrientation = BuildInfo.PieceOrientation;
-	BaseAction = BuildInfo.BaseAction;
+	BaseAttribute = BuildInfo.BaseAttribute;
+}
+
+void UCookieLandPiece::Active()
+{
+	for (int Index = 0; Index < BuildInfo.PieceActionDatas.Num(); ++Index)
+	{
+		UCookieLandBasePieceActionData* PieceActionData = BuildInfo.PieceActionDatas[Index];
+		if (PieceActionData)
+		{
+			AddPieceAction(PieceActionData);
+		}
+	}
 }
 
 void UCookieLandPiece::UnInit()
@@ -161,9 +173,9 @@ void UCookieLandPiece::SetPieceActorType(TSubclassOf< ACookieLandPieceActor> Pie
 	BuildInfo.PieceActorType = PieceActorType;
 }
 
-void UCookieLandPiece::SetBaseAction(FCookieLandPieceBaseAction InBaseAction)
+void UCookieLandPiece::SetBaseAttribute(FCookieLandPieceBaseAttribute InBaseAttribute)
 {
-	BaseAction = InBaseAction;
+	BaseAttribute = InBaseAttribute;
 }
 
 ACookieLandPieceActor* UCookieLandPiece::GetPieceAction()
@@ -186,9 +198,9 @@ FCookieLandPieceLocator UCookieLandPiece::GetPieceLocator()
 	return FCookieLandPieceLocator(PieceLocation, PieceOrientation);
 }
 
-FCookieLandPieceBaseAction UCookieLandPiece::GetBaseAction()
+FCookieLandPieceBaseAttribute UCookieLandPiece::GetBaseAttribute()
 {
-	return BaseAction;
+	return BaseAttribute;
 }
 
 FCookieLandPieceBuildInfo UCookieLandPiece::GetBuildInfo()

@@ -59,8 +59,8 @@ public:
 };
 
 // 基础ActionData
-UCLASS(Blueprintable, EditInlineNew)
-class COOKIELAND_API UCookieLandBasePieceActionData : public UObject
+UCLASS(Blueprintable)
+class COOKIELAND_API UCookieLandBasePieceActionData : public UDataAsset
 {
 	GENERATED_BODY()
 

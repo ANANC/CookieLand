@@ -70,3 +70,17 @@ UCookieLandPiece* ACookieLandBaseCueActor::GetPiece()
 	}
 	return nullptr;
 }
+
+UActorComponent* ACookieLandBaseCueActor::FindComponentByName(TSubclassOf<UActorComponent> InComponentType, FString InName)
+{
+	TSet<UActorComponent*> Components = GetComponents();
+	for (const TObjectPtr<UActorComponent>& Component : Components)
+	{
+		FString ComponentName = Component->GetName();
+		if (Component->GetClass() == InComponentType && ComponentName == InName)
+		{
+			return Component;
+		}
+	}
+	return nullptr;
+}

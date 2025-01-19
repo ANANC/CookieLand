@@ -13,6 +13,7 @@ void UCookieLandBasePieceAction::Init(int InId, UCookieLandPiece* InPiece, UCook
 	Id = InId;
 	Piece = InPiece;
 	BaseData = InData;
+	SetData(BaseData);
 }
 
 void UCookieLandBasePieceAction::SetData(UCookieLandBasePieceActionData* InData){}

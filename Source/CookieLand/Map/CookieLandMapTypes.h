@@ -116,7 +116,7 @@ public:
 
 // 基础行为
 USTRUCT(BlueprintType)
-struct FCookieLandPieceBaseAction
+struct FCookieLandPieceBaseAttribute
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -147,10 +147,10 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "地块类型"))
 	TSubclassOf< ACookieLandPieceActor> PieceActorType = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "基础行为"))
-	FCookieLandPieceBaseAction BaseAction;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "基础属性"))
+	FCookieLandPieceBaseAttribute BaseAttribute;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere,Instanced, meta = (DisplayName = "行为数据"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "行为数据"))
 	TArray< UCookieLandBasePieceActionData*>  PieceActionDatas;
 
 public:

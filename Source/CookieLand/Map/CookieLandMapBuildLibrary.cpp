@@ -380,11 +380,11 @@ void UCookieLandMapBuildLibrary::GetRectPieceLocators(TArray< FCookieLandPieceLo
 	}
 }
 
-bool UCookieLandMapBuildLibrary::GetEnableMoveUpByMyself(const FCookieLandPieceBaseAction& BaseAction)
+bool UCookieLandMapBuildLibrary::GetEnableMoveUpByMyself(const FCookieLandPieceBaseAttribute& BaseAttribute)
 {
-	for (int Index = 0; Index < BaseAction.EnableOrientations.Num(); ++Index)
+	for (int Index = 0; Index < BaseAttribute.EnableOrientations.Num(); ++Index)
 	{
-		ECookieLandPieceOrientation EnablePieceOrientation = BaseAction.EnableOrientations[Index];
+		ECookieLandPieceOrientation EnablePieceOrientation = BaseAttribute.EnableOrientations[Index];
 		if (EnablePieceOrientation == ECookieLandPieceOrientation::Up)
 		{
 			return true;
@@ -394,11 +394,11 @@ bool UCookieLandMapBuildLibrary::GetEnableMoveUpByMyself(const FCookieLandPieceB
 	return false;
 }
 
-bool UCookieLandMapBuildLibrary::GetEnableMoveDownByMyself(const FCookieLandPieceBaseAction& BaseAction)
+bool UCookieLandMapBuildLibrary::GetEnableMoveDownByMyself(const FCookieLandPieceBaseAttribute& BaseAttribute)
 {
-	for (int Index = 0; Index < BaseAction.EnableOrientations.Num(); ++Index)
+	for (int Index = 0; Index < BaseAttribute.EnableOrientations.Num(); ++Index)
 	{
-		ECookieLandPieceOrientation EnablePieceOrientation = BaseAction.EnableOrientations[Index];
+		ECookieLandPieceOrientation EnablePieceOrientation = BaseAttribute.EnableOrientations[Index];
 		if (EnablePieceOrientation == ECookieLandPieceOrientation::Down)
 		{
 			return true;

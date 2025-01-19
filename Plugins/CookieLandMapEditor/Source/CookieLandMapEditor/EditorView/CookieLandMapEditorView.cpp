@@ -346,11 +346,11 @@ TSharedPtr<SHorizontalBox> UCookieLandMapEditorView::Draw_ChessPieceContent(FCoo
 	if (Piece)
 	{
 		FName iconName;
-		if (UCookieLandMapBuildLibrary::GetEnableMoveUpByMyself(Piece->GetBaseAction()))
+		if (UCookieLandMapBuildLibrary::GetEnableMoveUpByMyself(Piece->GetBaseAttribute()))
 		{
 			iconName = "Icons.arrow-up";
 		}
-		if (UCookieLandMapBuildLibrary::GetEnableMoveDownByMyself(Piece->GetBaseAction()))
+		if (UCookieLandMapBuildLibrary::GetEnableMoveDownByMyself(Piece->GetBaseAttribute()))
 		{
 			iconName = "Icons.arrow-down";
 		}
@@ -879,9 +879,9 @@ void UCookieLandMapEditorView::PieceBuildInfoOnFinishedChangingPropertiesCallbac
 	{
 		MapBuildActor->ChangePieceActorType(SelectMapCube->SelectLocation, SelectMapCube->SelectOrientation, PieceBuildInfoEditor.PieceActorType);
 	}
-	if (MemberPropertyName == GET_MEMBER_NAME_CHECKED(FCookieLandPieceBuildInfo, BaseAction))
+	if (MemberPropertyName == GET_MEMBER_NAME_CHECKED(FCookieLandPieceBuildInfo, BaseAttribute))
 	{
-		Piece->SetBaseAction(PieceBuildInfoEditor.BaseAction);
+		Piece->SetBaseAttribute(PieceBuildInfoEditor.BaseAttribute);
 		DrawUpdateChessPiece(SelectMapCube->SelectLocation);
 	}
 	if (MemberPropertyName == GET_MEMBER_NAME_CHECKED(FCookieLandPieceBuildInfo, PieceActionDatas))

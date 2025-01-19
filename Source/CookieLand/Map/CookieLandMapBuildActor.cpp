@@ -156,6 +156,8 @@ void ACookieLandMapBuildActor::CreatePiece(const FCookieLandLocation PieceLocati
 		{
 			TryCreatePieceActorToPiece(PieceLocation, PieceOrientation);
 		}
+
+		Piece->Active();
 	}
 }
 

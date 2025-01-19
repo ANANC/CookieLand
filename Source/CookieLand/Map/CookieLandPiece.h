@@ -101,7 +101,7 @@ protected:
 	ECookieLandPieceOrientation PieceOrientation;
 
 	UPROPERTY(BlueprintReadWrite)
-	FCookieLandPieceBaseAction BaseAction;
+	FCookieLandPieceBaseAttribute BaseAttribute;
 
 protected:
 	bool bInit = false;
@@ -121,6 +121,8 @@ public:
 	virtual void Init(FCookieLandPieceBuildInfo InBuildInfo);
 	virtual void UnInit();
 
+	virtual void Active();
+
 	// 设置地图构建实例
 	void SetMapBuildActor(ACookieLandMapBuildActor* InMapBuildActor);
 
@@ -138,7 +140,7 @@ public:
 
 
 	// 设置基础行为
-	void SetBaseAction(FCookieLandPieceBaseAction InBaseAction);
+	void SetBaseAttribute(FCookieLandPieceBaseAttribute InBaseAttribute);
 
 	// 获取实例
 	ACookieLandPieceActor* GetPieceAction();
@@ -153,7 +155,7 @@ public:
 	FCookieLandPieceLocator GetPieceLocator();
 
 	// 获取基础行为
-	FCookieLandPieceBaseAction GetBaseAction();
+	FCookieLandPieceBaseAttribute GetBaseAttribute();
 
 	// 获取构建信息
 	FCookieLandPieceBuildInfo GetBuildInfo();

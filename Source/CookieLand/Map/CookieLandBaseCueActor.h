@@ -44,4 +44,17 @@ public:
 	UCookieLandBaseCueActorData* GetBaseData();
 
 	UCookieLandPiece* GetPiece();
+
+	UActorComponent* FindComponentByName(TSubclassOf<UActorComponent> InComponentType, FString InName);
+
+	template <class T>
+	T* GetComponentByName(FString InName)
+	{
+		if (UActorComponent* Component = FindComponentByName(T::StaticClass(),InName))
+		{
+			return dynamic_cast<T*>(Component);
+		}
+
+		return nullptr;
+	}
 };
