@@ -36,6 +36,8 @@ void UPieceAction_Move::Active()
 
 void UPieceAction_Move::Finish()
 {
+	UCookieLandPieceLibrary::RemoveActiveGameplayTag_Moving(Piece);
+
 	if (MoveTask)
 	{
 		MoveTask->FinishEvent.RemoveDynamic(this, &UPieceAction_Move::MoveTaskFinishEventCallback);
@@ -119,6 +121,8 @@ void UPieceAction_Move::PlayMoveTask()
 		Finish();
 		return;
 	}
+
+	UCookieLandPieceLibrary::AddActiveGameplayTag_Moving(Piece);
 
 	MoveTask->FinishEvent.AddDynamic(this, &UPieceAction_Move::MoveTaskFinishEventCallback);
 

@@ -8,7 +8,7 @@
 #include "Runtime/GameplayTags/Classes/GameplayTagContainer.h"
 #include "CookieLandActionTypes.generated.h"
 
-#define GET_GAMEPLAY_TAG(TagName) FGameplayTag::RequestGameplayTag(TagName)
+#define GET_GAMEPLAY_TAG(TagName) FGameplayTag::RequestGameplayTag(FName(TagName))
 
 
 // -- Task --
@@ -54,7 +54,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "CueActor类型"))
 	TSubclassOf< ACookieLandBaseCueActor> CueActorType = nullptr;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "CueActor数据"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere,Instanced, meta = (DisplayName = "CueActor数据"))
 	UCookieLandBaseCueActorData* CueActorData = nullptr;
 };
 

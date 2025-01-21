@@ -59,6 +59,7 @@ public:
 
 	TSharedPtr<SVerticalBox> SelectContextVerticalBox;
 	TSharedPtr<SVerticalBox> SelectPieceContextVerticalBox;
+	TSharedPtr<SVerticalBox> SelectPieceDetailContextVerticalBox;
 
 	FText ForceLineNumberText;
 
@@ -139,8 +140,14 @@ protected:
 	// 更新 地图构建页-选中详情-方位块
 	void DrawUpdateSelectOrientation(ECookieLandPieceOrientation Orientation);
 
+	// 更新 地图构建页-选中详情
+	void DrawUpdateSelect();
+
 	// 更新 地图构建页-选中详情-棋子
 	void DrawUpdateSelectPieceContext();
+
+	// 更新 地图构建页-选中详情-棋子配置
+	void DrawUpdateSelectPieceDetailContext();
 
 	// 渲染 地图构建页-选中详情-强制连接
 	TSharedPtr<SVerticalBox> Draw_ForceLinkContext();

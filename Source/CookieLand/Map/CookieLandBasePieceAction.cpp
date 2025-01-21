@@ -7,6 +7,7 @@
 #include "CookieLandMapBuilder.h"
 #include "CookieLandBaseAnimTask.h"
 #include "CookieLandBaseCueActor.h"
+#include "CookieLand/Map/CookieLandMapBuildLibrary.h"
 
 void UCookieLandBasePieceAction::Init(int InId, UCookieLandPiece* InPiece, UCookieLandBasePieceActionData* InData)
 {
@@ -120,6 +121,18 @@ ACookieLandBaseCueActor* UCookieLandBasePieceAction::CreateCueActor(UCookieLandB
 		return nullptr;
 	}
 
+	ACookieLandPieceActor* PieceActor = InPieceAction->GetPiece()->GetPieceActor();
+	if (!PieceActor)
+	{
+		return nullptr;
+	}
+
+	UWorld* World = InPieceAction->GetPiece()->GetPieceActor()->GetWorld();
+	if (!World)
+	{
+		return nullptr;
+	}
+
 	FTransform InitTransfrom;
 
 	FActorSpawnParameters SpawnParameters;
@@ -128,12 +141,21 @@ ACookieLandBaseCueActor* UCookieLandBasePieceAction::CreateCueActor(UCookieLandB
 	{
 		if (InBaseData->bAttachPieceActor)
 		{
-			SpawnParameters.Owner = InPieceAction->GetPiece()->GetPieceActor();
+			SpawnParameters.Owner = PieceActor;
+			SpawnParameters.Instigator = PieceActor->GetInstigator();
 		}
 	}
 
-	AActor* InstanceActor = InPieceAction->GetWorld()->SpawnActor(CueActorType, &InitTransfrom, SpawnParameters);
+	AActor* InstanceActor = World->SpawnActor(CueActorType, &InitTransfrom, SpawnParameters);
 	ACookieLandBaseCueActor* CueActor = Cast<ACookieLandBaseCueActor>(InstanceActor);
+
+	if (InBaseData)
+	{
+		if (InBaseData->bAttachPieceActor)
+		{
+			CueActor->AttachToActor(PieceActor, FAttachmentTransformRules::KeepRelativeTransform);
+		}
+	}
 
 	InPieceAction->AddCueActor(CueActor, InBaseData);
 

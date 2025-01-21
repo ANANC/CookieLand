@@ -50,6 +50,10 @@ public:
 
 	// 计算地块坐标
 	UFUNCTION(BlueprintPure)
+	static FVector CalculatePieceActorInstanceLocationByPiece(UCookieLandPiece* InPiece);
+
+	// 计算地块坐标
+	UFUNCTION(BlueprintPure)
 	static FVector CalculatePieceActorInstanceLocation(const FCookieLandMapBuildInfo& InMapBuildInfo,const FCookieLandLocation& PieceLocation, const ECookieLandPieceOrientation& PieceOrientation);
 
 	// 计算地块的旋转

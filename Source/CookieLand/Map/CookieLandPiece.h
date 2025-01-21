@@ -4,8 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
-#include "CookieLandMapTypes.h"
+#include "CookieLandActionTypes.h"
 #include "GameplayTagContainer.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 #include "CookieLandPiece.generated.h"
 
 class UCookieLandPiece;
@@ -193,4 +194,29 @@ protected:
 
 	// 根据类型获取地块行为
 	UCookieLandBasePieceAction* GetPieceActionById(int InId);
+};
+
+UCLASS()
+class COOKIELAND_API UCookieLandPieceLibrary : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+	UFUNCTION(BlueprintCallable)
+	static void AddActiveGameplayTag(UCookieLandPiece* InPiece, FGameplayTag InGameplayTag);
+
+	UFUNCTION(BlueprintCallable)
+	static void RemoveActiveGameplayTag(UCookieLandPiece* InPiece, FGameplayTag InGameplayTag);
+
+	UFUNCTION(BlueprintPure)
+	static bool HasActiveGameplayTag(UCookieLandPiece* InPiece, FGameplayTag InGameplayTag);
+
+#define TagFunction(TagName,TagValue) \
+	static void AddActiveGameplayTag_##TagName##(UCookieLandPiece* InPiece) { AddActiveGameplayTag(InPiece, GET_GAMEPLAY_TAG(##TagValue##)); }\
+	static void RemoveActiveGameplayTag_##TagName##(UCookieLandPiece* InPiece) { RemoveActiveGameplayTag(InPiece, GET_GAMEPLAY_TAG(##TagValue##)); }\
+	static bool HasActiveGameplayTag_##TagName##(UCookieLandPiece* InPiece) { return HasActiveGameplayTag(InPiece, GET_GAMEPLAY_TAG(##TagValue##)); }
+
+public:
+	TagFunction(Moving, "Piece.Action.Move");
+
 };

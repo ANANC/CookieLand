@@ -27,27 +27,12 @@ void ACookieLandBaseCueActor::BeginDestroy()
 
 void ACookieLandBaseCueActor::Init(UCookieLandBasePieceAction* InAction, UCookieLandBaseCueActorData* InBaseData)
 {
-	if (bInit)
-	{
-		return;
-	}
-
-	bInit = true;
-	bUnInit = false;
-
 	Action = InAction;
 	BaseData = InBaseData;
 }
 
 void ACookieLandBaseCueActor::UnInit()
 {
-	if (bUnInit)
-	{
-		return;
-	}
-
-	bUnInit = true;
-
 	Action = nullptr;
 	BaseData = nullptr;
 }

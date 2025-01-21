@@ -345,3 +345,37 @@ bool UCookieLandPiece::HasActiveGameplayTag(FGameplayTag InGameplayTag)
 
 
 #pragma endregion
+
+
+#pragma region UCookieLandPieceLibrary
+
+void UCookieLandPieceLibrary::AddActiveGameplayTag(UCookieLandPiece* InPiece, FGameplayTag InGameplayTag)
+{
+	if (!InPiece)
+	{
+		return;
+	}
+
+	InPiece->AddActiveGameplayTag(InGameplayTag);
+}
+void UCookieLandPieceLibrary::RemoveActiveGameplayTag(UCookieLandPiece* InPiece, FGameplayTag InGameplayTag)
+{
+	if (!InPiece)
+	{
+		return;
+	}
+
+	InPiece->RemoveActiveGameplayTag(InGameplayTag);
+}
+
+bool UCookieLandPieceLibrary::HasActiveGameplayTag(UCookieLandPiece* InPiece, FGameplayTag InGameplayTag)
+{
+	if (!InPiece)
+	{
+		return false;
+	}
+
+	bool bHas = InPiece->HasActiveGameplayTag(InGameplayTag);
+	return bHas;
+}
+#pragma endregion

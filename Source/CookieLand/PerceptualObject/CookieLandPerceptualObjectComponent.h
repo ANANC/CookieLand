@@ -63,4 +63,10 @@ public:
 	// 设置移动目标坐标
 	UFUNCTION(BlueprintCallable)
 	void SetLocator(FCookieLandPieceLocator InLocator);
+
+	// 获取当前坐标
+	FCookieLandPieceLocator GetLocator();
+
+	// 获取当前位置
+	FCookieLandLocation GetLocation();
 };

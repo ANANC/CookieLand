@@ -6,6 +6,10 @@
 #include "EnhancedInputSubsystems.h"
 #include "CookieLand/Map/CookieLandMapBuildLibrary.h"
 #include "CookieLandPerceptualObjectComponent.h"
+#include "CookieLand/Map/CookieLandMapBuildActor.h"
+#include "CookieLand/Map/CookieLandMapBuilder.h"
+#include "CookieLand/Map/CookieLandPiece.h"
+#include "CookieLand/Map/CookieLandMapActorGather.h"
 
 // Sets default values for this component's properties
 UPerceptualObjectInputComponent::UPerceptualObjectInputComponent()
@@ -30,6 +34,11 @@ void UPerceptualObjectInputComponent::BeginPlay()
 	}
 
 	PerceptualObjectComponent = GetOwner()->GetComponentByClass<UCookieLandPerceptualObjectComponent>();
+}
+
+void UPerceptualObjectInputComponent::Init(ACookieLandMapBuildActor* InMapBuildActor)
+{
+	MapBuildActor = InMapBuildActor;
 }
 
 void UPerceptualObjectInputComponent::MoveActionTriggerCallback(const FInputActionValue& OutValue)
@@ -59,22 +68,56 @@ void UPerceptualObjectInputComponent::MoveActionTriggerCallback(const FInputActi
 		{
 			return;
 		}
+
+		FCookieLandPieceLocator CurrentLocator = PerceptualObjectComponent->GetLocator();
+
+		UCookieLandMapActorGather* MapActorGather = MapBuildActor->GetMapActorGather();
+		UCookieLandPiece* CurrentPiece = MapActorGather->GetPiece(CurrentLocator.PieceLocation, CurrentLocator.PieceOrientation);
+		if (!CurrentPiece)
+		{
+			return;
+		}
+
 		// 地块上下时不允许移动
+		if (UCookieLandPieceLibrary::HasActiveGameplayTag_Moving(CurrentPiece))
+		{
+			return;
+		}
+
 
 		//判断是否走到边缘
 		// 交给pieceactor进行判断
 		{
 			// 判断能否转向该方向
-			FCookieLandLocation OutLocation;
+			FCookieLandPieceLocator OutLocation;
 			if (!GetNextPiece(Orientation, OutLocation))
 			{
 				return;
 			}
 		}
+
+		// 移动
+		/*FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
+		ControlledPawn->AddMovementInput(WorldDirection, 1.0, false);*/
 	}
 }
 
-bool UPerceptualObjectInputComponent::GetNextPiece(ECookieLandPieceOrientation Orientation, FCookieLandLocation& OutLocation)
+bool UPerceptualObjectInputComponent::GetNextPiece(ECookieLandPieceOrientation Orientation, FCookieLandPieceLocator& OutLocator)
 {
+	if (!PerceptualObjectComponent)
+	{
+		return false;
+	}
+
+	OutLocator = PerceptualObjectComponent->GetLocator();
+	OutLocator.PieceLocation.AddDistanceBySixDirection(Orientation, 1);
+
+	UCookieLandMapBuilder* Builder = MapBuildActor->GetMapBuilder();
+
+	if (Builder->GetIsPieceOccupyByLocator(OutLocator.PieceLocation, OutLocator.PieceOrientation))
+	{
+		return true;
+	}
+
 	return false;
 }

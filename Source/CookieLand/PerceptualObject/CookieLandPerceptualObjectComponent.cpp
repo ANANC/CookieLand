@@ -94,3 +94,13 @@ void UCookieLandPerceptualObjectComponent::SetLocator(FCookieLandPieceLocator In
 		PerceptualObjectSubsystem->UpdatePerceptualObjectLocator(PerceptualObjectId, InLocator);
 	}
 }
+
+FCookieLandPieceLocator UCookieLandPerceptualObjectComponent::GetLocator()
+{
+	return FCookieLandPieceLocator(MapCubeLocation, PieceOrientation);
+}
+
+FCookieLandLocation UCookieLandPerceptualObjectComponent::GetLocation()
+{
+	return MapCubeLocation;
+}

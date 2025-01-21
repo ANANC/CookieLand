@@ -30,9 +30,6 @@ protected:
 	UPROPERTY()
 	TObjectPtr< UCookieLandBaseCueActorData> BaseData;
 
-	bool bInit = false;
-	bool bUnInit = false;
-
 public:
 	virtual void Init(UCookieLandBasePieceAction* InAction, UCookieLandBaseCueActorData* InBaseData);
 	virtual void UnInit();

@@ -3,10 +3,12 @@
 
 #include "CookieLandMapBuildLibrary.h"
 #include "CookieLand/Global/CookieLandGlobal.h"
+#include "CookieLandMapBuildActor.h"
 #include "CookieLandPiece.h"
 #include "CookieLand/PerceptualObject/CookieLandPerceptualObjectSubsystem.h"
 #include "CookieLandMapSubsystem.h"
 #include "Kismet/GameplayStatics.h"
+#include "EnhancedInput/Public/EnhancedInputSubsystems.h"
 
 UCookieLandPerceptualObjectSubsystem* UCookieLandMapBuildLibrary::GetPerceptualObjectSubsystem()
 {
@@ -137,6 +139,12 @@ ACookieLandPieceActor* UCookieLandMapBuildLibrary::CreatePieceActorInstanceByBui
 
 	AActor* InstanceActor = ObjectInstance->GetWorld()->SpawnActor(PieceActorType, &InitTransfrom, SpawnParameters);
 	return Cast< ACookieLandPieceActor>(InstanceActor);
+}
+
+FVector UCookieLandMapBuildLibrary::CalculatePieceActorInstanceLocationByPiece(UCookieLandPiece* InPiece)
+{
+	ACookieLandMapBuildActor* MapBuildActor = InPiece->GetMapBuildActor();
+	return CalculatePieceActorInstanceLocation(MapBuildActor->MapBuildInfo, InPiece->GetPieceLocation(), InPiece->GetPieceOrientation());
 }
 
 FVector UCookieLandMapBuildLibrary::CalculatePieceActorInstanceLocation(const FCookieLandMapBuildInfo& InMapBuildInfo, const FCookieLandLocation& PieceLocation, const ECookieLandPieceOrientation& PieceOrientation)
