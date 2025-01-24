@@ -39,6 +39,8 @@ protected:
 
 	int AutoTaskId = 0;
 
+	bool bActiving = false;
+
 public:
 	// 时机： Init -> Active -> Finish -> UnInit
 
@@ -51,6 +53,9 @@ public:
 	virtual void Active();
 	// 结束
 	virtual void Finish();
+
+	// 是否激活状态
+	bool GetActiving();
 
 	// -- base data --
 public:

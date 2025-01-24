@@ -56,11 +56,15 @@ public:
 	void RemovePiece(const FCookieLandLocation PieceLocation);
 };
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FCookieLandMapLocatorOccupyStateChangeEvent, FCookieLandPieceLocator, Locator, bool, Occupy);
+
 UCLASS()
 class COOKIELAND_API UCookieLandMapBuilder : public UObject
 {
 	GENERATED_BODY()
 	
+public:
+	FCookieLandMapLocatorOccupyStateChangeEvent MapLocatorOccupyStateChangeEvent;
 
 protected:
 	UPROPERTY()

@@ -151,7 +151,7 @@ public:
 	FCookieLandPieceBaseAttribute BaseAttribute;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (DisplayName = "行为数据"))
-	TArray< UCookieLandBasePieceActionData*>  PieceActionDatas;
+	TArray< TObjectPtr<UCookieLandBasePieceActionData>>  PieceActionDatas;
 
 public:
 	FCookieLandPieceBuildInfo(){}

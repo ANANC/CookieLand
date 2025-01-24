@@ -103,7 +103,10 @@ void ACookieLandPieceActor::EnterPiece(UCookieLandPerceptualObjectComponent* Per
 	PerceptualObjectComponent->SetLocator(GetLocator());
 }
 
-
+bool ACookieLandPieceActor::GetOnEdge_Implementation(FVector Location)
+{
+	return false;
+}
 #pragma endregion
 
 #pragma region UCookieLandPiece
@@ -263,6 +266,10 @@ void UCookieLandPiece::RemovePieceActionById(int InId)
 		return;
 	}
 
+	if (PieceAction->GetActiving())
+	{
+		PieceAction->Finish();
+	}
 	PieceAction->UnInit();
 
 	PieceActions.Remove(PieceAction);

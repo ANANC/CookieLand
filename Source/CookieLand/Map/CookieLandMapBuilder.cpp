@@ -112,6 +112,11 @@ bool UCookieLandMapBuilder::OccupyPieceByLocation(const FCookieLandLocation MapC
 
 	UpdateMapRange(true, MapCubeLocation, PieceOrientation);
 
+	if (MapLocatorOccupyStateChangeEvent.IsBound())
+	{
+		MapLocatorOccupyStateChangeEvent.Broadcast(FCookieLandPieceLocator(MapCubeLocation, PieceOrientation),true);
+	}
+
 	return true;
 }
 
@@ -126,6 +131,11 @@ bool UCookieLandMapBuilder::ReleasePieceByLocation(const FCookieLandLocation Map
 
 	UCookieLandMapCubeInfo* MapCubeInfo = CreateOrGetMapCubeInfo(MapCubeLocation);
 	MapCubeInfo->ReleasePiece(PieceOrientation);
+
+	if (MapLocatorOccupyStateChangeEvent.IsBound())
+	{
+		MapLocatorOccupyStateChangeEvent.Broadcast(FCookieLandPieceLocator(MapCubeLocation, PieceOrientation), false);
+	}
 
 	return true;
 }

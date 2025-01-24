@@ -21,6 +21,7 @@ void UCookieLandBasePieceAction::SetData(UCookieLandBasePieceActionData* InData)
 
 void UCookieLandBasePieceAction::Active()
 {
+	bActiving = true;
 }
 
 void UCookieLandBasePieceAction::Finish()
@@ -29,6 +30,13 @@ void UCookieLandBasePieceAction::Finish()
 	{
 		Piece->RemovePieceActionById(Id);
 	}
+
+	bActiving = false;
+}
+
+bool UCookieLandBasePieceAction::GetActiving()
+{
+	return bActiving;
 }
 
 void UCookieLandBasePieceAction::UnInit()

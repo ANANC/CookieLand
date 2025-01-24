@@ -11,6 +11,7 @@
 class UEnhancedInputComponent;
 class UCookieLandPerceptualObjectComponent;
 class ACookieLandMapBuildActor;
+class ABasePerceptualObjectController;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class COOKIELAND_API UPerceptualObjectInputComponent : public UActorComponent
@@ -39,15 +40,19 @@ protected:
 	UPROPERTY()
 	TObjectPtr< UCookieLandPerceptualObjectComponent> PerceptualObjectComponent;
 
-	UPROPERTY()
-	TObjectPtr< ACookieLandMapBuildActor> MapBuildActor;
-
 public:
-	void Init(ACookieLandMapBuildActor* InMapBuildActor);
+	void SetupInputComponent(UEnhancedInputComponent* InEnhancedInputComponent);
 
+	void SetPawn(APawn* InPawn);
 protected:
 	UFUNCTION()
 	void MoveActionTriggerCallback(const FInputActionValue& OutValue);
 
 	bool GetNextPiece(ECookieLandPieceOrientation Orientation, FCookieLandPieceLocator& OutLocator);
+
+	TObjectPtr<ACookieLandMapBuildActor> GetMainMapBuildActor();
+
+	ABasePerceptualObjectController* GetController();
+
+	ACharacter* GetCharacter();
 };

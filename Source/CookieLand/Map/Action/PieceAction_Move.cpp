@@ -27,7 +27,15 @@ void UPieceAction_Move::Active()
 
 	if (StartLocator == EndLocator)
 	{
-		Finish();
+		UCookieLandMapBuilder* MapBuilder = GetMapBuilder();
+		if(MapBuilder)
+		{
+			MapBuilder->MapLocatorOccupyStateChangeEvent.AddDynamic(this, &UPieceAction_Move::ReceiveMapLocatorOccupyStateChangeEventCallback);
+		}
+		else
+		{
+			Finish();
+		}
 		return;
 	}
 
@@ -36,6 +44,11 @@ void UPieceAction_Move::Active()
 
 void UPieceAction_Move::Finish()
 {
+	UCookieLandMapBuilder* MapBuilder = GetMapBuilder();
+	if (MapBuilder)
+	{
+		MapBuilder->MapLocatorOccupyStateChangeEvent.RemoveDynamic(this, &UPieceAction_Move::ReceiveMapLocatorOccupyStateChangeEventCallback);
+	}
 	UCookieLandPieceLibrary::RemoveActiveGameplayTag_Moving(Piece);
 
 	if (MoveTask)
@@ -149,6 +162,22 @@ void UPieceAction_Move::MoveTaskFinishEventCallback()
 	Finish();
 }
 
+
+void UPieceAction_Move::ReceiveMapLocatorOccupyStateChangeEventCallback(FCookieLandPieceLocator Locator, bool Occupy)
+{
+	EndLocator = GetMoveTarget();
+
+	if (StartLocator != EndLocator)
+	{
+		UCookieLandMapBuilder* MapBuilder = GetMapBuilder();
+		if (MapBuilder)
+		{
+			MapBuilder->MapLocatorOccupyStateChangeEvent.RemoveDynamic(this, &UPieceAction_Move::ReceiveMapLocatorOccupyStateChangeEventCallback);
+		}
+		TryTrigger(Data->Trigger);
+	}
+}
+
 #pragma endregion
 
 #pragma region UPieceAction_MoveBackAndForth
@@ -160,14 +189,25 @@ UPieceActionData_MoveBackAndForth* UPieceAction_MoveBackAndForth::GetMyData()
 
 void UPieceAction_MoveBackAndForth::MoveTaskFinishEventCallback()
 {
-	FCookieLandPieceLocator RecordStartLocator = StartLocator;
 	StartLocator = EndLocator;
-	EndLocator = StartLocator;
-
 	MoveOrientation = UCookieLandMapBuildLibrary::GetOppositeOrientation(MoveOrientation);
+	EndLocator = GetMoveTarget();
+
+	if (StartLocator == EndLocator)
+	{
+		UCookieLandMapBuilder* MapBuilder = GetMapBuilder();
+		if (MapBuilder)
+		{
+			MapBuilder->MapLocatorOccupyStateChangeEvent.AddDynamic(this, &UPieceAction_Move::ReceiveMapLocatorOccupyStateChangeEventCallback);
+		}
+		else
+		{
+			Finish();
+		}
+		return;
+	}
 
 	UPieceActionData_MoveBackAndForth* MyData = GetMyData();
 	TryTrigger(MyData->AgainTrigger);
-
 }
 #pragma endregion

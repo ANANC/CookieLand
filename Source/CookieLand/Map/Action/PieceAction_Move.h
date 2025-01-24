@@ -39,7 +39,7 @@ protected:
 	UPROPERTY()
 	UAnimTask_Move* MoveTask = nullptr;//移动Task
 protected:
-	//获取移动目标点
+	// 获取移动目标点
 	FCookieLandPieceLocator GetMoveTarget();
 
 	// 尝试触发
@@ -55,6 +55,10 @@ protected:
 	// 接收感知者位移
 	UFUNCTION()
 	virtual void ReceivePerceptualObjectLocatorChangeEventCallback(int InId, FCookieLandPieceLocator OldLocator, FCookieLandPieceLocator NewLocator);
+public:
+	// 接收地块变化
+	UFUNCTION()
+	virtual void ReceiveMapLocatorOccupyStateChangeEventCallback(FCookieLandPieceLocator Locator, bool Occupy);
 };
 
 

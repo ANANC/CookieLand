@@ -903,6 +903,8 @@ void UCookieLandMapEditorView::PieceBuildInfoOnFinishedChangingPropertiesCallbac
 
 	FCookieLandPieceBuildInfo PieceBuildInfoEditor = *(SelectMapCube->SelectPieceBuildInfoParameterValue->Cast<FCookieLandPieceBuildInfo>());
 
+	Piece->Init(PieceBuildInfoEditor);
+
 	FProperty* MemberProperty = PropertyChangedEvent.MemberProperty;
 	FString MemberPropertyName = MemberProperty->GetName();
 

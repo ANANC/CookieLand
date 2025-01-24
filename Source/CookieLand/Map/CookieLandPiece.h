@@ -71,6 +71,12 @@ public:
 	// 进入地块
 	virtual void EnterPiece(UCookieLandPerceptualObjectComponent* PerceptualObjectComponent);
 
+	// 判断是否在边缘
+	UFUNCTION(BlueprintNativeEvent)
+	bool GetOnEdge(FVector Location);
+
+	virtual bool GetOnEdge_Implementation(FVector Location);
+
 protected:
 
 	// 接收回调【MapShowDirector】TriggerPieceActorRenderUpdateEvent 更新地块刷新
@@ -212,9 +218,9 @@ public:
 	static bool HasActiveGameplayTag(UCookieLandPiece* InPiece, FGameplayTag InGameplayTag);
 
 #define TagFunction(TagName,TagValue) \
-	static void AddActiveGameplayTag_##TagName##(UCookieLandPiece* InPiece) { AddActiveGameplayTag(InPiece, GET_GAMEPLAY_TAG(##TagValue##)); }\
-	static void RemoveActiveGameplayTag_##TagName##(UCookieLandPiece* InPiece) { RemoveActiveGameplayTag(InPiece, GET_GAMEPLAY_TAG(##TagValue##)); }\
-	static bool HasActiveGameplayTag_##TagName##(UCookieLandPiece* InPiece) { return HasActiveGameplayTag(InPiece, GET_GAMEPLAY_TAG(##TagValue##)); }
+	static void AddActiveGameplayTag_##TagName##(UCookieLandPiece* InPiece) { AddActiveGameplayTag(InPiece, GET_GAMEPLAY_TAG(TagValue)); }\
+	static void RemoveActiveGameplayTag_##TagName##(UCookieLandPiece* InPiece) { RemoveActiveGameplayTag(InPiece, GET_GAMEPLAY_TAG(TagValue)); }\
+	static bool HasActiveGameplayTag_##TagName##(UCookieLandPiece* InPiece) { return HasActiveGameplayTag(InPiece, GET_GAMEPLAY_TAG(TagValue)); }
 
 public:
 	TagFunction(Moving, "Piece.Action.Move");
